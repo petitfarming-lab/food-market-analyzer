@@ -215,7 +215,7 @@ with st.sidebar:
 # ============================================================
 # 메인 콘텐츠
 # ============================================================
-MANUAL_URL = "https://raw.githubusercontent.com/petitfarming-lab/food-market-analyzer/main/식품분석대시보드_사용설명서.pdf"
+MANUAL_URL = "https://raw.githubusercontent.com/petitfarming-lab/food-market-analyzer/main/manual.pdf"
 
 st.markdown(f"""
 <div style="display:flex; justify-content:space-between; align-items:center;
