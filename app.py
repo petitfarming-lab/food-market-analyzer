@@ -793,9 +793,8 @@ with main_tab2:
 PRDLST_API_BASE = "https://openapi.foodsafetykorea.go.kr/api"
 
 PRDLST_SERVICE_MAP = {
-    "C005":  "가공식품",
     "C006":  "축산물",
-    "I1250": "식품첨가물",
+    "I1250": "식품/식품첨가물",
     "I0030": "건강기능식품",
 }
 
