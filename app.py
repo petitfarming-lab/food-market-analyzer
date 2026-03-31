@@ -50,6 +50,14 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed",
 )
+# 사이드바 완전 숨김 + 전체 레이아웃 조정
+st.markdown("""
+<style>
+  [data-testid="stSidebar"] { display: none !important; }
+  [data-testid="collapsedControl"] { display: none !important; }
+  .block-container { padding-top: 1rem !important; }
+</style>
+""", unsafe_allow_html=True)
 
 # ============================================================
 # 커스텀 CSS
@@ -123,8 +131,16 @@ init_session()
 
 
 # ============================================================
-# 사이드바 - 설정
+# 사이드바 - 숨김 처리 (변수 기본값만 유지)
 # ============================================================
+fnb_id = fnb_pw = bls_id = bls_pw = ""
+keyword = ""
+start_date = date.today() - timedelta(days=365)
+end_date = date.today()
+max_products = 50
+headless_mode = True
+run_btn = False
+
 with st.sidebar:
     st.markdown("## ⚙️ 설정")
     st.divider()
@@ -199,11 +215,22 @@ with st.sidebar:
 # ============================================================
 # 메인 콘텐츠
 # ============================================================
-st.markdown('<div class="main-title">🍖 식품 시장 분석 대시보드</div>', unsafe_allow_html=True)
-st.markdown(
-    '<div class="sub-title">푸드앤비드 수도권 매출 + 블루시스마켓 상품 데이터 통합 분석</div>',
-    unsafe_allow_html=True
-)
+MANUAL_URL = "https://raw.githubusercontent.com/petitfarming-lab/food-market-analyzer/main/식품분석대시보드_사용설명서.pdf"
+
+st.markdown(f"""
+<div style="display:flex; justify-content:space-between; align-items:center;
+            background:#1B3A6B; padding:10px 20px; border-radius:8px; margin-bottom:12px;">
+  <span style="color:white; font-size:0.82rem; letter-spacing:0.04em;">
+    © 2026 CJ CheilJedang B2B Marketing
+  </span>
+  <a href="{MANUAL_URL}" target="_blank"
+     style="color:#90C4F5; font-size:0.82rem; text-decoration:none; font-weight:600;
+            border:1px solid #4A7BC4; padding:4px 12px; border-radius:4px;">
+    📄 사용 설명서 다운로드
+  </a>
+</div>
+<div class="main-title">🍖 식품 분석 대시보드</div>
+""", unsafe_allow_html=True)
 
 # ============================================================
 # 메인 탭 분리
@@ -621,29 +648,7 @@ with main_tab1:
                 )
                 st.caption(f"파일명: {filename}")
     else:
-        st.markdown("""
-        ### 사용 방법
-
-        1. **왼쪽 사이드바**에 푸드앤비드 / 블루시스마켓 로그인 정보를 입력합니다.
-        2. **제품 키워드**를 입력합니다. (예: `돈까스`, `소시지`, `비엔나`, `후랑크`)
-        3. **조회 기간**을 선택합니다.
-        4. **데이터 수집 & 분석 시작** 버튼을 클릭합니다.
-
-        ---
-
-        ### 분석 결과
-        | 탭 | 내용 |
-        |---|---|
-        | 📊 매출 타입 분석 | 제품 타입별 수도권 매출 규모 및 비중 |
-        | 🏆 TOP 제품 | 매출 상위 20개 제품 |
-        | 🗺 지역별 분석 | 서울/경기/인천 지역별 드릴다운 |
-        | 🛒 상품 상세 | 블루시스마켓 상품 목록 및 필터 |
-        | 💡 경쟁력 분석 | 가격/함량/TIER/조리법 기반 기획 제안 |
-
-        ---
-
-        > **참고**: 처음 실행 시 브라우저 자동화로 각 사이트에 로그인 후 데이터를 수집합니다.
-        """)
+        pass
 
 
 # ============================================================
