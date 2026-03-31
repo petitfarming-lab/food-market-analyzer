@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+
+# 환경변수 (절대 올리지 말 것)
+.env
+.env.*
+
+# 디버그 파일
+debug_*.png
+*.png
+*.jpg
+
+# 로그
+SESSION_LOG.md
+
+# Windows 배치파일 (서버 불필요)
+install.bat
+run.bat
+
+# IDE
+.vscode/
+.idea/
+
+# 임시파일
+*.tmp
+*.bak

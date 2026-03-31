@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.git/
+.gitignore
+*.png
+*.jpg
+*.jpeg
+debug_*.png
+SESSION_LOG.md
+install.bat
+run.bat
+.env
