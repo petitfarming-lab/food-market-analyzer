@@ -109,6 +109,10 @@ def init_session():
         "foodspring_df": pd.DataFrame(),
         "foodspring_excel_bytes": None,
         "foodspring_done": False,
+        # 품목제조번호 조회 전용
+        "prdlst_api_key": "",
+        "prdlst_results": [],
+        "prdlst_excel_bytes": None,
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -204,7 +208,11 @@ st.markdown(
 # ============================================================
 # 메인 탭 분리
 # ============================================================
-main_tab1, main_tab2 = st.tabs(["📊 시장 분석 (푸드앤비드 + 블루시스)", "🛒 식봄 가격 조회"])
+main_tab1, main_tab2, main_tab3 = st.tabs([
+    "📊 시장 분석 (푸드앤비드 + 블루시스)",
+    "🛒 식봄 가격 조회",
+    "🔍 품목제조번호 조회",
+])
 
 
 # ============================================================
@@ -777,3 +785,337 @@ with main_tab2:
                     type="primary",
                     use_container_width=True,
                 )
+
+
+# ============================================================
+# main_tab3: 품목제조번호 조회
+# ============================================================
+PRDLST_API_BASE = "https://openapi.foodsafetykorea.go.kr/api"
+
+PRDLST_SERVICE_MAP = {
+    "C005":  "가공식품",
+    "C006":  "축산물",
+    "I1250": "식품첨가물",
+    "I0030": "건강기능식품",
+}
+
+PRDLST_FIELD_KO = {
+    "PRDLST_REPORT_NO": "품목보고번호", "PRMS_DT": "일자", "PRDLST_NM": "제품명",
+    "INDUTY_CD_NM": "유형", "POG_DAYCNT": "소비기한", "DISPOS": "제품형태",
+    "PACKING_UNIT_DESCRIP": "포장재질", "RAWMTRL_NM": "원재료명 및 함량",
+    "HIENG_LNTRT_DVS_NM": "내수/수출/겸용", "BSSH_NM": "업체명",
+    "SITE_ADDR": "소재지", "LCNS_NO": "허가번호", "CHNG_DT": "최종변경일",
+    "LAST_UPDT_DTM": "최종업데이트", "INDUTY_CD": "업종코드",
+    "PRDLST_DCNM": "식품유형(상세)", "PRODUCTION": "생산여부",
+    "USAGE": "용도", "RAW_MTRL_NM": "원재료명 및 함량",
+    "RAWMTRL_ORDNO": "원재료순번",
+}
+
+
+def prdlst_fetch_one(no: str, svc_code: str, api_key: str):
+    """품목제조번호 1건 조회. 성공 시 dict 반환, 실패 시 예외."""
+    import urllib.request, urllib.parse, json as _json
+    url = f"{PRDLST_API_BASE}/{api_key}/{svc_code}/json/1/200/PRDLST_REPORT_NO={urllib.parse.quote(no)}"
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=10) as r:
+        body = r.read()
+    if body.lstrip().startswith(b"<"):
+        raise ValueError("API 키가 유효하지 않거나 해당 서비스 권한이 없습니다.")
+    data = _json.loads(body)
+    svc_data = data.get(svc_code)
+    if not svc_data:
+        raise ValueError("응답 형식 오류")
+    code = svc_data.get("RESULT", {}).get("CODE", "")
+    if code == "INFO-200" or not svc_data.get("row"):
+        raise ValueError("조회 결과 없음")
+    if code.startswith("ERROR"):
+        raise ValueError(f"API 오류: {code}")
+    rows = svc_data["row"]
+    item = rows[0]
+
+    # 원재료 순서 처리
+    ingredients = []
+    if len(rows) > 1:
+        paired = [
+            {"name": (r.get("RAWMTRL_NM") or r.get("RAW_MTRL_NM") or "").strip(),
+             "order": int((r.get("RAWMTRL_ORDNO") or "9999").strip()) if str(r.get("RAWMTRL_ORDNO") or "9999").strip().isdigit() else 9999}
+            for r in rows if (r.get("RAWMTRL_NM") or r.get("RAW_MTRL_NM") or "").strip()
+        ]
+        paired.sort(key=lambda x: x["order"])
+        ingredients = [p["name"] for p in paired]
+    else:
+        raw = (item.get("RAWMTRL_NM") or item.get("RAW_MTRL_NM") or "").strip()
+        ordno_str = (item.get("RAWMTRL_ORDNO") or "").strip()
+        if raw:
+            names = [s.strip() for s in raw.split(",") if s.strip()]
+            if ordno_str:
+                ordnos = []
+                for s in ordno_str.split(","):
+                    s = s.strip()
+                    ordnos.append(int(s) if s.isdigit() else 9999)
+                paired2 = sorted(zip(names, ordnos), key=lambda x: x[1])
+                ingredients = [n for n, _ in paired2]
+            else:
+                ingredients = names
+
+    item["_ingredients"] = ingredients
+    item["_svc_code"] = svc_code
+    return item
+
+
+def build_prdlst_excel(results: list) -> bytes:
+    """품목제조번호 조회 결과를 엑셀로 변환. 원재료 열별 분리."""
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "품목제조번호조회"
+
+    header_font  = Font(name="맑은 고딕", bold=True, color="FFFFFF", size=10)
+    header_fill  = PatternFill("solid", start_color="1F4E79")
+    section_font = Font(name="맑은 고딕", bold=True, color="FFFFFF", size=10)
+    section_fill = PatternFill("solid", start_color="2E86AB")
+    cell_font    = Font(name="맑은 고딕", size=10)
+    alt_fill     = PatternFill("solid", start_color="EBF5FB")
+    center = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    left   = Alignment(horizontal="left",   vertical="center", wrap_text=True)
+    thin   = Side(style="thin", color="BFBFBF")
+    border = Border(left=thin, right=thin, top=thin, bottom=thin)
+
+    # 최대 원재료 수 계산
+    max_ing = max((len(r["item"].get("_ingredients", [])) for r in results if r.get("item")), default=0)
+
+    base_headers = [
+        "품목보고번호", "제품명", "유형", "업체명", "소재지",
+        "일자", "소비기한", "제품형태", "포장재질", "내수/수출/겸용",
+        "허가번호", "최종변경일", "식품유형(상세)", "생산여부", "용도",
+    ]
+    ing_headers = [f"원재료{i+1}" for i in range(max_ing)]
+    all_headers = base_headers + ing_headers + ["식품유형"]
+
+    for c_idx, h in enumerate(all_headers, 1):
+        cell = ws.cell(row=1, column=c_idx, value=h)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = center
+        cell.border = border
+        ws.column_dimensions[get_column_letter(c_idx)].width = 18 if c_idx <= len(base_headers) else 22
+
+    ws.column_dimensions["A"].width = 20
+    ws.column_dimensions["B"].width = 26
+    ws.column_dimensions["D"].width = 24
+    ws.column_dimensions["E"].width = 30
+    ws.row_dimensions[1].height = 22
+    ws.freeze_panes = "A2"
+
+    field_map = {
+        "품목보고번호": "PRDLST_REPORT_NO", "제품명": "PRDLST_NM",
+        "유형": "INDUTY_CD_NM", "업체명": "BSSH_NM", "소재지": "SITE_ADDR",
+        "일자": "PRMS_DT", "소비기한": "POG_DAYCNT", "제품형태": "DISPOS",
+        "포장재질": "PACKING_UNIT_DESCRIP", "내수/수출/겸용": "HIENG_LNTRT_DVS_NM",
+        "허가번호": "LCNS_NO", "최종변경일": "CHNG_DT",
+        "식품유형(상세)": "PRDLST_DCNM", "생산여부": "PRODUCTION", "용도": "USAGE",
+    }
+
+    for r_idx, res in enumerate(results, 2):
+        item = res.get("item")
+        row_fill = alt_fill if r_idx % 2 == 0 else None
+        if not item:
+            cell = ws.cell(row=r_idx, column=1, value=res.get("no", ""))
+            cell.font = cell_font
+            cell.border = border
+            err_cell = ws.cell(row=r_idx, column=2, value=f"조회 실패: {res.get('error','')}")
+            err_cell.font = Font(name="맑은 고딕", size=10, color="CC0000")
+            err_cell.border = border
+            continue
+
+        for c_idx, h in enumerate(base_headers, 1):
+            val = item.get(field_map.get(h, ""), "") or ""
+            cell = ws.cell(row=r_idx, column=c_idx, value=val)
+            cell.font = cell_font
+            cell.alignment = left
+            cell.border = border
+            if row_fill:
+                cell.fill = row_fill
+
+        # 원재료 열별 입력
+        ingredients = item.get("_ingredients", [])
+        for i, ing in enumerate(ingredients):
+            c_idx = len(base_headers) + i + 1
+            cell = ws.cell(row=r_idx, column=c_idx, value=ing)
+            cell.font = cell_font
+            cell.alignment = left
+            cell.border = border
+            if row_fill:
+                cell.fill = row_fill
+
+        # 식품유형(서비스코드)
+        svc = item.get("_svc_code", "")
+        last_col = len(base_headers) + max_ing + 1
+        cell = ws.cell(row=r_idx, column=last_col, value=PRDLST_SERVICE_MAP.get(svc, svc))
+        cell.font = cell_font
+        cell.alignment = center
+        cell.border = border
+        if row_fill:
+            cell.fill = row_fill
+
+    buf = io.BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    return buf.read()
+
+
+with main_tab3:
+    from datetime import datetime as _dt2
+
+    st.markdown("### 🔍 품목제조번호 조회 (식품안전나라)")
+    st.info("품목제조번호를 한 줄에 하나씩 입력하고 식품 유형을 선택 후 조회하세요. 최대 50개 일괄 조회 가능합니다.")
+
+    # ── API 키 설정 ──
+    with st.expander("🔑 API 인증키 설정", expanded=(not st.session_state.get("prdlst_api_key"))):
+        api_key_input = st.text_input(
+            "식품안전나라 OpenAPI 인증키",
+            value=st.session_state.get("prdlst_api_key", ""),
+            type="password",
+            placeholder="발급받은 인증키 입력",
+            key="prdlst_api_key_input",
+        )
+        col_save, col_link = st.columns([1, 2])
+        with col_save:
+            if st.button("저장", key="prdlst_save_key"):
+                st.session_state["prdlst_api_key"] = api_key_input.strip()
+                st.success("인증키 저장됨")
+        with col_link:
+            st.markdown("[식품안전나라 OpenAPI 신청 →](https://www.foodsafetykorea.go.kr/api/main.do)")
+
+    # ── 식품 유형 선택 ──
+    svc_label_map = {v: k for k, v in PRDLST_SERVICE_MAP.items()}
+    svc_selected_label = st.radio(
+        "식품 유형",
+        options=list(PRDLST_SERVICE_MAP.values()),
+        horizontal=True,
+        key="prdlst_svc_label",
+    )
+    svc_code_selected = svc_label_map[svc_selected_label]
+
+    # ── 번호 입력 ──
+    numbers_raw = st.text_area(
+        "품목제조번호 (한 줄에 하나)",
+        height=160,
+        placeholder="예:\n2013047600422\n2015040500139",
+        key="prdlst_numbers",
+    )
+
+    nos = [n.strip() for n in numbers_raw.strip().splitlines() if n.strip()]
+    st.caption(f"입력된 번호: **{len(nos)}개** (최대 50개)")
+
+    p3_run = st.button(
+        f"🔍 조회하기 ({len(nos)}개)",
+        type="primary",
+        disabled=(len(nos) == 0 or not st.session_state.get("prdlst_api_key")),
+        key="prdlst_run",
+    )
+    if not st.session_state.get("prdlst_api_key"):
+        st.caption("⚠️ 위에서 API 인증키를 먼저 저장하세요.")
+
+    if p3_run:
+        key = st.session_state["prdlst_api_key"]
+        nos_limited = nos[:50]
+        results_list = []
+        prog = st.progress(0)
+        status_ph = st.empty()
+        for i, no in enumerate(nos_limited):
+            status_ph.info(f"조회 중 [{i+1}/{len(nos_limited)}]: {no}")
+            try:
+                item = prdlst_fetch_one(no, svc_code_selected, key)
+                results_list.append({"no": no, "item": item, "error": None})
+            except Exception as e:
+                results_list.append({"no": no, "item": None, "error": str(e)})
+            prog.progress((i + 1) / len(nos_limited))
+        status_ph.success(f"✅ 조회 완료 ({len(nos_limited)}개)")
+        st.session_state["prdlst_results"] = results_list
+
+        ok_list = [r for r in results_list if r["item"]]
+        if ok_list:
+            try:
+                st.session_state["prdlst_excel_bytes"] = build_prdlst_excel(results_list)
+            except Exception as e:
+                logger.error(f"품목제조 엑셀 오류: {e}")
+        st.rerun()
+
+    # ── 결과 표시 ──
+    results_list = st.session_state.get("prdlst_results", [])
+    if results_list:
+        ok_cnt  = sum(1 for r in results_list if r["item"])
+        fail_cnt = len(results_list) - ok_cnt
+
+        m1, m2, m3 = st.columns(3)
+        m1.metric("총 조회", f"{len(results_list)}개")
+        m2.metric("✅ 성공", f"{ok_cnt}개")
+        m3.metric("❌ 실패", f"{fail_cnt}개")
+
+        if st.session_state.get("prdlst_excel_bytes"):
+            fname = f"품목제조조회_{_dt2.now().strftime('%Y%m%d_%H%M')}.xlsx"
+            dc1, dc2, dc3 = st.columns([1, 2, 1])
+            with dc2:
+                st.download_button(
+                    label="📥 엑셀 다운로드",
+                    data=st.session_state["prdlst_excel_bytes"],
+                    file_name=fname,
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    type="primary",
+                    use_container_width=True,
+                )
+
+        st.divider()
+
+        for res in results_list:
+            no   = res["no"]
+            item = res.get("item")
+            err  = res.get("error")
+
+            if not item:
+                st.error(f"❌ {no} — {err}")
+                continue
+
+            prod_nm = item.get("PRDLST_NM") or item.get("PRDLST_REPORT_NO") or no
+            bssh_nm = item.get("BSSH_NM", "")
+            svc_lbl = PRDLST_SERVICE_MAP.get(item.get("_svc_code", ""), "")
+
+            with st.expander(f"🔎 {prod_nm}  [{svc_lbl}]", expanded=(ok_cnt == 1)):
+                # 인허가 정보
+                st.markdown("**인허가 정보**")
+                ic1, ic2 = st.columns(2)
+                ic1.markdown(f"**업체명** : {bssh_nm}")
+                ic2.markdown(f"**소재지** : {item.get('SITE_ADDR','')}")
+                st.divider()
+
+                # 제품 정보
+                st.markdown("**제품 정보**")
+                r1c1, r1c2 = st.columns(2)
+                r1c1.markdown(f"**품목보고번호** : {item.get('PRDLST_REPORT_NO','')}")
+                r1c2.markdown(f"**일자** : {item.get('PRMS_DT','')}")
+                r2c1, r2c2 = st.columns(2)
+                r2c1.markdown(f"**제품명** : {item.get('PRDLST_NM','')}")
+                r2c2.markdown(f"**소비기한** : {item.get('POG_DAYCNT','')}")
+                r3c1, r3c2 = st.columns(2)
+                r3c1.markdown(f"**유형** : {item.get('INDUTY_CD_NM','')}")
+                r3c2.markdown(f"**식품유형(상세)** : {item.get('PRDLST_DCNM','')}")
+
+                for label, key_nm in [("제품형태", "DISPOS"), ("포장재질", "PACKING_UNIT_DESCRIP"),
+                                       ("내수/수출/겸용", "HIENG_LNTRT_DVS_NM"), ("용도", "USAGE"),
+                                       ("생산여부", "PRODUCTION"), ("최종변경일", "CHNG_DT")]:
+                    val = item.get(key_nm, "")
+                    if val:
+                        st.markdown(f"**{label}** : {val}")
+
+                # 성분 및 원료
+                ingredients = item.get("_ingredients", [])
+                if ingredients:
+                    st.divider()
+                    st.markdown("**성분 및 원료**")
+                    ing_data = [{"번호": i+1, "성분 및 원료": ing} for i, ing in enumerate(ingredients)]
+                    st.dataframe(
+                        pd.DataFrame(ing_data),
+                        use_container_width=True,
+                        hide_index=True,
+                        height=min(40 * len(ingredients) + 40, 500),
+                    )
