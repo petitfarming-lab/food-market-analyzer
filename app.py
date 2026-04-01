@@ -218,11 +218,40 @@ with st.sidebar:
 # ============================================================
 MANUAL_URL = "https://raw.githubusercontent.com/petitfarming-lab/food-market-analyzer/main/manual.pdf"
 
+# ── 방문자 카운터 (세션당 1회) ──
+def _get_visit_counts():
+    today_key = date.today().strftime("%Y-%m-%d")
+    namespace = "cj-food-dashboard-2026"
+    today_cnt, total_cnt = "—", "—"
+    try:
+        r1 = requests.get(f"https://api.countapi.xyz/hit/{namespace}/total", timeout=3)
+        if r1.status_code == 200:
+            total_cnt = f"{r1.json().get('value', 0):,}"
+        r2 = requests.get(f"https://api.countapi.xyz/hit/{namespace}/{today_key}", timeout=3)
+        if r2.status_code == 200:
+            today_cnt = f"{r2.json().get('value', 0):,}"
+    except Exception:
+        pass
+    return today_cnt, total_cnt
+
+if not st.session_state.get("_visited"):
+    st.session_state["_visited"] = True
+    _today_cnt, _total_cnt = _get_visit_counts()
+    st.session_state["_today_cnt"] = _today_cnt
+    st.session_state["_total_cnt"] = _total_cnt
+
+_today_cnt = st.session_state.get("_today_cnt", "—")
+_total_cnt = st.session_state.get("_total_cnt", "—")
+
 st.markdown(f"""
 <div style="display:flex; justify-content:space-between; align-items:center;
             background:#1B3A6B; padding:10px 20px; border-radius:8px; margin-bottom:12px;">
   <span style="color:white; font-size:0.82rem; letter-spacing:0.04em;">
     © 2026 CJ CheilJedang B2B Marketing
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    <span style="color:#90C4F5;">오늘 접속 {_today_cnt}회</span>
+    &nbsp;·&nbsp;
+    <span style="color:#90C4F5;">누계 {_total_cnt}회</span>
   </span>
   <a href="{MANUAL_URL}" target="_blank"
      style="color:#90C4F5; font-size:0.82rem; text-decoration:none; font-weight:600;
