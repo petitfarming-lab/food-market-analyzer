@@ -21,6 +21,7 @@ ROOT = Path(__file__).parent
 sys.path.insert(0, str(ROOT))
 
 import io
+import requests
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
@@ -235,9 +236,10 @@ st.markdown(f"""
 # ============================================================
 # 메인 탭 분리
 # ============================================================
-main_tab2, main_tab3, main_tab1 = st.tabs([
+main_tab2, main_tab3, main_tab4, main_tab1 = st.tabs([
     "🛒 식봄 가격 조회",
     "🔍 품목제조번호 조회",
+    "📊 생산실적 조회",
     "　",
 ])
 
@@ -1123,3 +1125,173 @@ with main_tab3:
                         hide_index=True,
                         height=min(40 * len(ingredients) + 40, 500),
                     )
+
+# ============================================================
+# main_tab4: 생산실적 조회
+# ============================================================
+PROD_API_CONFIG = {
+    "식품/식품첨가물 생산실적": {"service_id": "I1320", "row_key": "I1320"},
+    "축산물 생산실적":          {"service_id": "I1420", "row_key": "I1420"},
+}
+
+PROD_COLUMN_KR = {
+    "BSSH_NM":             "업소명",
+    "EVL_YR":              "보고년도",
+    "LCNS_NO":             "인허가번호",
+    "PRDLST_NM":           "품목명",
+    "PRDLST_REPORT_NO":    "품목제조번호",
+    "PRDCTN_QY":           "생산량(kg)",
+    "PRDLST_CD_NM":        "품목유형",
+    "GUBUN":               "구분",
+    "H_ITEM_NM":           "대분류품목명",
+    "FYER_PRDCTN_ABRT_QY": "연간생산중단수량",
+    "PRMS_DT":             "허가일자",
+    "PRMS_STTS":           "허가상태",
+    "ENTP_NM":             "제조업체명",
+    "PRDLST_CD":           "품목코드",
+    "RAWMTRL_NM":          "원재료명",
+    "PRDT_SHAP_CD_NM":     "제품형태",
+    "LAST_UPDT_DTM":       "최종수정일",
+    "CMPTN_PRDCTN_QY":     "완제품생산량(kg)",
+    "WTSUPLY_PRDCTN_QY":   "위탁생산량(kg)",
+    "SELF_PRDCTN_QY":      "자가생산량(kg)",
+    "EXPRT_QY":            "수출량(kg)",
+    "DOMST_SALE_QY":       "국내판매량(kg)",
+    "MNFCTR_YY":           "제조연도",
+    "INDUTY_NM":           "업종명",
+}
+
+def prod_fetch_all(api_key, service_id, row_key, range_start, range_end, extra_params):
+    """생산실적 API 전체 수집 (1000건 단위 분할)"""
+    all_rows = []
+    chunk = 1000
+    cur = range_start
+    while cur <= range_end:
+        end_cur = min(cur + chunk - 1, range_end)
+        base_url = (
+            f"https://openapi.foodsafetykorea.go.kr/api"
+            f"/{api_key}/{service_id}/json/{cur}/{end_cur}"
+        )
+        param_parts = [f"{k}={v}" for k, v in extra_params.items() if v]
+        url = base_url + "/" + "&".join(param_parts) if param_parts else base_url
+        resp = requests.get(url, timeout=30)
+        resp.raise_for_status()
+        data = resp.json()
+        rows = data.get(row_key, {}).get("row", [])
+        all_rows.extend(rows)
+        cur = end_cur + 1
+    return all_rows
+
+def build_prod_excel(df):
+    buf = io.BytesIO()
+    with pd.ExcelWriter(buf, engine="openpyxl") as writer:
+        df.to_excel(writer, index=False, sheet_name="생산실적")
+    return buf.getvalue()
+
+with main_tab4:
+    from datetime import datetime as _dt4
+
+    st.markdown("### 📊 생산실적 조회 (식품안전나라)")
+    st.info("API 키를 입력하고 조회 범위와 조건을 설정한 후 수집하세요. 최대 5,000건 이상 조회 가능합니다.")
+
+    # ── API 키 ──
+    with st.expander("🔑 API 인증키 설정", expanded=(not st.session_state.get("prod_api_key"))):
+        prod_key_input = st.text_input(
+            "식품안전나라 OpenAPI 인증키",
+            value=st.session_state.get("prod_api_key", ""),
+            type="password",
+            placeholder="발급받은 인증키 입력",
+            key="prod_api_key_input",
+        )
+        c_save, c_link = st.columns([1, 2])
+        with c_save:
+            if st.button("저장", key="prod_save_key"):
+                st.session_state["prod_api_key"] = prod_key_input.strip()
+                st.success("인증키 저장됨")
+        with c_link:
+            st.markdown("[식품안전나라 OpenAPI 신청 →](https://www.foodsafetykorea.go.kr/api/main.do)")
+
+    # ── API 종류 선택 ──
+    prod_api_name = st.selectbox("API 종류 선택", list(PROD_API_CONFIG.keys()), key="prod_api_name")
+    prod_cfg = PROD_API_CONFIG[prod_api_name]
+
+    # ── 범위 ──
+    pc1, pc2 = st.columns(2)
+    with pc1:
+        prod_range_start = st.number_input("시작 번호", min_value=1, value=1, step=1, key="prod_range_start")
+    with pc2:
+        prod_range_end = st.number_input("끝 번호", min_value=1, value=1000, step=1, key="prod_range_end")
+
+    # ── 선택 파라미터 ──
+    with st.expander("🔧 파라미터 입력 (선택사항)"):
+        pp1, pp2 = st.columns(2)
+        with pp1:
+            prod_evl_yr  = st.text_input("보고년도 (YYYY)", placeholder="예: 2023", key="prod_evl_yr")
+            prod_prdlst  = st.text_input("품목명", placeholder="예: 양념육", key="prod_prdlst")
+            prod_prdtype = st.text_input("품목유형", placeholder="예: 양념육(멸균)", key="prod_prdtype")
+        with pp2:
+            prod_bssh    = st.text_input("업소명", placeholder="예: 농심", key="prod_bssh")
+            prod_lcns    = st.text_input("인허가번호", placeholder="숫자만 입력", key="prod_lcns")
+
+    # ── 수집 버튼 ──
+    if st.button("🔍 데이터 수집 시작", key="prod_fetch_btn", type="primary", use_container_width=True):
+        _key = st.session_state.get("prod_api_key", "").strip()
+        if not _key:
+            st.warning("API 인증키를 먼저 저장하세요.")
+        elif int(prod_range_start) > int(prod_range_end):
+            st.warning("시작 번호가 끝 번호보다 큽니다.")
+        else:
+            _extra = {}
+            if prod_evl_yr:  _extra["EVL_YR"]       = prod_evl_yr.strip()
+            if prod_bssh:    _extra["BSSH_NM"]       = prod_bssh.strip()
+            if prod_prdlst:  _extra["PRDLST_NM"]     = prod_prdlst.strip()
+            if prod_lcns:    _extra["LCNS_NO"]        = prod_lcns.strip()
+            if prod_prdtype: _extra["PRDLST_CD_NM"]  = prod_prdtype.strip()
+
+            with st.spinner(f"{prod_api_name} 데이터 수집 중... ({int(prod_range_start)}~{int(prod_range_end)}번)"):
+                try:
+                    rows = prod_fetch_all(
+                        _key,
+                        prod_cfg["service_id"],
+                        prod_cfg["row_key"],
+                        int(prod_range_start),
+                        int(prod_range_end),
+                        _extra,
+                    )
+                    if rows:
+                        df_prod = pd.DataFrame(rows)
+                        df_prod.rename(columns={c: PROD_COLUMN_KR.get(c, c) for c in df_prod.columns}, inplace=True)
+                        st.session_state["prod_df"]    = df_prod
+                        st.session_state["prod_excel"] = build_prod_excel(df_prod)
+                        st.success(f"총 **{len(rows)}건** 수집 완료!")
+                    else:
+                        st.session_state["prod_df"]    = None
+                        st.session_state["prod_excel"] = None
+                        st.warning("조회 결과가 없습니다. API 키 또는 파라미터를 확인하세요.")
+                except Exception as e:
+                    st.error(f"오류 발생: {e}")
+
+    # ── 결과 표시 ──
+    if st.session_state.get("prod_df") is not None:
+        df_show = st.session_state["prod_df"]
+
+        pm1, pm2 = st.columns(2)
+        pm1.metric("수집 건수", f"{len(df_show):,}건")
+        pm2.metric("컬럼 수", f"{len(df_show.columns)}개")
+
+        # 엑셀 다운로드
+        fname_prod = f"생산실적_{prod_api_name.replace('/', '_').replace(' ', '')}_{_dt4.now().strftime('%Y%m%d_%H%M')}.xlsx"
+        dc1, dc2, dc3 = st.columns([1, 2, 1])
+        with dc2:
+            st.download_button(
+                label="📥 엑셀 다운로드",
+                data=st.session_state["prod_excel"],
+                file_name=fname_prod,
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                type="primary",
+                use_container_width=True,
+            )
+
+        st.divider()
+        st.markdown("**미리보기 (상위 100행)**")
+        st.dataframe(df_show.head(100), use_container_width=True, hide_index=True)
