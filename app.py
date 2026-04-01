@@ -218,27 +218,40 @@ with st.sidebar:
 # ============================================================
 MANUAL_URL = "https://raw.githubusercontent.com/petitfarming-lab/food-market-analyzer/main/manual.pdf"
 
-# ── 방문자 카운터 (세션당 1회) ──
-def _get_visit_counts():
-    today_key = date.today().strftime("%Y-%m-%d")
-    namespace = "cj-food-dashboard-2026"
-    today_cnt, total_cnt = "—", "—"
+# ── 방문자 카운터 (세션당 1회, 파일 기반) ──
+import json, threading
+_COUNTER_FILE = "/tmp/visit_counts.json"
+_counter_lock = threading.Lock()
+
+def _load_counts():
     try:
-        r1 = requests.get(f"https://api.countapi.xyz/hit/{namespace}/total", timeout=3)
-        if r1.status_code == 200:
-            total_cnt = f"{r1.json().get('value', 0):,}"
-        r2 = requests.get(f"https://api.countapi.xyz/hit/{namespace}/{today_key}", timeout=3)
-        if r2.status_code == 200:
-            today_cnt = f"{r2.json().get('value', 0):,}"
+        with open(_COUNTER_FILE) as f:
+            return json.load(f)
+    except Exception:
+        return {"total": 0, "daily": {}}
+
+def _save_counts(c):
+    try:
+        with open(_COUNTER_FILE, "w") as f:
+            json.dump(c, f)
     except Exception:
         pass
-    return today_cnt, total_cnt
+
+def _increment_visit():
+    today = date.today().strftime("%Y-%m-%d")
+    with _counter_lock:
+        c = _load_counts()
+        c["total"] = c.get("total", 0) + 1
+        c.setdefault("daily", {})
+        c["daily"][today] = c["daily"].get(today, 0) + 1
+        _save_counts(c)
+        return c["daily"][today], c["total"]
 
 if not st.session_state.get("_visited"):
     st.session_state["_visited"] = True
-    _today_cnt, _total_cnt = _get_visit_counts()
-    st.session_state["_today_cnt"] = _today_cnt
-    st.session_state["_total_cnt"] = _total_cnt
+    _t, _tot = _increment_visit()
+    st.session_state["_today_cnt"] = f"{_t:,}"
+    st.session_state["_total_cnt"] = f"{_tot:,}"
 
 _today_cnt = st.session_state.get("_today_cnt", "—")
 _total_cnt = st.session_state.get("_total_cnt", "—")
