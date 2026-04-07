@@ -1202,7 +1202,36 @@ PROD_COLUMN_KR = {
     "DOMST_SALE_QY":       "국내판매량(kg)",
     "MNFCTR_YY":           "제조연도",
     "INDUTY_NM":           "업종명",
+    # 식품/식품첨가물 생산실적(I1320) 추가 필드
+    "PRSDNT_NM":           "대표자명",
+    "CLSBIZ_DVS_NM":       "폐업구분",
+    "INSTT_NM":            "기관명",
+    "LOCP_ADDR":           "소재지",
+    "TELNO":               "전화번호",
+    "SITE_ADDR":           "소재지",
+    "INDUTY_CD_NM":        "업종유형",
+    "PRDLST_DCNM":         "식품유형(상세)",
+    "PRODUCTION":          "생산여부",
+    "USAGE":               "용도",
+    "POG_DAYCNT":          "소비기한",
+    "DISPOS":              "제품형태(상세)",
+    "PACKING_UNIT_DESCRIP":"포장재질",
+    "HIENG_LNTRT_DVS_NM":  "내수/수출/겸용",
+    "CHNG_DT":             "최종변경일",
 }
+
+# 통합 컬럼 출력 순서 (두 API 공통 기준)
+PROD_COLUMN_ORDER = [
+    "품목제조번호", "보고년도", "인허가번호", "품목명", "업소명",
+    "생산량(kg)", "완제품생산량(kg)", "위탁생산량(kg)", "자가생산량(kg)",
+    "수출량(kg)", "국내판매량(kg)", "품목유형", "대분류품목명", "구분",
+    "연간생산중단수량", "허가일자", "허가상태", "제조업체명", "품목코드",
+    "제품형태", "원재료명", "제조연도", "업종명", "최종수정일",
+    # 식품/식품첨가물 전용
+    "대표자명", "폐업구분", "기관명", "소재지", "전화번호",
+    "업종유형", "식품유형(상세)", "생산여부", "용도", "소비기한",
+    "제품형태(상세)", "포장재질", "내수/수출/겸용", "최종변경일",
+]
 
 def prod_fetch_all(api_key, service_id, row_key, range_start, range_end, extra_params):
     """생산실적 API 전체 수집 (1000건 단위 분할)"""
@@ -1309,6 +1338,10 @@ with main_tab4:
                             df_prod = df_prod[
                                 df_prod["품목명"].str.contains(prod_prdlst.strip(), na=False)
                             ].reset_index(drop=True)
+                        # 통합 컬럼 순서 적용 (두 API 공통 기준)
+                        ordered_cols = [c for c in PROD_COLUMN_ORDER if c in df_prod.columns]
+                        extra_cols   = [c for c in df_prod.columns if c not in PROD_COLUMN_ORDER]
+                        df_prod = df_prod[ordered_cols + extra_cols]
                         st.session_state["prod_df"]    = df_prod
                         st.session_state["prod_excel"] = build_prod_excel(df_prod)
                         total_msg = f"총 **{len(df_prod)}건** 수집 완료!"
