@@ -278,10 +278,11 @@ st.markdown(f"""
 # ============================================================
 # 메인 탭 분리
 # ============================================================
-main_tab2, main_tab3, main_tab4, main_tab1 = st.tabs([
+main_tab2, main_tab3, main_tab4, main_tab5, main_tab1 = st.tabs([
     "🛒 식봄 가격 조회",
     "🔍 품목제조번호 조회",
     "📊 생산실적 조회",
+    "📋 월별예상금액 수집",
     "　",
 ])
 
@@ -1303,9 +1304,17 @@ with main_tab4:
                     if rows:
                         df_prod = pd.DataFrame(rows)
                         df_prod.rename(columns={c: PROD_COLUMN_KR.get(c, c) for c in df_prod.columns}, inplace=True)
+                        # 품목명 키워드 클라이언트 사이드 필터링 (API가 서버에서 필터 미적용)
+                        if prod_prdlst and "품목명" in df_prod.columns:
+                            df_prod = df_prod[
+                                df_prod["품목명"].str.contains(prod_prdlst.strip(), na=False)
+                            ].reset_index(drop=True)
                         st.session_state["prod_df"]    = df_prod
                         st.session_state["prod_excel"] = build_prod_excel(df_prod)
-                        st.success(f"총 **{len(rows)}건** 수집 완료!")
+                        total_msg = f"총 **{len(df_prod)}건** 수집 완료!"
+                        if prod_prdlst and len(df_prod) < len(rows):
+                            total_msg += f" (전체 {len(rows)}건 중 '{prod_prdlst}' 포함 항목만 표시)"
+                        st.success(total_msg)
                     else:
                         st.session_state["prod_df"]    = None
                         st.session_state["prod_excel"] = None
@@ -1337,3 +1346,219 @@ with main_tab4:
         st.divider()
         st.markdown("**미리보기 (상위 100행)**")
         st.dataframe(df_show.head(100), use_container_width=True, hide_index=True)
+
+
+# ============================================================
+# main_tab5: 월별예상금액 수집
+# ============================================================
+from scrapers.monthly_agent_scraper import MonthlyAgentScraper, build_combined_excel
+
+# 세션 초기화
+for _k, _v in {
+    "monthly_summary_df": pd.DataFrame(),
+    "monthly_company_results": [],
+    "monthly_combined_excel": None,
+    "monthly_done": False,
+    "monthly_log": [],
+}.items():
+    if _k not in st.session_state:
+        st.session_state[_k] = _v
+
+
+async def _run_monthly(uid, pwd, sido, military, year, month, kw_inc, kw_exc, headless, log_list):
+    async with MonthlyAgentScraper(uid, pwd, headless=headless) as scraper:
+        def cb(msg):
+            log_list.append(msg)
+        summary_df, company_results = await scraper.collect(
+            sido=sido, military=military, year=year, month=month,
+            keyword_include=kw_inc, keyword_exclude=kw_exc,
+            progress_callback=cb,
+        )
+    return summary_df, company_results
+
+
+with main_tab5:
+    from datetime import datetime as _dt5
+
+    st.markdown("### 📋 월별예상금액 자동 수집 (FOODnBID)")
+    st.info(
+        "검색 조건을 설정하고 **수집 시작** 버튼을 누르면, 상위품목확인 업체별 Excel을 자동으로 "
+        "다운로드해 하나의 파일로 합쳐 드립니다."
+    )
+
+    # ── 로그인 정보 ──
+    with st.expander("🔐 FOODnBID 로그인 정보", expanded=not st.session_state.get("monthly_uid")):
+        m_uid = st.text_input("아이디", key="monthly_uid_input", placeholder="FOODnBID 아이디")
+        m_pwd = st.text_input("비밀번호", key="monthly_pwd_input", type="password", placeholder="비밀번호")
+        if st.button("저장", key="monthly_save_cred"):
+            st.session_state["monthly_uid"] = m_uid.strip()
+            st.session_state["monthly_pwd"] = m_pwd.strip()
+            st.success("로그인 정보 저장됨")
+
+    st.divider()
+
+    # ── 검색 조건 ──
+    st.markdown("#### 🔍 검색 조건")
+    mc1, mc2, mc3, mc4 = st.columns(4)
+
+    with mc1:
+        sido_options = {
+            "전체": "",
+            "서울": "11", "부산": "26", "대구": "27", "인천": "28",
+            "광주": "29", "대전": "30", "울산": "31", "세종": "36",
+            "경기": "41", "강원": "42", "충북": "43", "충남": "44",
+            "전북": "45", "전남": "46", "경북": "47", "경남": "48", "제주": "50",
+        }
+        sido_label = st.selectbox("시도", list(sido_options.keys()), index=0, key="m_sido")
+        sido_val = sido_options[sido_label]
+
+    with mc2:
+        military_options = {"군부대 제외": "2", "군부대 포함": "1", "전체": ""}
+        military_label = st.selectbox("군부대", list(military_options.keys()), index=0, key="m_military")
+        military_val = military_options[military_label]
+
+    with mc3:
+        current_year = _dt5.now().year
+        year_list = [str(y) for y in range(current_year, current_year - 5, -1)]
+        year_val = st.selectbox("연도", year_list, index=0, key="m_year")
+
+    with mc4:
+        month_val = st.selectbox(
+            "월", [str(m) for m in range(1, 13)],
+            index=_dt5.now().month - 1, key="m_month"
+        )
+
+    mc5, mc6 = st.columns(2)
+    with mc5:
+        kw_inc = st.text_input("검색포함 키워드", placeholder="예: 치킨", key="m_kw_inc")
+    with mc6:
+        kw_exc = st.text_input("검색제외 키워드", placeholder="예: 소스", key="m_kw_exc")
+
+    m_headless = st.toggle("백그라운드 실행 (헤드리스)", value=True, key="m_headless",
+                           help="OFF 시 브라우저 창이 보입니다 (디버깅용)")
+
+    st.divider()
+
+    # ── 수집 버튼 ──
+    if st.button("🚀 수집 시작", type="primary", use_container_width=True, key="monthly_run"):
+        _uid = st.session_state.get("monthly_uid", "").strip()
+        _pwd = st.session_state.get("monthly_pwd", "").strip()
+        if not _uid or not _pwd:
+            st.warning("로그인 정보를 먼저 저장하세요.")
+        else:
+            st.session_state["monthly_done"] = False
+            st.session_state["monthly_log"] = []
+            st.session_state["monthly_summary_df"] = pd.DataFrame()
+            st.session_state["monthly_company_results"] = []
+            st.session_state["monthly_combined_excel"] = None
+
+            progress_log: list = []
+            _result_container: dict = {}
+
+            def _monthly_thread():
+                if sys.platform == "win32":
+                    asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                try:
+                    summary_df, company_results = loop.run_until_complete(
+                        _run_monthly(
+                            _uid, _pwd, sido_val, military_val,
+                            year_val, month_val, kw_inc, kw_exc,
+                            m_headless, progress_log,
+                        )
+                    )
+                    _result_container["summary_df"] = summary_df
+                    _result_container["company_results"] = company_results
+                    _result_container["combined_excel"] = (
+                        build_combined_excel(company_results) if company_results else None
+                    )
+                    _result_container["ok"] = True
+                except Exception as e:
+                    logger.error(f"월별예상금액 수집 오류: {e}")
+                    import traceback
+                    progress_log.append(f"❌ 오류: {e}")
+                    progress_log.append(traceback.format_exc())
+                    _result_container["ok"] = False
+                finally:
+                    loop.close()
+
+            with st.spinner("수집 중... 브라우저 자동화가 실행됩니다. 잠시 기다려 주세요."):
+                t = threading.Thread(target=_monthly_thread, daemon=True)
+                t.start()
+                t.join()
+
+            # 스레드 완료 후 메인 스레드에서 session_state 업데이트
+            st.session_state["monthly_log"] = list(progress_log)
+            st.session_state["monthly_summary_df"] = _result_container.get("summary_df", pd.DataFrame())
+            st.session_state["monthly_company_results"] = _result_container.get("company_results", [])
+            st.session_state["monthly_combined_excel"] = _result_container.get("combined_excel")
+            st.session_state["monthly_done"] = True
+
+            st.rerun()
+
+    # ── 진행 로그 ──
+    if st.session_state.get("monthly_log"):
+        with st.expander("📜 수집 로그", expanded=not st.session_state.get("monthly_done")):
+            for line in st.session_state["monthly_log"]:
+                st.text(line)
+
+    # ── 결과 표시 ──
+    if st.session_state.get("monthly_done"):
+        summary_df = st.session_state["monthly_summary_df"]
+        company_results = st.session_state["monthly_company_results"]
+
+        st.success(f"✅ 수집 완료 — {len(company_results)}개 업체 데이터")
+
+        # 메트릭
+        rm1, rm2, rm3 = st.columns(3)
+        rm1.metric("업체 수", f"{len(company_results)}개")
+        total_rows = sum(len(r["df"]) for r in company_results)
+        rm2.metric("총 상품 행 수", f"{total_rows:,}건")
+        dl_ok = sum(1 for r in company_results if r.get("excel_bytes"))
+        rm3.metric("Excel 다운로드 성공", f"{dl_ok}/{len(company_results)}")
+
+        # 통합 Excel 다운로드
+        if st.session_state.get("monthly_combined_excel"):
+            fname = f"월별예상금액_{year_val}년{month_val}월_{kw_inc}_{_dt5.now().strftime('%Y%m%d_%H%M')}.xlsx"
+            st.download_button(
+                label="📥 전체 Excel 다운로드 (업체별 시트 + 전체 시트)",
+                data=st.session_state["monthly_combined_excel"],
+                file_name=fname,
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                type="primary",
+                use_container_width=True,
+                key="monthly_dl_combined",
+            )
+
+        st.divider()
+
+        # 요약 테이블
+        if not summary_df.empty:
+            st.markdown("#### 📊 검색 결과 요약")
+            st.dataframe(summary_df, use_container_width=True, hide_index=True)
+            st.divider()
+
+        # 업체별 미리보기
+        if company_results:
+            st.markdown("#### 🏢 업체별 상위품목 미리보기")
+            company_tabs = st.tabs([r["company"][:20] for r in company_results])
+            for tab, result in zip(company_tabs, company_results):
+                with tab:
+                    df_c = result["df"]
+                    if df_c.empty:
+                        st.warning("데이터 없음")
+                    else:
+                        st.dataframe(df_c, use_container_width=True, hide_index=True)
+
+                    # 업체 개별 Excel 다운로드
+                    if result.get("excel_bytes"):
+                        st.download_button(
+                            label=f"📥 {result['company']} Excel 다운로드",
+                            data=result["excel_bytes"],
+                            file_name=f"{result['company']}_{year_val}년{month_val}월.xlsx",
+                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            key=f"monthly_dl_{result['company']}",
+                        )
+                    else:
+                        st.caption("이 업체의 Excel 다운로드는 실패했습니다 (테이블 데이터는 위에 표시됨)")
