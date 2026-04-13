@@ -864,21 +864,28 @@ PRDLST_FIELD_KO = {
 def prdlst_fetch_one(no: str, svc_code: str, api_key: str):
     """품목제조번호 1건 조회. 성공 시 dict 반환, 실패 시 예외."""
     import urllib.request, urllib.parse, json as _json
-    url = f"{PRDLST_API_BASE}/{api_key}/{svc_code}/json/1/200/PRDLST_REPORT_NO={urllib.parse.quote(no)}"
+    # C006(축산물)은 LCNS_NO 파라미터 사용, 나머지는 PRDLST_REPORT_NO
+    param_name = "LCNS_NO" if svc_code == "C006" else "PRDLST_REPORT_NO"
+    url = f"{PRDLST_API_BASE}/{api_key}/{svc_code}/json/1/200/{param_name}={urllib.parse.quote(no)}"
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    with urllib.request.urlopen(req, timeout=10) as r:
-        body = r.read()
+    try:
+        with urllib.request.urlopen(req, timeout=10) as r:
+            body = r.read()
+    except Exception as e:
+        raise ValueError(f"API 호출 실패: {e}\nURL: {url}")
     if body.lstrip().startswith(b"<"):
-        raise ValueError("API 키가 유효하지 않거나 해당 서비스 권한이 없습니다.")
+        raise ValueError(f"API 키가 유효하지 않거나 해당 서비스 권한이 없습니다.\nURL: {url}")
     data = _json.loads(body)
     svc_data = data.get(svc_code)
     if not svc_data:
-        raise ValueError("응답 형식 오류")
+        top_keys = list(data.keys())
+        raise ValueError(f"응답 형식 오류 (최상위 키: {top_keys})\nURL: {url}")
     code = svc_data.get("RESULT", {}).get("CODE", "")
+    msg  = svc_data.get("RESULT", {}).get("MSG", "")
     if code == "INFO-200" or not svc_data.get("row"):
-        raise ValueError("조회 결과 없음")
+        raise ValueError(f"조회 결과 없음 (CODE: {code}, MSG: {msg})\nURL: {url}")
     if code.startswith("ERROR"):
-        raise ValueError(f"API 오류: {code}")
+        raise ValueError(f"API 오류: {code} {msg}\nURL: {url}")
     rows = svc_data["row"]
     item = rows[0]
 
@@ -1233,23 +1240,35 @@ PROD_COLUMN_ORDER = [
     "제품형태(상세)", "포장재질", "내수/수출/겸용", "최종변경일",
 ]
 
-def prod_fetch_all(api_key, service_id, row_key, range_start, range_end, extra_params):
-    """생산실적 API 전체 수집 (1000건 단위 분할) - 클라이언트 필터링만 사용"""
+def prod_fetch_all(api_key, service_id, row_key, range_start, range_end):
+    """생산실적 API 전체 수집 (1000건 단위 분할)
+    첫 응답의 total_count로 실제 상한을 자동 조정
+    """
     all_rows = []
     chunk = 1000
+    base = f"https://openapi.foodsafetykorea.go.kr/api/{api_key}/{service_id}/json"
+    actual_end = range_end
+
     cur = range_start
-    while cur <= range_end:
-        end_cur = min(cur + chunk - 1, range_end)
-        # 식품안전나라 API는 URL 경로 파라미터 필터를 지원하지 않음 → 기본 URL만 사용
-        url = (
-            f"https://openapi.foodsafetykorea.go.kr/api"
-            f"/{api_key}/{service_id}/json/{cur}/{end_cur}"
-        )
-        resp = requests.get(url, timeout=30)
+    first_call = True
+    while cur <= actual_end:
+        end_cur = min(cur + chunk - 1, actual_end)
+        resp = requests.get(f"{base}/{cur}/{end_cur}", timeout=30)
         resp.raise_for_status()
-        data = resp.json()
-        rows = data.get(row_key, {}).get("row", [])
+        svc_data = resp.json().get(row_key, {})
+        rows = svc_data.get("row", [])
         all_rows.extend(rows)
+
+        if first_call:
+            first_call = False
+            try:
+                total_count = int(svc_data.get("total_count") or actual_end)
+                actual_end = min(range_end, total_count)
+            except Exception:
+                pass
+
+        if len(rows) < (end_cur - cur + 1):
+            break  # 마지막 페이지
         cur = end_cur + 1
     return all_rows
 
@@ -1261,113 +1280,217 @@ def build_prod_excel(df):
 
 with main_tab4:
     from datetime import datetime as _dt4
+    from scrapers.foodsafetykorea_scraper import FoodSafetyKoreaScraper, DEFAULT_URL as FSK_DEFAULT_URL
 
     st.markdown("### 📊 생산실적 조회 (식품안전나라)")
-    st.info("API 키를 입력하고 조회 범위와 조건을 설정한 후 수집하세요. 최대 5,000건 이상 조회 가능합니다.")
 
-    # ── API 키 ──
-    with st.expander("🔑 API 인증키 설정", expanded=(not st.session_state.get("prod_api_key"))):
-        prod_key_input = st.text_input(
-            "식품안전나라 OpenAPI 인증키",
-            value=st.session_state.get("prod_api_key", ""),
-            type="password",
-            placeholder="발급받은 인증키 입력",
-            key="prod_api_key_input",
-        )
-        c_save, c_link = st.columns([1, 2])
-        with c_save:
-            if st.button("저장", key="prod_save_key"):
-                st.session_state["prod_api_key"] = prod_key_input.strip()
-                st.success("인증키 저장됨")
-        with c_link:
-            st.markdown("[식품안전나라 OpenAPI 신청 →](https://www.foodsafetykorea.go.kr/api/main.do)")
+    # ── 수집 방식 선택 ──
+    prod_method = st.radio(
+        "수집 방식",
+        ["🌐 직접 수집 (Playwright — 최신 데이터)", "🔑 공개 API (OpenAPI — 구형 데이터)"],
+        horizontal=True,
+        key="prod_method",
+    )
+    use_playwright = prod_method.startswith("🌐")
 
-    # ── API 종류 선택 ──
-    prod_api_name = st.selectbox("API 종류 선택", list(PROD_API_CONFIG.keys()), key="prod_api_name")
-    prod_cfg = PROD_API_CONFIG[prod_api_name]
+    if use_playwright:
+        st.info("식품안전나라 사이트에 직접 접속하여 엑셀을 자동 다운로드합니다. 최신 연도 데이터 수집 가능.")
 
-    # ── 범위 ──
-    pc1, pc2 = st.columns(2)
-    with pc1:
-        prod_range_start = st.number_input("시작 번호", min_value=1, value=1, step=1, key="prod_range_start")
-    with pc2:
-        prod_range_end = st.number_input("끝 번호", min_value=1, value=1000, step=1, key="prod_range_end")
+        with st.expander("🔗 접속 URL 설정", expanded=False):
+            fsk_url = st.text_input(
+                "생산실적 조회 페이지 URL",
+                value=st.session_state.get("fsk_url", FSK_DEFAULT_URL),
+                placeholder="https://www.foodsafetykorea.go.kr/...",
+                key="fsk_url_input",
+                help="식품안전나라에서 생산실적 조회 페이지를 열고 주소창 URL을 복사해서 붙여넣으세요.",
+            )
+            if st.button("URL 저장", key="fsk_url_save"):
+                st.session_state["fsk_url"] = fsk_url.strip()
+                st.success("저장됨")
+            st.caption("기본값으로 시도 후 실패 시 URL을 직접 입력하세요.")
 
-    # ── 선택 파라미터 ──
-    with st.expander("🔧 파라미터 입력 (선택사항)"):
-        pp1, pp2 = st.columns(2)
-        with pp1:
-            prod_evl_yr  = st.text_input("보고년도 (YYYY)", placeholder="예: 2023", key="prod_evl_yr")
-            prod_prdlst  = st.text_input("품목명", placeholder="예: 양념육", key="prod_prdlst")
-            prod_prdtype = st.text_input("품목유형", placeholder="예: 양념육(멸균)", key="prod_prdtype")
-        with pp2:
-            prod_bssh    = st.text_input("업소명", placeholder="예: 농심", key="prod_bssh")
-            prod_lcns    = st.text_input("인허가번호", placeholder="숫자만 입력", key="prod_lcns")
+        pw1, pw2 = st.columns(2)
+        with pw1:
+            fsk_year    = st.text_input("보고년도", placeholder="예: 2023", key="fsk_year")
+            fsk_h_item  = st.text_input("대분류품목명", placeholder="예: 돈까스류, 소시지류", key="fsk_h_item")
+        with pw2:
+            fsk_prdlst  = st.text_input("품목명", placeholder="예: 돈까스", key="fsk_prdlst")
+            fsk_bssh    = st.text_input("업소명", placeholder="예: CJ제일제당", key="fsk_bssh")
 
-    # ── 수집 버튼 ──
-    if st.button("🔍 데이터 수집 시작", key="prod_fetch_btn", type="primary", use_container_width=True):
-        _key = st.session_state.get("prod_api_key", "").strip()
-        if not _key:
-            st.warning("API 인증키를 먼저 저장하세요.")
-        elif int(prod_range_start) > int(prod_range_end):
-            st.warning("시작 번호가 끝 번호보다 큽니다.")
-        else:
-            _extra = {}
-            if prod_evl_yr:  _extra["EVL_YR"]       = prod_evl_yr.strip()
-            if prod_bssh:    _extra["BSSH_NM"]       = prod_bssh.strip()
-            if prod_prdlst:  _extra["PRDLST_NM"]     = prod_prdlst.strip()
-            if prod_lcns:    _extra["LCNS_NO"]        = prod_lcns.strip()
-            if prod_prdtype: _extra["PRDLST_CD_NM"]  = prod_prdtype.strip()
+        fsk_headless = st.toggle("백그라운드 실행 (헤드리스)", value=True, key="fsk_headless")
 
-            with st.spinner(f"{prod_api_name} 데이터 수집 중... ({int(prod_range_start)}~{int(prod_range_end)}번)"):
+        if st.button("🔍 직접 수집 시작", key="fsk_run_btn", type="primary", use_container_width=True):
+            _fsk_url = st.session_state.get("fsk_url", FSK_DEFAULT_URL) or FSK_DEFAULT_URL
+            fsk_status = st.empty()
+
+            def _fsk_progress(msg):
+                fsk_status.info(f"⏳ {msg}")
+
+            fsk_result = {"df": pd.DataFrame()}
+
+            def _fsk_thread():
+                import asyncio, sys
+                if sys.platform == "win32":
+                    asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
                 try:
-                    rows = prod_fetch_all(
-                        _key,
-                        prod_cfg["service_id"],
-                        prod_cfg["row_key"],
-                        int(prod_range_start),
-                        int(prod_range_end),
-                        _extra,
-                    )
-                    if rows:
-                        df_prod = pd.DataFrame(rows)
-                        df_prod.rename(columns={c: PROD_COLUMN_KR.get(c, c) for c in df_prod.columns}, inplace=True)
-                        total_fetched = len(df_prod)
-                        # ── 클라이언트 사이드 필터링 (API 서버는 URL 파라미터 필터 미지원) ──
-                        if prod_prdlst and "품목명" in df_prod.columns:
-                            df_prod = df_prod[df_prod["품목명"].str.contains(prod_prdlst.strip(), na=False)]
-                        if prod_evl_yr and "보고년도" in df_prod.columns:
-                            df_prod = df_prod[df_prod["보고년도"].astype(str).str.contains(prod_evl_yr.strip(), na=False)]
-                        if prod_bssh and "업소명" in df_prod.columns:
-                            df_prod = df_prod[df_prod["업소명"].str.contains(prod_bssh.strip(), na=False)]
-                        df_prod = df_prod.reset_index(drop=True)
-                        # 통합 컬럼 순서 적용
-                        ordered_cols = [c for c in PROD_COLUMN_ORDER if c in df_prod.columns]
-                        extra_cols   = [c for c in df_prod.columns if c not in PROD_COLUMN_ORDER]
-                        df_prod = df_prod[ordered_cols + extra_cols]
-                        st.session_state["prod_df"]    = df_prod
-                        st.session_state["prod_excel"] = build_prod_excel(df_prod)
-                        if len(df_prod) == 0:
-                            filter_used = [k for k in [prod_prdlst, prod_evl_yr, prod_bssh] if k]
-                            st.warning(
-                                f"조회 범위 {int(prod_range_start)}~{int(prod_range_end)}에서 수집된 {total_fetched:,}건 중 "
-                                f"조건에 맞는 항목이 없습니다.\n\n"
-                                f"**해결 방법:** 끝 번호를 늘리거나(예: 5000), 품목명 철자를 확인하거나, "
-                                f"API 종류(식품/식품첨가물 ↔ 축산물)를 바꿔보세요."
+                    async def _run():
+                        async with FoodSafetyKoreaScraper(
+                            page_url=_fsk_url, headless=fsk_headless
+                        ) as scraper:
+                            return await scraper.fetch_production_data(
+                                year=fsk_year.strip(),
+                                h_item_nm=fsk_h_item.strip(),
+                                prdlst_nm=fsk_prdlst.strip(),
+                                bssh_nm=fsk_bssh.strip(),
+                                progress_callback=_fsk_progress,
                             )
-                        else:
-                            total_msg = f"총 **{len(df_prod):,}건** 수집 완료!"
-                            if len(df_prod) < total_fetched:
-                                total_msg += f" (전체 {total_fetched:,}건 중 조건 필터 적용)"
-                            st.success(total_msg)
-                    else:
-                        st.session_state["prod_df"]    = None
-                        st.session_state["prod_excel"] = None
-                        st.warning("조회 결과가 없습니다. API 키 또는 파라미터를 확인하세요.")
+                    fsk_result["df"] = loop.run_until_complete(_run())
                 except Exception as e:
-                    st.error(f"오류 발생: {e}")
+                    logger.error(f"FSK 스크래핑 오류: {e}")
+                finally:
+                    loop.close()
 
-    # ── 결과 표시 ──
+            with st.spinner("식품안전나라 접속 중... (수십 초 소요될 수 있습니다)"):
+                import threading
+                t = threading.Thread(target=_fsk_thread, daemon=True)
+                t.start()
+                t.join()
+
+            df_fsk = fsk_result["df"]
+            st.session_state["prod_df"] = df_fsk if not df_fsk.empty else None
+            if not df_fsk.empty:
+                st.session_state["prod_excel"] = build_prod_excel(df_fsk)
+                fsk_status.success(f"✅ {len(df_fsk):,}건 수집 완료!")
+            else:
+                fsk_status.error(
+                    "데이터를 가져오지 못했습니다.\n\n"
+                    "**확인사항:**\n"
+                    "1. 백그라운드 실행 OFF 후 재시도 (브라우저 직접 확인)\n"
+                    "2. URL이 올바른지 확인 후 저장\n"
+                    "3. debug_fsk_*.png 스크린샷 확인"
+                )
+
+        # 결과 표시 (아래 공통 블록에서 처리)
+
+    else:
+        st.info("API 키를 입력하고 조회 범위와 조건을 설정한 후 수집하세요. 최대 5,000건 이상 조회 가능합니다.")
+
+    if not use_playwright:
+        with st.expander("🔑 API 인증키 설정", expanded=(not st.session_state.get("prod_api_key"))):
+            prod_key_input = st.text_input(
+                "식품안전나라 OpenAPI 인증키",
+                value=st.session_state.get("prod_api_key", ""),
+                type="password",
+                placeholder="발급받은 인증키 입력",
+                key="prod_api_key_input",
+            )
+            c_save, c_link = st.columns([1, 2])
+            with c_save:
+                if st.button("저장", key="prod_save_key"):
+                    st.session_state["prod_api_key"] = prod_key_input.strip()
+                    st.success("인증키 저장됨")
+            with c_link:
+                st.markdown("[식품안전나라 OpenAPI 신청 →](https://www.foodsafetykorea.go.kr/api/main.do)")
+
+        # ── API 종류 선택 ──
+        prod_api_name = st.selectbox("API 종류 선택", list(PROD_API_CONFIG.keys()), key="prod_api_name")
+        prod_cfg = PROD_API_CONFIG[prod_api_name]
+
+        # ── 범위 ──
+        pc1, pc2 = st.columns(2)
+        with pc1:
+            prod_range_start = st.number_input("시작 번호", min_value=1, value=1, step=1, key="prod_range_start")
+        with pc2:
+            prod_range_end = st.number_input("끝 번호", min_value=1, value=1000, step=1, key="prod_range_end")
+
+        # ── 선택 파라미터 ──
+        with st.expander("🔧 파라미터 입력 (선택사항)"):
+            pp1, pp2 = st.columns(2)
+            with pp1:
+                prod_evl_yr  = st.text_input("보고년도 (YYYY)", placeholder="예: 2023", key="prod_evl_yr")
+                prod_prdlst  = st.text_input("품목명 / 품목유형", placeholder="예: 돈까스, 소시지류, 양념육", key="prod_prdlst")
+                prod_prdtype = st.text_input("품목유형", placeholder="예: 양념육(멸균)", key="prod_prdtype")
+            with pp2:
+                prod_bssh    = st.text_input("업소명", placeholder="예: 농심", key="prod_bssh")
+                prod_lcns    = st.text_input("인허가번호", placeholder="숫자만 입력", key="prod_lcns")
+
+        # ── 수집 버튼 ──
+        if st.button("🔍 데이터 수집 시작", key="prod_fetch_btn", type="primary", use_container_width=True):
+            _key = st.session_state.get("prod_api_key", "").strip()
+            if not _key:
+                st.warning("API 인증키를 먼저 저장하세요.")
+            elif int(prod_range_start) > int(prod_range_end):
+                st.warning("시작 번호가 끝 번호보다 큽니다.")
+            else:
+                with st.spinner(f"{prod_api_name} 데이터 수집 중... ({int(prod_range_start)}~{int(prod_range_end)}번)"):
+                    try:
+                        rows = prod_fetch_all(
+                            _key,
+                            prod_cfg["service_id"],
+                            prod_cfg["row_key"],
+                            int(prod_range_start),
+                            int(prod_range_end),
+                        )
+                        if rows:
+                            df_prod = pd.DataFrame(rows)
+                            df_prod.rename(columns={c: PROD_COLUMN_KR.get(c, c) for c in df_prod.columns}, inplace=True)
+                            # 샘플 표시용: 문자열 컬럼의 유니크 값만 미리 추출 (전체 복사 없이)
+                            str_cols_all = df_prod.select_dtypes(include="object").columns.tolist()
+                            sample_preview = {c: df_prod[c].dropna().unique()[:20] for c in str_cols_all}
+                            total_fetched = len(df_prod)
+                            # ── 클라이언트 사이드 필터링 ──
+                            # API마다 컬럼 구조가 달라 모든 문자열 컬럼에서 OR 검색
+                            if prod_prdlst:
+                                kw = prod_prdlst.strip()
+                                mask = pd.Series(False, index=df_prod.index)
+                                for _col in str_cols_all:
+                                    mask |= df_prod[_col].str.contains(kw, na=False, case=False)
+                                df_prod = df_prod[mask]
+                            if prod_prdtype:
+                                kw2 = prod_prdtype.strip()
+                                mask2 = pd.Series(False, index=df_prod.index)
+                                for _col in df_prod.select_dtypes(include="object").columns:
+                                    mask2 |= df_prod[_col].str.contains(kw2, na=False, case=False)
+                                df_prod = df_prod[mask2]
+                            if prod_evl_yr and "보고년도" in df_prod.columns:
+                                df_prod = df_prod[df_prod["보고년도"].astype(str).str.contains(prod_evl_yr.strip(), na=False)]
+                            if prod_bssh and "업소명" in df_prod.columns:
+                                df_prod = df_prod[df_prod["업소명"].str.contains(prod_bssh.strip(), na=False)]
+                            df_prod = df_prod.reset_index(drop=True)
+                            # 통합 컬럼 순서 적용
+                            ordered_cols = [c for c in PROD_COLUMN_ORDER if c in df_prod.columns]
+                            extra_cols   = [c for c in df_prod.columns if c not in PROD_COLUMN_ORDER]
+                            df_prod = df_prod[ordered_cols + extra_cols]
+                            st.session_state["prod_df"]    = df_prod
+                            st.session_state["prod_excel"] = build_prod_excel(df_prod)
+                            if len(df_prod) == 0:
+                                st.warning(
+                                    f"조회 범위 {int(prod_range_start)}~{int(prod_range_end)}에서 수집된 {total_fetched:,}건 중 "
+                                    f"조건에 맞는 항목이 없습니다.\n\n"
+                                    f"**해결 방법:** 끝 번호를 늘리거나, 품목명 철자를 확인하거나, "
+                                    f"API 종류(식품/식품첨가물 ↔ 축산물)를 바꿔보세요."
+                                )
+                                # 수집된 데이터 샘플로 올바른 키워드 안내
+                                if sample_preview:
+                                    st.markdown("**📋 수집된 데이터 실제 값 샘플** (아래를 참고해서 키워드를 다시 입력하세요)")
+                                    for sc, vals in sample_preview.items():
+                                        if len(vals):
+                                            st.info(f"**{sc}**: {' / '.join(str(v) for v in vals)}")
+                            else:
+                                total_msg = f"총 **{len(df_prod):,}건** 수집 완료!"
+                                if len(df_prod) < total_fetched:
+                                    total_msg += f" (전체 {total_fetched:,}건 중 조건 필터 적용)"
+                                st.success(total_msg)
+                        else:
+                            st.session_state["prod_df"]    = None
+                            st.session_state["prod_excel"] = None
+                            st.warning("조회 결과가 없습니다. API 키 또는 파라미터를 확인하세요.")
+                    except Exception as e:
+                        st.error(f"오류 발생: {e}")
+
+    # ── 결과 표시 (공통) ──
     if st.session_state.get("prod_df") is not None:
         df_show = st.session_state["prod_df"]
 
@@ -1376,7 +1499,8 @@ with main_tab4:
         pm2.metric("컬럼 수", f"{len(df_show.columns)}개")
 
         # 엑셀 다운로드
-        fname_prod = f"생산실적_{prod_api_name.replace('/', '_').replace(' ', '')}_{_dt4.now().strftime('%Y%m%d_%H%M')}.xlsx"
+        _api_label = "직접수집" if use_playwright else prod_api_name.replace('/', '_').replace(' ', '')
+        fname_prod = f"생산실적_{_api_label}_{_dt4.now().strftime('%Y%m%d_%H%M')}.xlsx"
         dc1, dc2, dc3 = st.columns([1, 2, 1])
         with dc2:
             st.download_button(
