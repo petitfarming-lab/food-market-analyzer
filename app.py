@@ -1234,18 +1234,17 @@ PROD_COLUMN_ORDER = [
 ]
 
 def prod_fetch_all(api_key, service_id, row_key, range_start, range_end, extra_params):
-    """생산실적 API 전체 수집 (1000건 단위 분할)"""
+    """생산실적 API 전체 수집 (1000건 단위 분할) - 클라이언트 필터링만 사용"""
     all_rows = []
     chunk = 1000
     cur = range_start
     while cur <= range_end:
         end_cur = min(cur + chunk - 1, range_end)
-        base_url = (
+        # 식품안전나라 API는 URL 경로 파라미터 필터를 지원하지 않음 → 기본 URL만 사용
+        url = (
             f"https://openapi.foodsafetykorea.go.kr/api"
             f"/{api_key}/{service_id}/json/{cur}/{end_cur}"
         )
-        param_parts = [f"{k}={v}" for k, v in extra_params.items() if v]
-        url = base_url + "/" + "/".join(param_parts) if param_parts else base_url
         resp = requests.get(url, timeout=30)
         resp.raise_for_status()
         data = resp.json()
@@ -1333,26 +1332,33 @@ with main_tab4:
                     if rows:
                         df_prod = pd.DataFrame(rows)
                         df_prod.rename(columns={c: PROD_COLUMN_KR.get(c, c) for c in df_prod.columns}, inplace=True)
-                        # 품목명 키워드 클라이언트 사이드 필터링 (API가 서버에서 필터 미적용)
+                        total_fetched = len(df_prod)
+                        # ── 클라이언트 사이드 필터링 (API 서버는 URL 파라미터 필터 미지원) ──
                         if prod_prdlst and "품목명" in df_prod.columns:
-                            df_prod = df_prod[
-                                df_prod["품목명"].str.contains(prod_prdlst.strip(), na=False)
-                            ].reset_index(drop=True)
-                        # 통합 컬럼 순서 적용 (두 API 공통 기준)
+                            df_prod = df_prod[df_prod["품목명"].str.contains(prod_prdlst.strip(), na=False)]
+                        if prod_evl_yr and "보고년도" in df_prod.columns:
+                            df_prod = df_prod[df_prod["보고년도"].astype(str).str.contains(prod_evl_yr.strip(), na=False)]
+                        if prod_bssh and "업소명" in df_prod.columns:
+                            df_prod = df_prod[df_prod["업소명"].str.contains(prod_bssh.strip(), na=False)]
+                        df_prod = df_prod.reset_index(drop=True)
+                        # 통합 컬럼 순서 적용
                         ordered_cols = [c for c in PROD_COLUMN_ORDER if c in df_prod.columns]
                         extra_cols   = [c for c in df_prod.columns if c not in PROD_COLUMN_ORDER]
                         df_prod = df_prod[ordered_cols + extra_cols]
                         st.session_state["prod_df"]    = df_prod
                         st.session_state["prod_excel"] = build_prod_excel(df_prod)
-                        if len(df_prod) == 0 and prod_prdlst:
+                        if len(df_prod) == 0:
+                            filter_used = [k for k in [prod_prdlst, prod_evl_yr, prod_bssh] if k]
                             st.warning(
-                                f"'{prod_prdlst}' 검색 결과가 없습니다. "
-                                "① 품목명 철자를 확인하거나 ② 끝 번호를 늘려서 더 넓은 범위를 조회해 보세요."
+                                f"조회 범위 {int(prod_range_start)}~{int(prod_range_end)}에서 수집된 {total_fetched:,}건 중 "
+                                f"조건에 맞는 항목이 없습니다.\n\n"
+                                f"**해결 방법:** 끝 번호를 늘리거나(예: 5000), 품목명 철자를 확인하거나, "
+                                f"API 종류(식품/식품첨가물 ↔ 축산물)를 바꿔보세요."
                             )
                         else:
-                            total_msg = f"총 **{len(df_prod)}건** 수집 완료!"
-                            if prod_prdlst and len(df_prod) < len(rows):
-                                total_msg += f" (전체 {len(rows)}건 중 '{prod_prdlst}' 포함 항목만 표시)"
+                            total_msg = f"총 **{len(df_prod):,}건** 수집 완료!"
+                            if len(df_prod) < total_fetched:
+                                total_msg += f" (전체 {total_fetched:,}건 중 조건 필터 적용)"
                             st.success(total_msg)
                     else:
                         st.session_state["prod_df"]    = None
