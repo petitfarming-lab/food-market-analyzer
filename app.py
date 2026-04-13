@@ -1240,22 +1240,39 @@ PROD_COLUMN_ORDER = [
     "제품형태(상세)", "포장재질", "내수/수출/겸용", "최종변경일",
 ]
 
-def prod_fetch_all(api_key, service_id, row_key, range_start, range_end):
+def prod_fetch_all(api_key, service_id, row_key, range_start, range_end, query_params=None):
     """생산실적 API 전체 수집 (1000건 단위 분할)
-    첫 응답의 total_count로 실제 상한을 자동 조정
+    - query_params: 서버 사이드 필터 (식품안전나라 가이드북 기준 쿼리스트링 방식)
+      예) {"EVL_YR": "2023", "BSSH_NM": "CJ제일제당"}
+    - 첫 응답의 total_count로 실제 상한을 자동 조정
     """
+    import urllib.parse as _up
     all_rows = []
     chunk = 1000
     base = f"https://openapi.foodsafetykorea.go.kr/api/{api_key}/{service_id}/json"
     actual_end = range_end
 
+    # 쿼리스트링 생성 (비어있는 값 제외, 한글 URL 인코딩)
+    qs = ""
+    if query_params:
+        parts = [f"{k}={_up.quote(str(v))}" for k, v in query_params.items() if v and str(v).strip()]
+        if parts:
+            qs = "?" + "&".join(parts)
+
     cur = range_start
     first_call = True
     while cur <= actual_end:
         end_cur = min(cur + chunk - 1, actual_end)
-        resp = requests.get(f"{base}/{cur}/{end_cur}", timeout=30)
+        url = f"{base}/{cur}/{end_cur}{qs}"
+        resp = requests.get(url, timeout=30)
         resp.raise_for_status()
         svc_data = resp.json().get(row_key, {})
+
+        # API 오류 코드 확인
+        result_code = svc_data.get("RESULT", {}).get("CODE", "")
+        if result_code.startswith("ERROR"):
+            raise ValueError(f"API 오류: {svc_data.get('RESULT', {})}\nURL: {url}")
+
         rows = svc_data.get("row", [])
         all_rows.extend(rows)
 
@@ -1424,6 +1441,13 @@ with main_tab4:
             elif int(prod_range_start) > int(prod_range_end):
                 st.warning("시작 번호가 끝 번호보다 큽니다.")
             else:
+                # 서버사이드 쿼리 파라미터 구성 (식품안전나라 가이드북 기준 쿼리스트링 방식)
+                _qp = {}
+                if prod_evl_yr:  _qp["EVL_YR"]      = prod_evl_yr.strip()
+                if prod_bssh:    _qp["BSSH_NM"]      = prod_bssh.strip()
+                if prod_prdlst:  _qp["PRDLST_NM"]    = prod_prdlst.strip()
+                if prod_prdtype: _qp["PRDLST_CD_NM"] = prod_prdtype.strip()
+
                 with st.spinner(f"{prod_api_name} 데이터 수집 중... ({int(prod_range_start)}~{int(prod_range_end)}번)"):
                     try:
                         rows = prod_fetch_all(
@@ -1432,6 +1456,7 @@ with main_tab4:
                             prod_cfg["row_key"],
                             int(prod_range_start),
                             int(prod_range_end),
+                            query_params=_qp if _qp else None,
                         )
                         if rows:
                             df_prod = pd.DataFrame(rows)
