@@ -1245,7 +1245,7 @@ def prod_fetch_all(api_key, service_id, row_key, range_start, range_end, extra_p
             f"/{api_key}/{service_id}/json/{cur}/{end_cur}"
         )
         param_parts = [f"{k}={v}" for k, v in extra_params.items() if v]
-        url = base_url + "/" + "&".join(param_parts) if param_parts else base_url
+        url = base_url + "/" + "/".join(param_parts) if param_parts else base_url
         resp = requests.get(url, timeout=30)
         resp.raise_for_status()
         data = resp.json()
@@ -1344,10 +1344,16 @@ with main_tab4:
                         df_prod = df_prod[ordered_cols + extra_cols]
                         st.session_state["prod_df"]    = df_prod
                         st.session_state["prod_excel"] = build_prod_excel(df_prod)
-                        total_msg = f"총 **{len(df_prod)}건** 수집 완료!"
-                        if prod_prdlst and len(df_prod) < len(rows):
-                            total_msg += f" (전체 {len(rows)}건 중 '{prod_prdlst}' 포함 항목만 표시)"
-                        st.success(total_msg)
+                        if len(df_prod) == 0 and prod_prdlst:
+                            st.warning(
+                                f"'{prod_prdlst}' 검색 결과가 없습니다. "
+                                "① 품목명 철자를 확인하거나 ② 끝 번호를 늘려서 더 넓은 범위를 조회해 보세요."
+                            )
+                        else:
+                            total_msg = f"총 **{len(df_prod)}건** 수집 완료!"
+                            if prod_prdlst and len(df_prod) < len(rows):
+                                total_msg += f" (전체 {len(rows)}건 중 '{prod_prdlst}' 포함 항목만 표시)"
+                            st.success(total_msg)
                     else:
                         st.session_state["prod_df"]    = None
                         st.session_state["prod_excel"] = None
