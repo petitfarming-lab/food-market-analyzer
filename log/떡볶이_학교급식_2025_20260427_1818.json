@@ -1,0 +1,2102 @@
+{
+  "keyword": "떡볶이",
+  "year": 2025,
+  "collected_at": "20260427_1818",
+  "results": [
+    {
+      "year": 2025,
+      "month": 1,
+      "total": 8884940,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 3887819
+        },
+        {
+          "rank": 2,
+          "company": "오뚜기",
+          "amount": 1959375
+        },
+        {
+          "rank": 3,
+          "company": "싱싱플러스",
+          "amount": 586694
+        },
+        {
+          "rank": 4,
+          "company": "SPCGFS",
+          "amount": 504630
+        },
+        {
+          "rank": 5,
+          "company": "소예푸드",
+          "amount": 429300
+        },
+        {
+          "rank": 6,
+          "company": "면사랑",
+          "amount": 245300
+        },
+        {
+          "rank": 7,
+          "company": "대상",
+          "amount": 235329
+        },
+        {
+          "rank": 8,
+          "company": "크로바",
+          "amount": 225860
+        },
+        {
+          "rank": 9,
+          "company": "식탁요정",
+          "amount": 171666
+        },
+        {
+          "rank": 10,
+          "company": "마미스",
+          "amount": 162000
+        },
+        {
+          "rank": 11,
+          "company": "코주부",
+          "amount": 143550
+        },
+        {
+          "rank": 12,
+          "company": "풀무원",
+          "amount": 105744
+        },
+        {
+          "rank": 13,
+          "company": "원플러스원",
+          "amount": 98240
+        },
+        {
+          "rank": 14,
+          "company": "한올푸드",
+          "amount": 74360
+        },
+        {
+          "rank": 15,
+          "company": "아워홈",
+          "amount": 27659
+        },
+        {
+          "rank": 16,
+          "company": "델리쿡",
+          "amount": 17910
+        },
+        {
+          "rank": 17,
+          "company": "쿠킹맘",
+          "amount": 9504
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 2,
+      "total": 439354410,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 70836404
+        },
+        {
+          "rank": 2,
+          "company": "싱싱플러스",
+          "amount": 51534845
+        },
+        {
+          "rank": 3,
+          "company": "SPCGFS",
+          "amount": 39180488
+        },
+        {
+          "rank": 4,
+          "company": "대상",
+          "amount": 34933837
+        },
+        {
+          "rank": 5,
+          "company": "크로바",
+          "amount": 31794910
+        },
+        {
+          "rank": 6,
+          "company": "풀무원",
+          "amount": 22661207
+        },
+        {
+          "rank": 7,
+          "company": "소예푸드",
+          "amount": 21971965
+        },
+        {
+          "rank": 8,
+          "company": "푸드스토리",
+          "amount": 19686734
+        },
+        {
+          "rank": 9,
+          "company": "면사랑",
+          "amount": 16691490
+        },
+        {
+          "rank": 10,
+          "company": "천년풍미",
+          "amount": 14399381
+        },
+        {
+          "rank": 11,
+          "company": "바르미",
+          "amount": 12930225
+        },
+        {
+          "rank": 12,
+          "company": "델리쿡",
+          "amount": 10823862
+        },
+        {
+          "rank": 13,
+          "company": "쿠킹맘",
+          "amount": 8267855
+        },
+        {
+          "rank": 14,
+          "company": "참조은",
+          "amount": 7878780
+        },
+        {
+          "rank": 15,
+          "company": "유아푸드",
+          "amount": 6277662
+        },
+        {
+          "rank": 16,
+          "company": "한올푸드",
+          "amount": 5770237
+        },
+        {
+          "rank": 17,
+          "company": "초록푸드",
+          "amount": 5519898
+        },
+        {
+          "rank": 18,
+          "company": "바른웰",
+          "amount": 5436810
+        },
+        {
+          "rank": 19,
+          "company": "식탁요정",
+          "amount": 4962907
+        },
+        {
+          "rank": 20,
+          "company": "자담선",
+          "amount": 4580173
+        },
+        {
+          "rank": 21,
+          "company": "파르팜",
+          "amount": 4497109
+        },
+        {
+          "rank": 22,
+          "company": "초록나무",
+          "amount": 4460736
+        },
+        {
+          "rank": 23,
+          "company": "씨엔아이",
+          "amount": 4437240
+        },
+        {
+          "rank": 24,
+          "company": "SRC",
+          "amount": 4306680
+        },
+        {
+          "rank": 25,
+          "company": "코주부",
+          "amount": 4215691
+        },
+        {
+          "rank": 26,
+          "company": "원플러스원",
+          "amount": 3978720
+        },
+        {
+          "rank": 27,
+          "company": "레인보우",
+          "amount": 3714463
+        },
+        {
+          "rank": 28,
+          "company": "맘스쿡",
+          "amount": 2951896
+        },
+        {
+          "rank": 29,
+          "company": "마미스",
+          "amount": 2640667
+        },
+        {
+          "rank": 30,
+          "company": "아워홈",
+          "amount": 2539765
+        },
+        {
+          "rank": 31,
+          "company": "오뚜기",
+          "amount": 1332210
+        },
+        {
+          "rank": 32,
+          "company": "신세계푸드",
+          "amount": 1325069
+        },
+        {
+          "rank": 33,
+          "company": "아이푸드스쿨",
+          "amount": 1308940
+        },
+        {
+          "rank": 34,
+          "company": "네니아",
+          "amount": 1163514
+        },
+        {
+          "rank": 35,
+          "company": "이우스",
+          "amount": 193500
+        },
+        {
+          "rank": 36,
+          "company": "엘리팜",
+          "amount": 148540
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 3,
+      "total": 436289561,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 52044869
+        },
+        {
+          "rank": 2,
+          "company": "싱싱플러스",
+          "amount": 44912676
+        },
+        {
+          "rank": 3,
+          "company": "SPCGFS",
+          "amount": 36585488
+        },
+        {
+          "rank": 4,
+          "company": "대상",
+          "amount": 36108750
+        },
+        {
+          "rank": 5,
+          "company": "크로바",
+          "amount": 32597482
+        },
+        {
+          "rank": 6,
+          "company": "푸드스토리",
+          "amount": 22332592
+        },
+        {
+          "rank": 7,
+          "company": "소예푸드",
+          "amount": 20724018
+        },
+        {
+          "rank": 8,
+          "company": "풀무원",
+          "amount": 18638231
+        },
+        {
+          "rank": 9,
+          "company": "이우스",
+          "amount": 17767555
+        },
+        {
+          "rank": 10,
+          "company": "씨엔아이",
+          "amount": 17006000
+        },
+        {
+          "rank": 11,
+          "company": "면사랑",
+          "amount": 14133240
+        },
+        {
+          "rank": 12,
+          "company": "바르미",
+          "amount": 14082186
+        },
+        {
+          "rank": 13,
+          "company": "천년풍미",
+          "amount": 12482502
+        },
+        {
+          "rank": 14,
+          "company": "맘스쿡",
+          "amount": 9416178
+        },
+        {
+          "rank": 15,
+          "company": "델리쿡",
+          "amount": 9318836
+        },
+        {
+          "rank": 16,
+          "company": "참조은",
+          "amount": 8422884
+        },
+        {
+          "rank": 17,
+          "company": "한올푸드",
+          "amount": 6080187
+        },
+        {
+          "rank": 18,
+          "company": "유아푸드",
+          "amount": 6060420
+        },
+        {
+          "rank": 19,
+          "company": "쿠킹맘",
+          "amount": 5355615
+        },
+        {
+          "rank": 20,
+          "company": "초록푸드",
+          "amount": 5076308
+        },
+        {
+          "rank": 21,
+          "company": "코주부",
+          "amount": 5027851
+        },
+        {
+          "rank": 22,
+          "company": "바른웰",
+          "amount": 5027607
+        },
+        {
+          "rank": 23,
+          "company": "원플러스원",
+          "amount": 4433080
+        },
+        {
+          "rank": 24,
+          "company": "파르팜",
+          "amount": 4206468
+        },
+        {
+          "rank": 25,
+          "company": "식탁요정",
+          "amount": 3798355
+        },
+        {
+          "rank": 26,
+          "company": "초록나무",
+          "amount": 3556910
+        },
+        {
+          "rank": 27,
+          "company": "아이푸드스쿨",
+          "amount": 3341400
+        },
+        {
+          "rank": 28,
+          "company": "레인보우",
+          "amount": 3157120
+        },
+        {
+          "rank": 29,
+          "company": "마미스",
+          "amount": 2910920
+        },
+        {
+          "rank": 30,
+          "company": "아워홈",
+          "amount": 2846823
+        },
+        {
+          "rank": 31,
+          "company": "SRC",
+          "amount": 2340000
+        },
+        {
+          "rank": 32,
+          "company": "자담선",
+          "amount": 2076322
+        },
+        {
+          "rank": 33,
+          "company": "신세계푸드",
+          "amount": 1667700
+        },
+        {
+          "rank": 34,
+          "company": "오뚜기",
+          "amount": 1058909
+        },
+        {
+          "rank": 35,
+          "company": "네니아",
+          "amount": 1020459
+        },
+        {
+          "rank": 36,
+          "company": "엘리팜",
+          "amount": 673620
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 4,
+      "total": 379019522,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 49097044
+        },
+        {
+          "rank": 2,
+          "company": "싱싱플러스",
+          "amount": 43785239
+        },
+        {
+          "rank": 3,
+          "company": "대상",
+          "amount": 35368196
+        },
+        {
+          "rank": 4,
+          "company": "크로바",
+          "amount": 30337544
+        },
+        {
+          "rank": 5,
+          "company": "푸드스토리",
+          "amount": 27934579
+        },
+        {
+          "rank": 6,
+          "company": "풀무원",
+          "amount": 22363650
+        },
+        {
+          "rank": 7,
+          "company": "SPCGFS",
+          "amount": 20513359
+        },
+        {
+          "rank": 8,
+          "company": "면사랑",
+          "amount": 14620853
+        },
+        {
+          "rank": 9,
+          "company": "천년풍미",
+          "amount": 14384493
+        },
+        {
+          "rank": 10,
+          "company": "델리쿡",
+          "amount": 10561336
+        },
+        {
+          "rank": 11,
+          "company": "바르미",
+          "amount": 9962520
+        },
+        {
+          "rank": 12,
+          "company": "소예푸드",
+          "amount": 9929295
+        },
+        {
+          "rank": 13,
+          "company": "참조은",
+          "amount": 8247492
+        },
+        {
+          "rank": 14,
+          "company": "씨엔아이",
+          "amount": 6653154
+        },
+        {
+          "rank": 15,
+          "company": "맘스쿡",
+          "amount": 6637481
+        },
+        {
+          "rank": 16,
+          "company": "유아푸드",
+          "amount": 6437612
+        },
+        {
+          "rank": 17,
+          "company": "레인보우",
+          "amount": 6175880
+        },
+        {
+          "rank": 18,
+          "company": "초록푸드",
+          "amount": 5681961
+        },
+        {
+          "rank": 19,
+          "company": "식탁요정",
+          "amount": 5396731
+        },
+        {
+          "rank": 20,
+          "company": "바른웰",
+          "amount": 4716208
+        },
+        {
+          "rank": 21,
+          "company": "초록나무",
+          "amount": 4386513
+        },
+        {
+          "rank": 22,
+          "company": "원플러스원",
+          "amount": 4089240
+        },
+        {
+          "rank": 23,
+          "company": "코주부",
+          "amount": 3717450
+        },
+        {
+          "rank": 24,
+          "company": "이우스",
+          "amount": 3485778
+        },
+        {
+          "rank": 25,
+          "company": "한올푸드",
+          "amount": 3327866
+        },
+        {
+          "rank": 26,
+          "company": "아이푸드스쿨",
+          "amount": 3083880
+        },
+        {
+          "rank": 27,
+          "company": "쿠킹맘",
+          "amount": 2905061
+        },
+        {
+          "rank": 28,
+          "company": "아워홈",
+          "amount": 2835169
+        },
+        {
+          "rank": 29,
+          "company": "마미스",
+          "amount": 2525560
+        },
+        {
+          "rank": 30,
+          "company": "SRC",
+          "amount": 2452284
+        },
+        {
+          "rank": 31,
+          "company": "자담선",
+          "amount": 1959627
+        },
+        {
+          "rank": 32,
+          "company": "신세계푸드",
+          "amount": 1885884
+        },
+        {
+          "rank": 33,
+          "company": "네니아",
+          "amount": 1344717
+        },
+        {
+          "rank": 34,
+          "company": "오뚜기",
+          "amount": 796708
+        },
+        {
+          "rank": 35,
+          "company": "엘리팜",
+          "amount": 767440
+        },
+        {
+          "rank": 36,
+          "company": "파르팜",
+          "amount": 651718
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 5,
+      "total": 378664484,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "싱싱플러스",
+          "amount": 46925873
+        },
+        {
+          "rank": 2,
+          "company": "씨제이",
+          "amount": 45803166
+        },
+        {
+          "rank": 3,
+          "company": "대상",
+          "amount": 31874349
+        },
+        {
+          "rank": 4,
+          "company": "푸드스토리",
+          "amount": 28410944
+        },
+        {
+          "rank": 5,
+          "company": "크로바",
+          "amount": 25109285
+        },
+        {
+          "rank": 6,
+          "company": "SPCGFS",
+          "amount": 24800831
+        },
+        {
+          "rank": 7,
+          "company": "소예푸드",
+          "amount": 18974928
+        },
+        {
+          "rank": 8,
+          "company": "풀무원",
+          "amount": 15574071
+        },
+        {
+          "rank": 9,
+          "company": "씨엔아이",
+          "amount": 14733120
+        },
+        {
+          "rank": 10,
+          "company": "면사랑",
+          "amount": 13814341
+        },
+        {
+          "rank": 11,
+          "company": "천년풍미",
+          "amount": 13093660
+        },
+        {
+          "rank": 12,
+          "company": "맘스쿡",
+          "amount": 10616179
+        },
+        {
+          "rank": 13,
+          "company": "바르미",
+          "amount": 8739427
+        },
+        {
+          "rank": 14,
+          "company": "레인보우",
+          "amount": 8406901
+        },
+        {
+          "rank": 15,
+          "company": "델리쿡",
+          "amount": 7615572
+        },
+        {
+          "rank": 16,
+          "company": "이우스",
+          "amount": 5974576
+        },
+        {
+          "rank": 17,
+          "company": "초록푸드",
+          "amount": 5531227
+        },
+        {
+          "rank": 18,
+          "company": "쿠킹맘",
+          "amount": 5190946
+        },
+        {
+          "rank": 19,
+          "company": "초록나무",
+          "amount": 4844797
+        },
+        {
+          "rank": 20,
+          "company": "식탁요정",
+          "amount": 4667377
+        },
+        {
+          "rank": 21,
+          "company": "참조은",
+          "amount": 4401126
+        },
+        {
+          "rank": 22,
+          "company": "원플러스원",
+          "amount": 3855920
+        },
+        {
+          "rank": 23,
+          "company": "한올푸드",
+          "amount": 3755990
+        },
+        {
+          "rank": 24,
+          "company": "코주부",
+          "amount": 3629538
+        },
+        {
+          "rank": 25,
+          "company": "SRC",
+          "amount": 3329953
+        },
+        {
+          "rank": 26,
+          "company": "자담선",
+          "amount": 2696836
+        },
+        {
+          "rank": 27,
+          "company": "파르팜",
+          "amount": 2360276
+        },
+        {
+          "rank": 28,
+          "company": "바른웰",
+          "amount": 2150350
+        },
+        {
+          "rank": 29,
+          "company": "엘리팜",
+          "amount": 2149320
+        },
+        {
+          "rank": 30,
+          "company": "아워홈",
+          "amount": 2039066
+        },
+        {
+          "rank": 31,
+          "company": "유아푸드",
+          "amount": 1752003
+        },
+        {
+          "rank": 32,
+          "company": "오뚜기",
+          "amount": 1725185
+        },
+        {
+          "rank": 33,
+          "company": "신세계푸드",
+          "amount": 1501171
+        },
+        {
+          "rank": 34,
+          "company": "마미스",
+          "amount": 1357380
+        },
+        {
+          "rank": 35,
+          "company": "아이푸드스쿨",
+          "amount": 1258800
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 6,
+      "total": 479812245,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 59401303
+        },
+        {
+          "rank": 2,
+          "company": "싱싱플러스",
+          "amount": 55010662
+        },
+        {
+          "rank": 3,
+          "company": "크로바",
+          "amount": 41045914
+        },
+        {
+          "rank": 4,
+          "company": "대상",
+          "amount": 39890229
+        },
+        {
+          "rank": 5,
+          "company": "SPCGFS",
+          "amount": 29039944
+        },
+        {
+          "rank": 6,
+          "company": "풀무원",
+          "amount": 28007759
+        },
+        {
+          "rank": 7,
+          "company": "푸드스토리",
+          "amount": 25141999
+        },
+        {
+          "rank": 8,
+          "company": "면사랑",
+          "amount": 21419872
+        },
+        {
+          "rank": 9,
+          "company": "씨엔아이",
+          "amount": 20832780
+        },
+        {
+          "rank": 10,
+          "company": "소예푸드",
+          "amount": 18868708
+        },
+        {
+          "rank": 11,
+          "company": "천년풍미",
+          "amount": 16126270
+        },
+        {
+          "rank": 12,
+          "company": "레인보우",
+          "amount": 14694169
+        },
+        {
+          "rank": 13,
+          "company": "델리쿡",
+          "amount": 10662461
+        },
+        {
+          "rank": 14,
+          "company": "식탁요정",
+          "amount": 9883981
+        },
+        {
+          "rank": 15,
+          "company": "맘스쿡",
+          "amount": 9881399
+        },
+        {
+          "rank": 16,
+          "company": "바르미",
+          "amount": 9124400
+        },
+        {
+          "rank": 17,
+          "company": "참조은",
+          "amount": 8174268
+        },
+        {
+          "rank": 18,
+          "company": "초록나무",
+          "amount": 7773381
+        },
+        {
+          "rank": 19,
+          "company": "코주부",
+          "amount": 5922756
+        },
+        {
+          "rank": 20,
+          "company": "파르팜",
+          "amount": 5873750
+        },
+        {
+          "rank": 21,
+          "company": "초록푸드",
+          "amount": 5841120
+        },
+        {
+          "rank": 22,
+          "company": "원플러스원",
+          "amount": 3917320
+        },
+        {
+          "rank": 23,
+          "company": "아이푸드스쿨",
+          "amount": 3853200
+        },
+        {
+          "rank": 24,
+          "company": "마미스",
+          "amount": 3766020
+        },
+        {
+          "rank": 25,
+          "company": "바른웰",
+          "amount": 3586917
+        },
+        {
+          "rank": 26,
+          "company": "자담선",
+          "amount": 3525303
+        },
+        {
+          "rank": 27,
+          "company": "SRC",
+          "amount": 3063240
+        },
+        {
+          "rank": 28,
+          "company": "한올푸드",
+          "amount": 2952556
+        },
+        {
+          "rank": 29,
+          "company": "유아푸드",
+          "amount": 2281710
+        },
+        {
+          "rank": 30,
+          "company": "신세계푸드",
+          "amount": 2016792
+        },
+        {
+          "rank": 31,
+          "company": "이우스",
+          "amount": 1981502
+        },
+        {
+          "rank": 32,
+          "company": "아워홈",
+          "amount": 1925287
+        },
+        {
+          "rank": 33,
+          "company": "쿠킹맘",
+          "amount": 1818375
+        },
+        {
+          "rank": 34,
+          "company": "오뚜기",
+          "amount": 1060162
+        },
+        {
+          "rank": 35,
+          "company": "엘리팜",
+          "amount": 944580
+        },
+        {
+          "rank": 36,
+          "company": "네니아",
+          "amount": 300416
+        },
+        {
+          "rank": 37,
+          "company": "한결푸드",
+          "amount": 201740
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 7,
+      "total": 49232723,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "싱싱플러스",
+          "amount": 12779695
+        },
+        {
+          "rank": 2,
+          "company": "씨제이",
+          "amount": 4720674
+        },
+        {
+          "rank": 3,
+          "company": "대상",
+          "amount": 4335061
+        },
+        {
+          "rank": 4,
+          "company": "크로바",
+          "amount": 4086385
+        },
+        {
+          "rank": 5,
+          "company": "씨엔아이",
+          "amount": 3065280
+        },
+        {
+          "rank": 6,
+          "company": "면사랑",
+          "amount": 2567879
+        },
+        {
+          "rank": 7,
+          "company": "SPCGFS",
+          "amount": 1513167
+        },
+        {
+          "rank": 8,
+          "company": "참조은",
+          "amount": 1375470
+        },
+        {
+          "rank": 9,
+          "company": "자담선",
+          "amount": 1309801
+        },
+        {
+          "rank": 10,
+          "company": "바르미",
+          "amount": 1260282
+        },
+        {
+          "rank": 11,
+          "company": "초록푸드",
+          "amount": 1149975
+        },
+        {
+          "rank": 12,
+          "company": "한올푸드",
+          "amount": 1119730
+        },
+        {
+          "rank": 13,
+          "company": "초록나무",
+          "amount": 1058718
+        },
+        {
+          "rank": 14,
+          "company": "파르팜",
+          "amount": 1030510
+        },
+        {
+          "rank": 15,
+          "company": "천년풍미",
+          "amount": 1027170
+        },
+        {
+          "rank": 16,
+          "company": "풀무원",
+          "amount": 869061
+        },
+        {
+          "rank": 17,
+          "company": "오뚜기",
+          "amount": 827943
+        },
+        {
+          "rank": 18,
+          "company": "델리쿡",
+          "amount": 797124
+        },
+        {
+          "rank": 19,
+          "company": "소예푸드",
+          "amount": 791910
+        },
+        {
+          "rank": 20,
+          "company": "푸드스토리",
+          "amount": 506722
+        },
+        {
+          "rank": 21,
+          "company": "바른웰",
+          "amount": 490140
+        },
+        {
+          "rank": 22,
+          "company": "원플러스원",
+          "amount": 429800
+        },
+        {
+          "rank": 23,
+          "company": "코주부",
+          "amount": 363660
+        },
+        {
+          "rank": 24,
+          "company": "마미스",
+          "amount": 283080
+        },
+        {
+          "rank": 25,
+          "company": "아이푸드스쿨",
+          "amount": 256500
+        },
+        {
+          "rank": 26,
+          "company": "신세계푸드",
+          "amount": 241754
+        },
+        {
+          "rank": 27,
+          "company": "식탁요정",
+          "amount": 225302
+        },
+        {
+          "rank": 28,
+          "company": "아워홈",
+          "amount": 213080
+        },
+        {
+          "rank": 29,
+          "company": "엘리팜",
+          "amount": 209440
+        },
+        {
+          "rank": 30,
+          "company": "유아푸드",
+          "amount": 189000
+        },
+        {
+          "rank": 31,
+          "company": "SRC",
+          "amount": 110250
+        },
+        {
+          "rank": 32,
+          "company": "이우스",
+          "amount": 16560
+        },
+        {
+          "rank": 33,
+          "company": "레인보우",
+          "amount": 11600
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 8,
+      "total": 435766670,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 69807015
+        },
+        {
+          "rank": 2,
+          "company": "싱싱플러스",
+          "amount": 50533649
+        },
+        {
+          "rank": 3,
+          "company": "크로바",
+          "amount": 34981769
+        },
+        {
+          "rank": 4,
+          "company": "대상",
+          "amount": 34053901
+        },
+        {
+          "rank": 5,
+          "company": "SPCGFS",
+          "amount": 23583059
+        },
+        {
+          "rank": 6,
+          "company": "풀무원",
+          "amount": 21243493
+        },
+        {
+          "rank": 7,
+          "company": "면사랑",
+          "amount": 20390173
+        },
+        {
+          "rank": 8,
+          "company": "푸드스토리",
+          "amount": 20292867
+        },
+        {
+          "rank": 9,
+          "company": "소예푸드",
+          "amount": 19755799
+        },
+        {
+          "rank": 10,
+          "company": "천년풍미",
+          "amount": 18352208
+        },
+        {
+          "rank": 11,
+          "company": "씨엔아이",
+          "amount": 16904092
+        },
+        {
+          "rank": 12,
+          "company": "한올푸드",
+          "amount": 11774782
+        },
+        {
+          "rank": 13,
+          "company": "바르미",
+          "amount": 11680600
+        },
+        {
+          "rank": 14,
+          "company": "참조은",
+          "amount": 6608272
+        },
+        {
+          "rank": 15,
+          "company": "초록푸드",
+          "amount": 6283336
+        },
+        {
+          "rank": 16,
+          "company": "델리쿡",
+          "amount": 6101861
+        },
+        {
+          "rank": 17,
+          "company": "코주부",
+          "amount": 5337910
+        },
+        {
+          "rank": 18,
+          "company": "식탁요정",
+          "amount": 5279051
+        },
+        {
+          "rank": 19,
+          "company": "파르팜",
+          "amount": 5165343
+        },
+        {
+          "rank": 20,
+          "company": "이우스",
+          "amount": 5055009
+        },
+        {
+          "rank": 21,
+          "company": "쿠킹맘",
+          "amount": 4465530
+        },
+        {
+          "rank": 22,
+          "company": "레인보우",
+          "amount": 4091524
+        },
+        {
+          "rank": 23,
+          "company": "SRC",
+          "amount": 4036320
+        },
+        {
+          "rank": 24,
+          "company": "아이푸드스쿨",
+          "amount": 3770460
+        },
+        {
+          "rank": 25,
+          "company": "원플러스원",
+          "amount": 3745400
+        },
+        {
+          "rank": 26,
+          "company": "초록나무",
+          "amount": 3624817
+        },
+        {
+          "rank": 27,
+          "company": "맘스쿡",
+          "amount": 3553381
+        },
+        {
+          "rank": 28,
+          "company": "자담선",
+          "amount": 3516848
+        },
+        {
+          "rank": 29,
+          "company": "마미스",
+          "amount": 2770500
+        },
+        {
+          "rank": 30,
+          "company": "아워홈",
+          "amount": 1764926
+        },
+        {
+          "rank": 31,
+          "company": "오뚜기",
+          "amount": 1603178
+        },
+        {
+          "rank": 32,
+          "company": "신세계푸드",
+          "amount": 1355170
+        },
+        {
+          "rank": 33,
+          "company": "엘리팜",
+          "amount": 1168235
+        },
+        {
+          "rank": 34,
+          "company": "유아푸드",
+          "amount": 1096262
+        },
+        {
+          "rank": 35,
+          "company": "바른웰",
+          "amount": 1038150
+        },
+        {
+          "rank": 36,
+          "company": "네니아",
+          "amount": 981780
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 9,
+      "total": 366707543,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 64242684
+        },
+        {
+          "rank": 2,
+          "company": "대상",
+          "amount": 35807825
+        },
+        {
+          "rank": 3,
+          "company": "싱싱플러스",
+          "amount": 33972915
+        },
+        {
+          "rank": 4,
+          "company": "크로바",
+          "amount": 27004247
+        },
+        {
+          "rank": 5,
+          "company": "푸드스토리",
+          "amount": 26771433
+        },
+        {
+          "rank": 6,
+          "company": "면사랑",
+          "amount": 13827282
+        },
+        {
+          "rank": 7,
+          "company": "SPCGFS",
+          "amount": 13808156
+        },
+        {
+          "rank": 8,
+          "company": "천년풍미",
+          "amount": 13373920
+        },
+        {
+          "rank": 9,
+          "company": "풀무원",
+          "amount": 11794281
+        },
+        {
+          "rank": 10,
+          "company": "소예푸드",
+          "amount": 11563234
+        },
+        {
+          "rank": 11,
+          "company": "씨엔아이",
+          "amount": 11111934
+        },
+        {
+          "rank": 12,
+          "company": "맘스쿡",
+          "amount": 10947284
+        },
+        {
+          "rank": 13,
+          "company": "레인보우",
+          "amount": 10184655
+        },
+        {
+          "rank": 14,
+          "company": "초록푸드",
+          "amount": 9793956
+        },
+        {
+          "rank": 15,
+          "company": "바르미",
+          "amount": 8745027
+        },
+        {
+          "rank": 16,
+          "company": "참조은",
+          "amount": 6723018
+        },
+        {
+          "rank": 17,
+          "company": "이우스",
+          "amount": 6359460
+        },
+        {
+          "rank": 18,
+          "company": "코주부",
+          "amount": 5047389
+        },
+        {
+          "rank": 19,
+          "company": "식탁요정",
+          "amount": 4081914
+        },
+        {
+          "rank": 20,
+          "company": "네니아",
+          "amount": 3959021
+        },
+        {
+          "rank": 21,
+          "company": "초록나무",
+          "amount": 3583594
+        },
+        {
+          "rank": 22,
+          "company": "바른웰",
+          "amount": 3409545
+        },
+        {
+          "rank": 23,
+          "company": "유아푸드",
+          "amount": 3278999
+        },
+        {
+          "rank": 24,
+          "company": "자담선",
+          "amount": 3270021
+        },
+        {
+          "rank": 25,
+          "company": "델리쿡",
+          "amount": 3147343
+        },
+        {
+          "rank": 26,
+          "company": "쿠킹맘",
+          "amount": 2888925
+        },
+        {
+          "rank": 27,
+          "company": "마미스",
+          "amount": 2743800
+        },
+        {
+          "rank": 28,
+          "company": "SRC",
+          "amount": 2575213
+        },
+        {
+          "rank": 29,
+          "company": "원플러스원",
+          "amount": 2161280
+        },
+        {
+          "rank": 30,
+          "company": "아워홈",
+          "amount": 2044720
+        },
+        {
+          "rank": 31,
+          "company": "한올푸드",
+          "amount": 2044560
+        },
+        {
+          "rank": 32,
+          "company": "아이푸드스쿨",
+          "amount": 1743080
+        },
+        {
+          "rank": 33,
+          "company": "신세계푸드",
+          "amount": 1629753
+        },
+        {
+          "rank": 34,
+          "company": "엘리팜",
+          "amount": 1159470
+        },
+        {
+          "rank": 35,
+          "company": "오뚜기",
+          "amount": 944609
+        },
+        {
+          "rank": 36,
+          "company": "파르팜",
+          "amount": 761256
+        },
+        {
+          "rank": 37,
+          "company": "한결푸드",
+          "amount": 201740
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 10,
+      "total": 391197599,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 49813192
+        },
+        {
+          "rank": 2,
+          "company": "싱싱플러스",
+          "amount": 35562624
+        },
+        {
+          "rank": 3,
+          "company": "대상",
+          "amount": 32146191
+        },
+        {
+          "rank": 4,
+          "company": "크로바",
+          "amount": 30169524
+        },
+        {
+          "rank": 5,
+          "company": "맘스쿡",
+          "amount": 20535654
+        },
+        {
+          "rank": 6,
+          "company": "소예푸드",
+          "amount": 20224623
+        },
+        {
+          "rank": 7,
+          "company": "SPCGFS",
+          "amount": 19350190
+        },
+        {
+          "rank": 8,
+          "company": "천년풍미",
+          "amount": 18399300
+        },
+        {
+          "rank": 9,
+          "company": "면사랑",
+          "amount": 17849752
+        },
+        {
+          "rank": 10,
+          "company": "풀무원",
+          "amount": 16997439
+        },
+        {
+          "rank": 11,
+          "company": "푸드스토리",
+          "amount": 15533006
+        },
+        {
+          "rank": 12,
+          "company": "씨엔아이",
+          "amount": 12502986
+        },
+        {
+          "rank": 13,
+          "company": "바르미",
+          "amount": 10706433
+        },
+        {
+          "rank": 14,
+          "company": "레인보우",
+          "amount": 9307877
+        },
+        {
+          "rank": 15,
+          "company": "이우스",
+          "amount": 8890914
+        },
+        {
+          "rank": 16,
+          "company": "초록푸드",
+          "amount": 6164039
+        },
+        {
+          "rank": 17,
+          "company": "참조은",
+          "amount": 5700850
+        },
+        {
+          "rank": 18,
+          "company": "코주부",
+          "amount": 5616071
+        },
+        {
+          "rank": 19,
+          "company": "식탁요정",
+          "amount": 5607360
+        },
+        {
+          "rank": 20,
+          "company": "한올푸드",
+          "amount": 5385740
+        },
+        {
+          "rank": 21,
+          "company": "원플러스원",
+          "amount": 4322560
+        },
+        {
+          "rank": 22,
+          "company": "델리쿡",
+          "amount": 4221289
+        },
+        {
+          "rank": 23,
+          "company": "바른웰",
+          "amount": 4162720
+        },
+        {
+          "rank": 24,
+          "company": "쿠킹맘",
+          "amount": 4046774
+        },
+        {
+          "rank": 25,
+          "company": "SRC",
+          "amount": 3832092
+        },
+        {
+          "rank": 26,
+          "company": "마미스",
+          "amount": 3126170
+        },
+        {
+          "rank": 27,
+          "company": "초록나무",
+          "amount": 3068746
+        },
+        {
+          "rank": 28,
+          "company": "네니아",
+          "amount": 2844622
+        },
+        {
+          "rank": 29,
+          "company": "유아푸드",
+          "amount": 2713595
+        },
+        {
+          "rank": 30,
+          "company": "아이푸드스쿨",
+          "amount": 2518392
+        },
+        {
+          "rank": 31,
+          "company": "자담선",
+          "amount": 2390587
+        },
+        {
+          "rank": 32,
+          "company": "아워홈",
+          "amount": 1937442
+        },
+        {
+          "rank": 33,
+          "company": "오뚜기",
+          "amount": 1838788
+        },
+        {
+          "rank": 34,
+          "company": "엘리팜",
+          "amount": 1352619
+        },
+        {
+          "rank": 35,
+          "company": "파르팜",
+          "amount": 1338664
+        },
+        {
+          "rank": 36,
+          "company": "신세계푸드",
+          "amount": 1018774
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 11,
+      "total": 452452110,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 62012449
+        },
+        {
+          "rank": 2,
+          "company": "대상",
+          "amount": 47463421
+        },
+        {
+          "rank": 3,
+          "company": "싱싱플러스",
+          "amount": 44569006
+        },
+        {
+          "rank": 4,
+          "company": "크로바",
+          "amount": 30461920
+        },
+        {
+          "rank": 5,
+          "company": "SPCGFS",
+          "amount": 26001625
+        },
+        {
+          "rank": 6,
+          "company": "맘스쿡",
+          "amount": 22245183
+        },
+        {
+          "rank": 7,
+          "company": "푸드스토리",
+          "amount": 20534619
+        },
+        {
+          "rank": 8,
+          "company": "면사랑",
+          "amount": 20055202
+        },
+        {
+          "rank": 9,
+          "company": "소예푸드",
+          "amount": 19375327
+        },
+        {
+          "rank": 10,
+          "company": "풀무원",
+          "amount": 18817284
+        },
+        {
+          "rank": 11,
+          "company": "씨엔아이",
+          "amount": 18373140
+        },
+        {
+          "rank": 12,
+          "company": "천년풍미",
+          "amount": 16163552
+        },
+        {
+          "rank": 13,
+          "company": "바르미",
+          "amount": 9874951
+        },
+        {
+          "rank": 14,
+          "company": "레인보우",
+          "amount": 9799927
+        },
+        {
+          "rank": 15,
+          "company": "참조은",
+          "amount": 8357832
+        },
+        {
+          "rank": 16,
+          "company": "한올푸드",
+          "amount": 7804770
+        },
+        {
+          "rank": 17,
+          "company": "델리쿡",
+          "amount": 7405104
+        },
+        {
+          "rank": 18,
+          "company": "식탁요정",
+          "amount": 6656307
+        },
+        {
+          "rank": 19,
+          "company": "원플러스원",
+          "amount": 6582080
+        },
+        {
+          "rank": 20,
+          "company": "코주부",
+          "amount": 6276820
+        },
+        {
+          "rank": 21,
+          "company": "초록푸드",
+          "amount": 5808542
+        },
+        {
+          "rank": 22,
+          "company": "자담선",
+          "amount": 4453064
+        },
+        {
+          "rank": 23,
+          "company": "SRC",
+          "amount": 3979663
+        },
+        {
+          "rank": 24,
+          "company": "이우스",
+          "amount": 3625186
+        },
+        {
+          "rank": 25,
+          "company": "초록나무",
+          "amount": 3487537
+        },
+        {
+          "rank": 26,
+          "company": "네니아",
+          "amount": 3244892
+        },
+        {
+          "rank": 27,
+          "company": "아이푸드스쿨",
+          "amount": 2963120
+        },
+        {
+          "rank": 28,
+          "company": "마미스",
+          "amount": 2556490
+        },
+        {
+          "rank": 29,
+          "company": "아워홈",
+          "amount": 2447318
+        },
+        {
+          "rank": 30,
+          "company": "파르팜",
+          "amount": 2167403
+        },
+        {
+          "rank": 31,
+          "company": "바른웰",
+          "amount": 1641060
+        },
+        {
+          "rank": 32,
+          "company": "신세계푸드",
+          "amount": 1631481
+        },
+        {
+          "rank": 33,
+          "company": "쿠킹맘",
+          "amount": 1599813
+        },
+        {
+          "rank": 34,
+          "company": "엘리팜",
+          "amount": 1594790
+        },
+        {
+          "rank": 35,
+          "company": "유아푸드",
+          "amount": 1282001
+        },
+        {
+          "rank": 36,
+          "company": "오뚜기",
+          "amount": 1139231
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 12,
+      "total": 12927609,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "초록푸드",
+          "amount": 1621188
+        },
+        {
+          "rank": 2,
+          "company": "푸드스토리",
+          "amount": 1608621
+        },
+        {
+          "rank": 3,
+          "company": "대상",
+          "amount": 1337076
+        },
+        {
+          "rank": 4,
+          "company": "싱싱플러스",
+          "amount": 1225090
+        },
+        {
+          "rank": 5,
+          "company": "씨제이",
+          "amount": 1032990
+        },
+        {
+          "rank": 6,
+          "company": "씨엔아이",
+          "amount": 1029900
+        },
+        {
+          "rank": 7,
+          "company": "아워홈",
+          "amount": 819380
+        },
+        {
+          "rank": 8,
+          "company": "크로바",
+          "amount": 676250
+        },
+        {
+          "rank": 9,
+          "company": "풀무원",
+          "amount": 546304
+        },
+        {
+          "rank": 10,
+          "company": "천년풍미",
+          "amount": 518000
+        },
+        {
+          "rank": 11,
+          "company": "면사랑",
+          "amount": 484814
+        },
+        {
+          "rank": 12,
+          "company": "파르팜",
+          "amount": 466771
+        },
+        {
+          "rank": 13,
+          "company": "바른웰",
+          "amount": 295200
+        },
+        {
+          "rank": 14,
+          "company": "네니아",
+          "amount": 200277
+        },
+        {
+          "rank": 15,
+          "company": "엘리팜",
+          "amount": 194390
+        },
+        {
+          "rank": 16,
+          "company": "바르미",
+          "amount": 171740
+        },
+        {
+          "rank": 17,
+          "company": "SRC",
+          "amount": 141750
+        },
+        {
+          "rank": 18,
+          "company": "초록나무",
+          "amount": 134134
+        },
+        {
+          "rank": 19,
+          "company": "SPCGFS",
+          "amount": 106920
+        },
+        {
+          "rank": 20,
+          "company": "델리쿡",
+          "amount": 96600
+        },
+        {
+          "rank": 21,
+          "company": "아이푸드스쿨",
+          "amount": 68400
+        },
+        {
+          "rank": 22,
+          "company": "식탁요정",
+          "amount": 50204
+        },
+        {
+          "rank": 23,
+          "company": "참조은",
+          "amount": 36900
+        },
+        {
+          "rank": 24,
+          "company": "코주부",
+          "amount": 28710
+        },
+        {
+          "rank": 25,
+          "company": "마미스",
+          "amount": 25000
+        },
+        {
+          "rank": 26,
+          "company": "오뚜기",
+          "amount": 11000
+        }
+      ]
+    }
+  ],
+  "annual_total": 3830309416,
+  "methodology": {
+    "foodnbid_coverage": 0.6,
+    "suwon_student_ratio": 0.405,
+    "dangtche_ratio": 0.225
+  }
+}

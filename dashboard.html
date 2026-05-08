@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>학교급식 시장규모 대시보드</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --navy:#1F4E79; --blue:#2E75B6; --lblue:#D6E4F0;
+  --orange:#E8A838; --green:#4CAF50; --red:#E74C3C;
+  --bg:#F4F7FB;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;background:var(--bg);color:#222;font-size:14px;}
+
+/* ── 헤더 ── */
+.hdr{background:var(--navy);padding:8px 20px;display:flex;align-items:center;gap:16px;
+     position:sticky;top:0;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,.35);}
+.hdr-logo{color:#fff;font-size:1.15rem;font-weight:700;white-space:nowrap;}
+.hdr-logo span{color:var(--orange);}
+.srch-box{display:flex;gap:8px;flex:1;max-width:480px;}
+.srch-box input{flex:1;padding:5px 12px;border-radius:6px;border:none;font-size:.88rem;}
+.srch-box input:focus{outline:2px solid var(--orange);}
+.srch-box button{padding:5px 16px;background:var(--orange);color:#fff;border:none;
+  border-radius:6px;font-weight:700;cursor:pointer;font-size:.85rem;}
+.srch-box button:hover{background:#c98a20;}
+.pills{display:flex;gap:6px;flex-wrap:wrap;}
+.pill{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);
+  padding:3px 11px;border-radius:20px;font-size:.78rem;cursor:pointer;white-space:nowrap;}
+.pill:hover{background:rgba(255,255,255,.28);}
+
+/* ── 상태 페이지 ── */
+.state-page{padding:80px 20px;text-align:center;}
+.state-page .icon{font-size:3.5rem;margin-bottom:14px;}
+.state-page h2{color:var(--navy);font-size:1.5rem;margin-bottom:8px;}
+.state-page p{color:#888;}
+.spin{width:52px;height:52px;border:5px solid var(--lblue);border-top-color:var(--blue);
+  border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 18px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-kw{color:var(--blue);font-size:1rem;font-weight:700;}
+.loading-sub{color:#aaa;font-size:.82rem;margin-top:5px;}
+.btn-run{background:var(--orange);color:#fff;border:none;padding:9px 24px;
+  border-radius:6px;font-weight:700;cursor:pointer;font-size:.93rem;margin-top:4px;}
+.btn-run:hover{background:#c98a20;}
+.btn-run:disabled{opacity:.5;cursor:not-allowed;}
+
+/* ── 대시보드 ── */
+#pg-dash{padding:10px 20px;}
+
+/* KPI 카드 */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;}
+.kpi{background:#fff;border-radius:8px;padding:10px 14px;
+  box-shadow:0 1px 5px rgba(0,0,0,.08);border-top:3px solid var(--blue);}
+.kpi.k2{border-top-color:var(--orange);}
+.kpi.k3{border-top-color:var(--green);}
+.kpi.k4{border-top-color:#9C27B0;}
+.kpi-lbl{font-size:.68rem;color:#888;font-weight:700;text-transform:uppercase;margin-bottom:2px;}
+.kpi-val{font-size:1.15rem;font-weight:700;color:var(--navy);}
+.kpi-sub{font-size:.68rem;color:#aaa;margin-top:1px;}
+
+/* 탭 */
+.tabs{display:flex;margin-bottom:0;}
+.tab{padding:7px 18px;cursor:pointer;font-weight:700;font-size:.85rem;color:#999;
+  border-bottom:3px solid transparent;margin-bottom:-2px;}
+.tab.on{color:var(--navy);border-bottom-color:var(--navy);}
+.tab:hover{color:var(--blue);}
+.panel{display:none;}
+.panel.on{display:block;}
+
+/* 카드 박스 */
+.box{background:#fff;border-radius:8px;padding:10px 14px;
+  box-shadow:0 1px 5px rgba(0,0,0,.08);margin-bottom:10px;}
+.box-title{font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:8px;}
+.ch-wrap{position:relative;}
+
+/* 엑셀과 동일한 테이블 */
+.xl-tbl{width:100%;border-collapse:collapse;font-size:.82rem;}
+.xl-tbl th{background:var(--navy);color:#fff;padding:8px 10px;text-align:center;
+  font-weight:700;white-space:nowrap;border:1px solid #1a3f63;}
+.xl-tbl td{padding:6px 10px;border:1px solid #ddd;text-align:right;white-space:nowrap;}
+.xl-tbl td.c{text-align:center;}
+.xl-tbl td.l{text-align:left;}
+.xl-tbl tr.vac td{background:#E8F0FE;color:#777;}
+.xl-tbl tr.best td{font-weight:700;}
+.xl-tbl tr.best .mc::after{content:" ★";color:var(--orange);}
+.xl-tbl tr.sum td{background:#EBF5E1;font-weight:700;}
+.up{color:#2E7D32;font-weight:700;}
+.dn{color:#C62828;font-weight:700;}
+.tbl-wrap{overflow-x:auto;}
+
+/* 시장규모 */
+.mkt-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.mkt-card{background:#fff;border-radius:10px;padding:18px;box-shadow:0 1px 5px rgba(0,0,0,.08);}
+.mkt-card h6{font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:12px;
+  padding-bottom:8px;border-bottom:2px solid var(--lblue);}
+.mkt-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px dashed #eee;}
+.mkt-row:last-child{border:none;}
+.mkt-num{width:22px;height:22px;background:var(--navy);color:#fff;border-radius:50%;
+  font-size:.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.mkt-desc{flex:1;font-size:.8rem;color:#555;}
+.mkt-desc small{color:#aaa;font-size:.72rem;display:block;}
+.mkt-val{font-size:.92rem;font-weight:700;color:var(--navy);text-align:right;}
+.mkt-yoy{font-size:.72rem;margin-left:6px;}
+
+/* 경쟁사 히트맵 */
+.heat-pink{background:#FCE4EC !important;}
+.heat-cell{transition:.15s;}
+
+/* 제품 카드 */
+.prod-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+.prod-card{background:#fff;border-radius:10px;padding:14px;
+  box-shadow:0 1px 5px rgba(0,0,0,.08);}
+.prod-card.r1{border-top:4px solid #FF6B35;}
+.prod-card.r2{border-top:4px solid #FF9500;}
+.prod-card.r3{border-top:4px solid #4CAF50;}
+.prod-card.r4{border-top:4px solid #2196F3;}
+.prod-card.r5{border-top:4px solid #9C27B0;}
+.prod-rank{font-size:.72rem;font-weight:700;color:#aaa;margin-bottom:4px;}
+.prod-img{background:var(--bg);border-radius:6px;height:72px;display:flex;
+  align-items:center;justify-content:center;color:#ccc;font-size:.75rem;margin-bottom:8px;}
+.prod-co{font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:3px;}
+.prod-nm{font-size:.78rem;color:#666;margin-bottom:8px;min-height:32px;}
+.prod-row{display:flex;justify-content:space-between;padding:3px 0;
+  border-top:1px solid #f0f0f0;font-size:.77rem;}
+.prod-k{color:#aaa;}
+.prod-v{font-weight:600;color:var(--navy);}
+.badge-d{background:#E8F5E9;color:#2E7D32;padding:1px 7px;border-radius:10px;font-size:.72rem;font-weight:600;}
+.badge-i{background:#FFE0E0;color:#C00000;padding:1px 7px;border-radius:10px;font-size:.72rem;font-weight:600;}
+
+/* 출처 */
+.src-note{font-size:.72rem;color:#aaa;font-style:italic;margin-top:8px;}
+
+@media(max-width:900px){.kpi-row{grid-template-columns:1fr 1fr;}.mkt-grid{grid-template-columns:1fr;}.prod-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.kpi-row{grid-template-columns:1fr;}.prod-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- 헤더 -->
+<header class="hdr">
+  <div class="hdr-logo">🍱 학교급식 <span>시장규모</span></div>
+  <div class="srch-box">
+    <input id="kw" type="text" placeholder="제품 키워드 입력 (폭립, 새우만두, 떡볶이 …)"
+           onkeydown="if(event.key==='Enter')doSearch()">
+    <button onclick="doSearch()">🔍 검색</button>
+  </div>
+  <div class="pills" id="pills"></div>
+</header>
+
+<!-- 홈 -->
+<div class="state-page" id="pg-home">
+  <div class="icon">📊</div>
+  <h2>학교급식 시장규모 대시보드</h2>
+  <p style="margin-top:8px;"><strong>2025년 vs 2024년</strong> 데이터를 기준으로 분석합니다.<br>
+  캐시 데이터가 없으면 FoodnBid에서 2025·2024년 데이터를 자동 수집합니다.</p>
+</div>
+
+<!-- 로딩 -->
+<div class="state-page" id="pg-load" style="display:none">
+  <div class="spin"></div>
+  <div class="loading-kw" id="load-kw"></div>
+  <div class="loading-sub" id="load-sub"></div>
+</div>
+
+<!-- 없음 -->
+<div class="state-page" id="pg-none" style="display:none">
+  <div class="icon">🔍</div>
+  <h2 id="none-title">데이터 없음</h2>
+  <p id="none-msg" style="margin:8px 0 18px;"></p>
+  <button class="btn-run" id="btn-run" onclick="runSkill()">⚡ FoodnBid 수집 시작</button>
+</div>
+
+<!-- 대시보드 -->
+<div id="pg-dash" style="display:none">
+
+  <!-- KPI -->
+  <div class="kpi-row" id="kpi"></div>
+
+  <!-- 탭 + 재수집 버튼 -->
+  <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--lblue);margin-bottom:10px;">
+    <div class="tabs" style="border:none;margin:0;">
+      <div class="tab on"  onclick="swTab(0)">📊 학교급식 월별실측</div>
+      <div class="tab"     onclick="swTab(1)">📈 시장규모 환산</div>
+      <div class="tab"     onclick="swTab(2)">🏆 경쟁사 월별현황</div>
+      <div class="tab"     onclick="swTab(3)">🛒 경쟁사 제품비교</div>
+    </div>
+    <div style="display:flex;gap:6px;margin-right:4px;">
+      <button id="btn-excel" onclick="dlExcel()"
+        style="padding:5px 14px;background:#1F7A3A;color:#fff;
+               border:none;border-radius:6px;font-weight:700;
+               font-size:.8rem;cursor:pointer;white-space:nowrap;">
+        📥 엑셀 다운로드
+      </button>
+      <button id="btn-recollect" onclick="reCollect()"
+        style="padding:5px 14px;background:#fff;color:var(--navy);
+               border:1.5px solid var(--navy);border-radius:6px;font-weight:700;
+               font-size:.8rem;cursor:pointer;white-space:nowrap;">
+        🔄 재수집
+      </button>
+    </div>
+  </div>
+
+  <!-- ── 탭0: 월별실측 ── -->
+  <div class="panel on" id="p0">
+    <div class="box" style="padding:0;overflow:hidden;">
+      <div class="tbl-wrap"><table class="xl-tbl" id="tbl0">
+        <thead id="th0"></thead><tbody id="tb0"></tbody>
+      </table></div>
+    </div>
+    <div class="box">
+      <div class="box-title" id="ch0-title"></div>
+      <div class="ch-wrap"><canvas id="ch0" style="height:160px"></canvas></div>
+      <div class="src-note" id="ch0-src"></div>
+    </div>
+  </div>
+
+  <!-- ── 탭1: 시장규모 ── -->
+  <div class="panel" id="p1">
+    <div class="mkt-grid" id="mkt-grid"></div>
+    <div class="box">
+      <div class="box-title">연도별 시장규모 비교</div>
+      <div class="ch-wrap"><canvas id="ch1" style="height:180px"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ── 탭2: 경쟁사 현황 ── -->
+  <div class="panel" id="p2">
+    <div style="display:grid;grid-template-columns:320px 1fr;gap:14px;margin-bottom:14px;">
+      <div class="box">
+        <div class="box-title">연간 점유율 TOP10</div>
+        <div class="ch-wrap"><canvas id="ch2" style="height:200px"></canvas></div>
+      </div>
+      <div class="box" style="padding:0;overflow:hidden;">
+        <div class="tbl-wrap"><table class="xl-tbl" id="tbl2s">
+          <thead><tr>
+            <th>순위</th><th>업체명</th><th>연간 합계 (원)</th>
+            <th>점유율</th><th>방학제외 월평균 (원)</th>
+          </tr></thead>
+          <tbody id="tb2s"></tbody>
+        </table></div>
+      </div>
+    </div>
+    <div class="box" style="padding:0;overflow:hidden;">
+      <div style="padding:12px 14px 6px;font-weight:700;font-size:.88rem;color:var(--navy);">
+        경쟁사 월별 낙찰현황
+        <span style="font-size:.73rem;color:#aaa;font-weight:400;margin-left:8px;">
+          ※ 분홍색 셀 = 해당 월 1위 낙찰사
+        </span>
+      </div>
+      <div class="tbl-wrap"><table class="xl-tbl" id="tbl2m">
+        <thead id="th2m"></thead><tbody id="tb2m"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- ── 탭3: 제품비교 ── -->
+  <div class="panel" id="p3">
+    <div id="prod-sec"></div>
+  </div>
+
+</div><!-- /pg-dash -->
+
+<script>
+let G = null, curKw = '', pollTmr = null;
+let ch0 = null, ch1 = null, ch2 = null;
+
+const $ = id => document.getElementById(id);
+const fmt  = n => n ? n.toLocaleString('ko-KR') : '0';
+const fmtW = n => n ? n.toLocaleString('ko-KR') + '원' : '—';
+const fmtE = n => n ? (n/1e8).toFixed(2) + '억원' : '—';
+const fmtE1= n => n ? (n/1e8).toFixed(1) + '억원' : '—';
+const yoyStr = v => v === null || v === undefined ? '—'
+  : `<span class="${v>=0?'up':'dn'}">${v>=0?'▲':'▼'}${Math.abs(v).toFixed(1)}%</span>`;
+
+// ── 초기화 ──────────────────────────────────────────────
+addEventListener('DOMContentLoaded', loadPills);
+
+async function loadPills() {
+  try {
+    const list = await (await fetch('/api/cache')).json();
+    $('pills').innerHTML = list.slice(0, 8)
+      .map(x => `<div class="pill" onclick="qs('${x.keyword}')">${x.keyword}</div>`).join('');
+  } catch(e) {}
+}
+
+function qs(kw) {
+  $('kw').value = kw;
+  doSearch();
+}
+
+// ── 검색 ────────────────────────────────────────────────
+async function doSearch() {
+  const kw = $('kw').value.trim();
+  if (!kw) { alert('키워드를 입력하세요.'); return; }
+  curKw = kw;
+  showPage('load');
+  $('load-kw').textContent = `"${kw}" 2025·2024년 데이터 확인 중…`;
+  $('load-sub').textContent  = '캐시 데이터를 조회합니다.';
+
+  try {
+    const r = await fetch(`/api/search?keyword=${encodeURIComponent(kw)}`);
+    if (r.ok) {
+      G = await r.json();
+      render(); showPage('dash');
+    } else {
+      const e = await r.json();
+      showNone(kw, e.message || '데이터가 없습니다.');
+    }
+  } catch(e) { showNone(kw, '서버 오류. dashboard.py가 실행 중인지 확인하세요.'); }
+}
+
+async function runSkill() {
+  $('btn-run').disabled = true;
+  showPage('load');
+  $('load-kw').textContent = `FoodnBid에서 "${curKw}" 2025·2024년 수집 중…`;
+  $('load-sub').textContent  = '약 10~15분 소요됩니다. 이 페이지를 닫지 마세요.';
+  await fetch(`/api/run?keyword=${encodeURIComponent(curKw)}`);
+  startPoll();
+}
+
+async function reCollect() {
+  if (!curKw) return;
+  if (!confirm(`"${curKw}" 데이터를 FoodnBid에서 다시 수집합니다.\n약 5~10분 소요됩니다. 계속하시겠습니까?`)) return;
+  $('btn-recollect').disabled = true;
+  showPage('load');
+  $('load-kw').textContent = `FoodnBid에서 "${curKw}" 2025·2024년 재수집 중…`;
+  $('load-sub').textContent  = '약 10~15분 소요됩니다. 이 페이지를 닫지 마세요.';
+  await fetch(`/api/run?keyword=${encodeURIComponent(curKw)}`);
+  startPoll();
+}
+
+function startPoll() {
+  if (pollTmr) clearInterval(pollTmr);
+  pollTmr = setInterval(async () => {
+    try {
+      const st = await (await fetch(`/api/status?keyword=${encodeURIComponent(curKw)}`)).json();
+      if (st.status === 'done') {
+        clearInterval(pollTmr);
+        const r = await fetch(`/api/search?keyword=${encodeURIComponent(curKw)}`);
+        if (r.ok) {
+          G = await r.json(); render(); showPage('dash'); loadPills();
+          if ($('btn-recollect')) $('btn-recollect').disabled = false;
+        }
+      } else if ((st.status||'').startsWith('error')) {
+        clearInterval(pollTmr);
+        alert('수집 오류: ' + st.status);
+        showPage('home');
+        if ($('btn-recollect')) $('btn-recollect').disabled = false;
+      }
+    } catch(e) {}
+  }, 8000);
+}
+
+function showPage(n) {
+  ['home','load','none','dash'].forEach(p => {
+    const el = $(`pg-${p}`);
+    if (el) el.style.display = (p === n) ? '' : 'none';
+  });
+}
+function showNone(kw, msg) {
+  $('none-title').textContent = `"${kw}" 데이터 없음`;
+  $('none-msg').textContent   = msg + ' 지금 수집을 시작할까요?';
+  $('btn-run').disabled = false;
+  showPage('none');
+}
+function swTab(n) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('on', i===n));
+  document.querySelectorAll('.panel').forEach((p,i) => p.classList.toggle('on', i===n));
+}
+
+// ── 메인 렌더 ────────────────────────────────────────────
+function render() {
+  renderKPI();
+  renderMonthly();
+  renderMarket();
+  renderComp();
+  renderProd();
+  swTab(0);
+}
+
+// ── KPI 카드 ─────────────────────────────────────────────
+function renderKPI() {
+  const {keyword, year, prev_year, annual, prev_annual, best_month,
+         market_curr: C, monthly} = G;
+  const yoy = prev_annual ? ((annual - prev_annual)/prev_annual*100).toFixed(1) : null;
+  const bm  = monthly.find(m => m.is_best);
+  $('kpi').innerHTML = `
+    <div class="kpi">
+      <div class="kpi-lbl">FoodnBid 연간 실측 (수도권)</div>
+      <div class="kpi-val">${fmtE(annual)}</div>
+      <div class="kpi-sub">${yoy !== null ? yoyStr(parseFloat(yoy)) + ` vs ${prev_year}년` : `${year}년`}</div>
+    </div>
+    <div class="kpi k2">
+      <div class="kpi-lbl">전국 학교급식 (환산)</div>
+      <div class="kpi-val">${fmtE1(C.school_nation)}</div>
+      <div class="kpi-sub">÷ 수도권 학생비율 40.5%</div>
+    </div>
+    <div class="kpi k3">
+      <div class="kpi-lbl">전국 급식 전체 (환산)</div>
+      <div class="kpi-val">${fmtE1(C.total)}</div>
+      <div class="kpi-sub">전국 학교급식 × 1.225</div>
+    </div>
+    <div class="kpi k4">
+      <div class="kpi-lbl">최고 매출월 (${year})</div>
+      <div class="kpi-val">${bm ? bm.label : '—'}</div>
+      <div class="kpi-sub">${bm ? fmtW(bm.current) : ''}</div>
+    </div>`;
+}
+
+// ── 탭0: 월별실측 ────────────────────────────────────────
+function renderMonthly() {
+  const {keyword, year, prev_year, annual, prev_annual, monthly, collected_at} = G;
+
+  // 타이틀·출처
+  $('ch0-title').textContent =
+    `【${keyword}】 FoodnBid 수도권 월별 낙찰금액 (${year}년 vs ${prev_year}년)`;
+  $('ch0-src').textContent =
+    `※ 출처: FoodnBid info.foodnbid.com 월별예상금액 (수도권·서울·경기·인천 학교) | 수집일: ${collected_at}`;
+
+  // 꺾은선 차트 (엑셀 Sheet1 차트와 동일)
+  if (ch0) ch0.destroy();
+  ch0 = new Chart($('ch0'), {
+    type: 'line',
+    data: {
+      labels: monthly.map(m => m.label),
+      datasets: [
+        {
+          label: `${year}년`,
+          data: monthly.map(m => m.current),
+          borderColor: '#1F4E79', backgroundColor: 'rgba(31,78,121,.07)',
+          borderWidth: 2.5, pointRadius: 5, pointBackgroundColor: '#1F4E79',
+          pointStyle: 'circle', fill: true, tension: .3,
+        },
+        {
+          label: `${prev_year}년`,
+          data: monthly.map(m => m.prev),
+          borderColor: '#E8A838', backgroundColor: 'rgba(232,168,56,.05)',
+          borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#E8A838',
+          borderDash: [6,3], pointStyle: 'rectRot', fill: false, tension: .3,
+        },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top', labels: { font: { size: 12 } } },
+        tooltip: { callbacks: {
+          label: c => ` ${c.dataset.label}: ${c.parsed.y.toLocaleString('ko-KR')}원`
+        }},
+      },
+      scales: {
+        y: { ticks: { callback: v => (v/1e8).toFixed(1)+'억' }, grid: { color: '#eee' } },
+        x: { grid: { display: false } },
+      },
+    },
+  });
+
+  // 테이블 헤더 (엑셀 Sheet1과 동일)
+  $('th0').innerHTML = `<tr>
+    <th>월</th>
+    <th>FoodnBid 실측<br>(${year}, 수도권, 원)</th>
+    <th>비중(%)</th>
+    <th>FoodnBid 실측<br>(${prev_year}, 수도권, 원)</th>
+    <th>전년 동월 대비</th>
+    <th>경쟁사 TOP 3 (낙찰금액)</th>
+  </tr>`;
+
+  // 테이블 바디
+  let rows = '';
+  monthly.forEach(m => {
+    const pct  = annual ? (m.current / annual * 100).toFixed(1) : '0.0';
+    const top3 = m.top3.map((c,i) =>
+      `${['①','②','③'][i]} ${c.company} ${c.amount.toLocaleString('ko-KR')}원`).join(' | ');
+    const cls  = [m.is_vacation ? 'vac' : '', m.is_best ? 'best' : ''].filter(Boolean).join(' ');
+    rows += `<tr class="${cls}">
+      <td class="c mc">${m.label}</td>
+      <td>${fmt(m.current)}</td>
+      <td class="c">${pct}%</td>
+      <td>${fmt(m.prev)}</td>
+      <td class="c">${yoyStr(m.yoy)}</td>
+      <td class="l" style="font-size:.78rem;white-space:normal;">${top3 || '—'}</td>
+    </tr>`;
+  });
+
+  // 연간 합계 행
+  const totYoy = prev_annual ? ((annual - prev_annual)/prev_annual*100).toFixed(1) : null;
+  rows += `<tr class="sum">
+    <td class="c">연간 합계</td>
+    <td>${fmt(annual)}</td>
+    <td class="c">100.0%</td>
+    <td>${fmt(prev_annual)}</td>
+    <td class="c">${yoyStr(totYoy !== null ? parseFloat(totYoy) : null)}</td>
+    <td class="l">연간 ${fmtE(annual)} | 전년(${prev_year}) ${fmtE(prev_annual)} (수도권 FoodnBid 기준)</td>
+  </tr>`;
+  $('tb0').innerHTML = rows;
+}
+
+// ── 탭1: 시장규모 환산 ───────────────────────────────────
+function renderMarket() {
+  const {year, prev_year, market_curr: C, market_prev: P} = G;
+
+  const steps = [
+    ['①', `FoodnBid 실측 (${year})`, 'FoodnBid 직접 수집 (수도권·서울·경기·인천 학교)', C.foodnbid, P.foodnbid],
+    ['②', '수도권 학교급식',         '÷ FoodnBid 커버리지 60%',                         C.school_suwon, P.school_suwon],
+    ['③', '전국 학교급식',           '÷ 수도권 학생비율 40.5%',                         C.school_nation, P.school_nation],
+    ['④', '전국 급식 전체',          '× 1.225 (단체급식 22.5% 추가)',                   C.total, P.total],
+  ];
+
+  const card = (yr, vals) => `
+    <div class="mkt-card">
+      <h6>${yr}년 시장규모 환산</h6>
+      ${steps.map(([n, lbl, note, cv, pv], i) => {
+        const v = vals[i];
+        const yoy = (pv && yr === year) ? ((v-pv)/pv*100).toFixed(1) : null;
+        return `<div class="mkt-row">
+          <div class="mkt-num">${n}</div>
+          <div class="mkt-desc">${lbl}<small>${note}</small></div>
+          <div class="mkt-val">${fmtE1(v)}
+            ${yoy !== null ? `<span class="mkt-yoy ${yoy>=0?'up':'dn'}">${yoy>=0?'▲':'▼'}${Math.abs(yoy).toFixed(1)}%</span>` : ''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+
+  $('mkt-grid').innerHTML =
+    card(year,      [C.foodnbid, C.school_suwon, C.school_nation, C.total]) +
+    card(prev_year, [P.foodnbid, P.school_suwon, P.school_nation, P.total]);
+
+  if (ch1) ch1.destroy();
+  const lbls = ['FoodnBid 실측', '수도권 학교급식', '전국 학교급식', '전국 급식 전체'];
+  ch1 = new Chart($('ch1'), {
+    type: 'bar',
+    data: {
+      labels: lbls,
+      datasets: [
+        { label: `${year}년`, data: [C.foodnbid, C.school_suwon, C.school_nation, C.total],
+          backgroundColor: 'rgba(31,78,121,.78)', borderRadius: 4 },
+        { label: `${prev_year}년`, data: [P.foodnbid, P.school_suwon, P.school_nation, P.total],
+          backgroundColor: 'rgba(232,168,56,.7)', borderRadius: 4 },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top' },
+        tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${fmtE1(c.parsed.y)}` } },
+      },
+      scales: { y: { ticks: { callback: v => (v/1e8).toFixed(0)+'억' } } },
+    },
+  });
+}
+
+// ── 탭2: 경쟁사 현황 ─────────────────────────────────────
+function renderComp() {
+  const {year, prev_year, annual, competitors: comps, monthly} = G;
+  const top10 = comps.slice(0, 10);
+
+  // 요약 테이블
+  $('tb2s').innerHTML = comps.map((c, i) => `<tr>
+    <td class="c" style="font-weight:700;">${i+1}</td>
+    <td class="l">${c.company}</td>
+    <td>${fmt(c.annual)}</td>
+    <td class="c">${c.share}%</td>
+    <td>${fmt(c.monthly_avg_excl_vac)}</td>
+  </tr>`).join('');
+
+  // 도넛 차트
+  const COLORS = ['#1F4E79','#2E75B6','#4CAF50','#FF6B35','#E8A838',
+                  '#9C27B0','#00BCD4','#F44336','#FF9800','#607D8B'];
+  if (ch2) ch2.destroy();
+  ch2 = new Chart($('ch2'), {
+    type: 'doughnut',
+    data: {
+      labels: top10.map(c => c.company),
+      datasets: [{ data: top10.map(c => c.annual), backgroundColor: COLORS,
+                   borderWidth: 1, borderColor: '#fff' }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'right', labels: { font: { size: 11 } } },
+        tooltip: { callbacks: { label: c =>
+          ` ${c.label}: ${(c.parsed/1e8).toFixed(2)}억 (${top10[c.dataIndex].share}%)` } },
+      },
+    },
+  });
+
+  // 월별 헤더 (엑셀 Sheet3과 동일)
+  $('th2m').innerHTML = `<tr>
+    <th>월</th>
+    ${top10.map(c => `<th>${c.company}<br><small style="font-weight:400;">(${c.share}%)</small></th>`).join('')}
+    <th>월 합계</th>
+  </tr>`;
+
+  // 히트맵 테이블
+  const maxVal = Math.max(...monthly.map(m => m.current));
+  let mRows = '';
+  monthly.forEach(m => {
+    const cls = m.is_vacation ? 'vac' : '';
+    const mMax = Math.max(...top10.map(c => +((c.monthly||{})[String(m.month)] || 0)));
+    const cells = top10.map(c => {
+      const v = +((c.monthly||{})[String(m.month)] || 0);
+      const isTop = v > 0 && v === mMax;
+      const alpha = maxVal > 0 ? Math.min((v / maxVal) * 0.65, 0.65).toFixed(2) : 0;
+      const bg    = isTop ? '#FCE4EC' : `rgba(31,78,121,${alpha})`;
+      const col   = (!isTop && parseFloat(alpha) > 0.38) ? '#fff' : '#222';
+      return `<td class="heat-cell" style="background:${bg};color:${col};">${v ? fmt(v) : ''}</td>`;
+    }).join('');
+    mRows += `<tr class="${cls}">
+      <td class="c" style="font-weight:600;">${m.label}</td>
+      ${cells}
+      <td style="background:#EBF5E1;font-weight:700;">${fmt(m.current)}</td>
+    </tr>`;
+  });
+
+  // 합계 행
+  mRows += `<tr class="sum">
+    <td class="c">연간</td>
+    ${top10.map(c => `<td>${fmt(c.annual)}</td>`).join('')}
+    <td>${fmt(annual)}</td>
+  </tr>`;
+
+  // 점유율 행
+  mRows += `<tr>
+    <td></td>
+    ${top10.map(c => `<td class="c" style="font-size:.72rem;color:#aaa;">점유율 ${c.share}%</td>`).join('')}
+    <td></td>
+  </tr>`;
+
+  $('tb2m').innerHTML = mRows;
+  $('th2m').querySelectorAll('th')[0].textContent = '월';
+}
+
+// ── 탭3: 경쟁사 제품비교 ─────────────────────────────────
+function renderProd() {
+  const {year, competitors: comps, product_info: prods} = G;
+  const RCOLS = ['#FF6B35','#FF9500','#4CAF50','#2196F3','#9C27B0'];
+  const hasProd = prods && prods.length > 0;
+
+  // product_info 없을 때 → 업체 TOP5 기반 fallback
+  const items = hasProd ? prods : comps.slice(0, 5).map((c, i) => ({
+    rank: i + 1, company: c.company,
+    product: '', annual: c.annual,
+    monthly_avg: c.monthly_avg_excl_vac,
+    weight: '확인 필요', origin: '확인 필요',
+  }));
+
+  const notice = hasProd ? '' : `
+    <div style="background:#FFF8E1;border:1px solid #FFD54F;border-radius:8px;
+      padding:10px 14px;margin-bottom:12px;font-size:.82rem;color:#7B5E00;">
+      ℹ️ 제품 상세정보는 스킬 재실행 시 FoodnBid에서 자동 수집됩니다.
+      (🔄 재수집 버튼 클릭)
+    </div>`;
+
+  const cards = items.map((p, i) => {
+    const col = RCOLS[i] || '#888';
+    const originBadge = p.origin === '수입산'
+      ? `<span class="badge-i">수입산</span>`
+      : p.origin === '국내산'
+        ? `<span class="badge-d">국내산</span>`
+        : `<span style="color:#aaa;font-size:.75rem;">직접 확인</span>`;
+
+    const prodName = p.product
+      ? `<div style="font-size:.92rem;font-weight:700;color:var(--navy);
+           line-height:1.35;margin-bottom:6px;">${p.product}</div>`
+      : `<div style="color:#ccc;font-size:.78rem;margin-bottom:6px;">제품명 — 스킬 재실행 시 자동 수집</div>`;
+
+    return `
+      <div class="prod-card" style="border-top:4px solid ${col};">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+          <span style="background:${col};color:#fff;font-size:.68rem;font-weight:700;
+            padding:2px 8px;border-radius:10px;white-space:nowrap;">
+            FoodnBid ${year} ${p.rank}위 제품
+          </span>
+        </div>
+        ${prodName}
+        <div style="font-size:.78rem;color:#888;margin-bottom:8px;">
+          📦 ${p.company}
+        </div>
+        <div style="background:var(--bg);border-radius:6px;height:56px;display:flex;
+          align-items:center;justify-content:center;color:#ccc;font-size:.7rem;margin-bottom:8px;">
+          이미지 직접 삽입
+        </div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <div class="prod-row">
+            <span class="prod-k">연간 추정 매출</span>
+            <span class="prod-v">${fmtE1(p.annual)}</span>
+          </div>
+          <div class="prod-row">
+            <span class="prod-k">방학제외 월평균</span>
+            <span class="prod-v">${fmtE1(p.monthly_avg)}</span>
+          </div>
+          <div class="prod-row">
+            <span class="prod-k">중량</span>
+            <span class="prod-v">${p.weight !== '확인 필요' ? p.weight : '<span style="color:#ccc;">직접 확인</span>'}</span>
+          </div>
+          <div class="prod-row">
+            <span class="prod-k">원산지</span>
+            <span class="prod-v">${originBadge}</span>
+          </div>
+          <div class="prod-row">
+            <span class="prod-k">블루시스 납품가</span>
+            <span class="prod-v" style="color:#ccc;">직접 입력</span>
+          </div>
+          <div class="prod-row">
+            <span class="prod-k">육함량</span>
+            <span class="prod-v" style="color:#ccc;">직접 입력</span>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  $('prod-sec').innerHTML = notice + `<div class="prod-grid">${cards}</div>`;
+}
+
+function dlExcel() {
+  if (!curKw) return;
+  const url = `/api/excel?keyword=${encodeURIComponent(curKw)}`;
+  fetch(url).then(r => {
+    if (!r.ok) return r.json().then(e => alert(e.message || '엑셀 파일 없음'));
+    return r.blob().then(blob => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${curKw}_학교급식규모.xlsx`;
+      a.click();
+    });
+  }).catch(() => alert('다운로드 실패'));
+}
+</script>
+</body>
+</html>

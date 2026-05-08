@@ -1,0 +1,337 @@
+{
+  "keyword": "새우만두",
+  "year": 2025,
+  "collected_at": "20260507_1757",
+  "results": [
+    {
+      "year": 2025,
+      "month": 1,
+      "total": 1240636,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "풀무원",
+          "amount": 852346
+        },
+        {
+          "rank": 2,
+          "company": "씨제이",
+          "amount": 388290
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 2,
+      "total": 24050544,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 12944695
+        },
+        {
+          "rank": 2,
+          "company": "풀무원",
+          "amount": 10546955
+        },
+        {
+          "rank": 3,
+          "company": "동원",
+          "amount": 558894
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 3,
+      "total": 108951186,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "대상",
+          "amount": 52725429
+        },
+        {
+          "rank": 2,
+          "company": "풀무원",
+          "amount": 36002783
+        },
+        {
+          "rank": 3,
+          "company": "씨제이",
+          "amount": 19426550
+        },
+        {
+          "rank": 4,
+          "company": "동원",
+          "amount": 796424
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 4,
+      "total": 64171008,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "대상",
+          "amount": 48422274
+        },
+        {
+          "rank": 2,
+          "company": "풀무원",
+          "amount": 8425299
+        },
+        {
+          "rank": 3,
+          "company": "씨제이",
+          "amount": 6364000
+        },
+        {
+          "rank": 4,
+          "company": "동원",
+          "amount": 959435
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 5,
+      "total": 53603115,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 18265080
+        },
+        {
+          "rank": 2,
+          "company": "풀무원",
+          "amount": 18195168
+        },
+        {
+          "rank": 3,
+          "company": "대상",
+          "amount": 16895357
+        },
+        {
+          "rank": 4,
+          "company": "동원",
+          "amount": 247510
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 6,
+      "total": 63090628,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "파르팜",
+          "amount": 20735986
+        },
+        {
+          "rank": 2,
+          "company": "씨제이",
+          "amount": 19592313
+        },
+        {
+          "rank": 3,
+          "company": "대상",
+          "amount": 13448125
+        },
+        {
+          "rank": 4,
+          "company": "풀무원",
+          "amount": 8755310
+        },
+        {
+          "rank": 5,
+          "company": "동원",
+          "amount": 558894
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 7,
+      "total": 11899429,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "풀무원",
+          "amount": 6573450
+        },
+        {
+          "rank": 2,
+          "company": "파르팜",
+          "amount": 3302750
+        },
+        {
+          "rank": 3,
+          "company": "대상",
+          "amount": 2023229
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 8,
+      "total": 38911234,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "파르팜",
+          "amount": 16164980
+        },
+        {
+          "rank": 2,
+          "company": "대상",
+          "amount": 14085138
+        },
+        {
+          "rank": 3,
+          "company": "씨제이",
+          "amount": 7622029
+        },
+        {
+          "rank": 4,
+          "company": "풀무원",
+          "amount": 1039087
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 9,
+      "total": 63870940,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 33594318
+        },
+        {
+          "rank": 2,
+          "company": "대상",
+          "amount": 15214795
+        },
+        {
+          "rank": 3,
+          "company": "풀무원",
+          "amount": 9871325
+        },
+        {
+          "rank": 4,
+          "company": "파르팜",
+          "amount": 3556402
+        },
+        {
+          "rank": 5,
+          "company": "동원",
+          "amount": 1634100
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 10,
+      "total": 41442379,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 24727175
+        },
+        {
+          "rank": 2,
+          "company": "대상",
+          "amount": 8597781
+        },
+        {
+          "rank": 3,
+          "company": "풀무원",
+          "amount": 5024855
+        },
+        {
+          "rank": 4,
+          "company": "파르팜",
+          "amount": 1828403
+        },
+        {
+          "rank": 5,
+          "company": "동원",
+          "amount": 1264165
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 11,
+      "total": 47731963,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 22800183
+        },
+        {
+          "rank": 2,
+          "company": "파르팜",
+          "amount": 9112948
+        },
+        {
+          "rank": 3,
+          "company": "대상",
+          "amount": 8326881
+        },
+        {
+          "rank": 4,
+          "company": "풀무원",
+          "amount": 6799775
+        },
+        {
+          "rank": 5,
+          "company": "동원",
+          "amount": 692176
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 12,
+      "total": 7015598,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 4408985
+        },
+        {
+          "rank": 2,
+          "company": "대상",
+          "amount": 1270500
+        },
+        {
+          "rank": 3,
+          "company": "파르팜",
+          "amount": 866642
+        },
+        {
+          "rank": 4,
+          "company": "동원",
+          "amount": 469471
+        }
+      ]
+    }
+  ],
+  "annual_total": 525978660,
+  "methodology": {
+    "foodnbid_coverage": 0.6,
+    "suwon_student_ratio": 0.405,
+    "dangtche_ratio": 0.225
+  }
+}

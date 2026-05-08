@@ -1,0 +1,230 @@
+{
+  "keyword": "새우만두",
+  "year": 2024,
+  "collected_at": "20260507_1757",
+  "results": [
+    {
+      "year": 2024,
+      "month": 1,
+      "total": 0,
+      "companies": []
+    },
+    {
+      "year": 2024,
+      "month": 2,
+      "total": 4401784,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "동원",
+          "amount": 3692584
+        },
+        {
+          "rank": 2,
+          "company": "쿠킹맘",
+          "amount": 709200
+        }
+      ]
+    },
+    {
+      "year": 2024,
+      "month": 3,
+      "total": 410136,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 410136
+        }
+      ]
+    },
+    {
+      "year": 2024,
+      "month": 4,
+      "total": 14396397,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 12059565
+        },
+        {
+          "rank": 2,
+          "company": "동원",
+          "amount": 1588905
+        },
+        {
+          "rank": 3,
+          "company": "풀무원",
+          "amount": 572400
+        },
+        {
+          "rank": 4,
+          "company": "쿠킹맘",
+          "amount": 175527
+        }
+      ]
+    },
+    {
+      "year": 2024,
+      "month": 5,
+      "total": 5561824,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 3755424
+        },
+        {
+          "rank": 2,
+          "company": "쿠킹맘",
+          "amount": 775510
+        },
+        {
+          "rank": 3,
+          "company": "풀무원",
+          "amount": 572400
+        },
+        {
+          "rank": 4,
+          "company": "동원",
+          "amount": 458490
+        }
+      ]
+    },
+    {
+      "year": 2024,
+      "month": 6,
+      "total": 9188393,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 8397653
+        },
+        {
+          "rank": 2,
+          "company": "풀무원",
+          "amount": 601020
+        },
+        {
+          "rank": 3,
+          "company": "동원",
+          "amount": 189720
+        }
+      ]
+    },
+    {
+      "year": 2024,
+      "month": 7,
+      "total": 0,
+      "companies": []
+    },
+    {
+      "year": 2024,
+      "month": 8,
+      "total": 20011693,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 19835693
+        },
+        {
+          "rank": 2,
+          "company": "동원",
+          "amount": 176000
+        }
+      ]
+    },
+    {
+      "year": 2024,
+      "month": 9,
+      "total": 28376273,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 26550673
+        },
+        {
+          "rank": 2,
+          "company": "동원",
+          "amount": 1825600
+        },
+        {
+          "rank": 3,
+          "company": "풀무원",
+          "amount": 0
+        }
+      ]
+    },
+    {
+      "year": 2024,
+      "month": 10,
+      "total": 21670027,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 20973707
+        },
+        {
+          "rank": 2,
+          "company": "동원",
+          "amount": 696320
+        }
+      ]
+    },
+    {
+      "year": 2024,
+      "month": 11,
+      "total": 164399190,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 110015870
+        },
+        {
+          "rank": 2,
+          "company": "풀무원",
+          "amount": 50915384
+        },
+        {
+          "rank": 3,
+          "company": "동원",
+          "amount": 2516480
+        },
+        {
+          "rank": 4,
+          "company": "대상",
+          "amount": 951456
+        }
+      ]
+    },
+    {
+      "year": 2024,
+      "month": 12,
+      "total": 7179069,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 5464664
+        },
+        {
+          "rank": 2,
+          "company": "풀무원",
+          "amount": 1714405
+        }
+      ]
+    }
+  ],
+  "annual_total": 275594786,
+  "methodology": {
+    "foodnbid_coverage": 0.6,
+    "suwon_student_ratio": 0.405,
+    "dangtche_ratio": 0.225
+  }
+}

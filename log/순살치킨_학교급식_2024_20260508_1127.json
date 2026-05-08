@@ -1,0 +1,682 @@
+{
+  "keyword": "순살치킨",
+  "year": 2024,
+  "collected_at": "20260508_1127",
+  "results": [
+    {
+      "year": 2024,
+      "month": 1,
+      "total": 1613371,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "풀무원",
+          "amount": 1213191
+        },
+        {
+          "rank": 2,
+          "company": "대상",
+          "amount": 400180
+        },
+        {
+          "rank": 3,
+          "company": "SPCGFS",
+          "amount": 0
+        }
+      ]
+    },
+    {
+      "year": 2024,
+      "month": 2,
+      "total": 199211670,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "대상",
+          "amount": 108207848
+        },
+        {
+          "rank": 2,
+          "company": "씨제이",
+          "amount": 37854950
+        },
+        {
+          "rank": 3,
+          "company": "참조은",
+          "amount": 13286809
+        },
+        {
+          "rank": 4,
+          "company": "하늘빛",
+          "amount": 10903194
+        },
+        {
+          "rank": 5,
+          "company": "풀무원",
+          "amount": 10850636
+        },
+        {
+          "rank": 6,
+          "company": "이우스",
+          "amount": 5057010
+        },
+        {
+          "rank": 7,
+          "company": "신세계푸드",
+          "amount": 4445070
+        },
+        {
+          "rank": 8,
+          "company": "크로바",
+          "amount": 3929800
+        },
+        {
+          "rank": 9,
+          "company": "식탁요정",
+          "amount": 3596353
+        },
+        {
+          "rank": 10,
+          "company": "마미스",
+          "amount": 1080000
+        }
+      ]
+    },
+    {
+      "year": 2024,
+      "month": 3,
+      "total": 163741641,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 52217149
+        },
+        {
+          "rank": 2,
+          "company": "대상",
+          "amount": 51595054
+        },
+        {
+          "rank": 3,
+          "company": "참조은",
+          "amount": 21603910
+        },
+        {
+          "rank": 4,
+          "company": "풀무원",
+          "amount": 19282312
+        },
+        {
+          "rank": 5,
+          "company": "크로바",
+          "amount": 4598160
+        },
+        {
+          "rank": 6,
+          "company": "하늘빛",
+          "amount": 4256745
+        },
+        {
+          "rank": 7,
+          "company": "SPCGFS",
+          "amount": 3827288
+        },
+        {
+          "rank": 8,
+          "company": "신세계푸드",
+          "amount": 3524700
+        },
+        {
+          "rank": 9,
+          "company": "이우스",
+          "amount": 2836323
+        }
+      ]
+    },
+    {
+      "year": 2024,
+      "month": 4,
+      "total": 199615353,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "대상",
+          "amount": 71645948
+        },
+        {
+          "rank": 2,
+          "company": "참조은",
+          "amount": 47219474
+        },
+        {
+          "rank": 3,
+          "company": "씨제이",
+          "amount": 43968250
+        },
+        {
+          "rank": 4,
+          "company": "하늘빛",
+          "amount": 8924292
+        },
+        {
+          "rank": 5,
+          "company": "이우스",
+          "amount": 8594973
+        },
+        {
+          "rank": 6,
+          "company": "신세계푸드",
+          "amount": 4699600
+        },
+        {
+          "rank": 7,
+          "company": "풀무원",
+          "amount": 4001440
+        },
+        {
+          "rank": 8,
+          "company": "스마일푸드야미",
+          "amount": 3520300
+        },
+        {
+          "rank": 9,
+          "company": "소예푸드",
+          "amount": 2456256
+        },
+        {
+          "rank": 10,
+          "company": "더불어사는마을",
+          "amount": 2018520
+        },
+        {
+          "rank": 11,
+          "company": "식탁요정",
+          "amount": 1950300
+        },
+        {
+          "rank": 12,
+          "company": "크로바",
+          "amount": 616000
+        }
+      ]
+    },
+    {
+      "year": 2024,
+      "month": 5,
+      "total": 274199363,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "대상",
+          "amount": 175007987
+        },
+        {
+          "rank": 2,
+          "company": "씨제이",
+          "amount": 34276165
+        },
+        {
+          "rank": 3,
+          "company": "참조은",
+          "amount": 23972255
+        },
+        {
+          "rank": 4,
+          "company": "이우스",
+          "amount": 11140644
+        },
+        {
+          "rank": 5,
+          "company": "풀무원",
+          "amount": 8170886
+        },
+        {
+          "rank": 6,
+          "company": "크로바",
+          "amount": 6966400
+        },
+        {
+          "rank": 7,
+          "company": "신세계푸드",
+          "amount": 3205776
+        },
+        {
+          "rank": 8,
+          "company": "마미스",
+          "amount": 2988000
+        },
+        {
+          "rank": 9,
+          "company": "하늘빛",
+          "amount": 2561490
+        },
+        {
+          "rank": 10,
+          "company": "초록푸드",
+          "amount": 2042280
+        },
+        {
+          "rank": 11,
+          "company": "더불어사는마을",
+          "amount": 1757700
+        },
+        {
+          "rank": 12,
+          "company": "SRC",
+          "amount": 1466100
+        },
+        {
+          "rank": 13,
+          "company": "레인보우",
+          "amount": 643680
+        }
+      ]
+    },
+    {
+      "year": 2024,
+      "month": 6,
+      "total": 282457017,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "대상",
+          "amount": 133283304
+        },
+        {
+          "rank": 2,
+          "company": "씨제이",
+          "amount": 76722773
+        },
+        {
+          "rank": 3,
+          "company": "참조은",
+          "amount": 27144324
+        },
+        {
+          "rank": 4,
+          "company": "이우스",
+          "amount": 10914276
+        },
+        {
+          "rank": 5,
+          "company": "풀무원",
+          "amount": 9887890
+        },
+        {
+          "rank": 6,
+          "company": "하늘빛",
+          "amount": 7495020
+        },
+        {
+          "rank": 7,
+          "company": "크로바",
+          "amount": 6588960
+        },
+        {
+          "rank": 8,
+          "company": "신세계푸드",
+          "amount": 5491388
+        },
+        {
+          "rank": 9,
+          "company": "SRC",
+          "amount": 1384650
+        },
+        {
+          "rank": 10,
+          "company": "마미스",
+          "amount": 1370820
+        },
+        {
+          "rank": 11,
+          "company": "소예푸드",
+          "amount": 1074612
+        },
+        {
+          "rank": 12,
+          "company": "레인보우",
+          "amount": 536400
+        },
+        {
+          "rank": 13,
+          "company": "초록나무",
+          "amount": 494560
+        },
+        {
+          "rank": 14,
+          "company": "더불어사는마을",
+          "amount": 68040
+        },
+        {
+          "rank": 15,
+          "company": "SPCGFS",
+          "amount": 0
+        }
+      ]
+    },
+    {
+      "year": 2024,
+      "month": 7,
+      "total": 37181362,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "대상",
+          "amount": 23204060
+        },
+        {
+          "rank": 2,
+          "company": "씨제이",
+          "amount": 6008132
+        },
+        {
+          "rank": 3,
+          "company": "참조은",
+          "amount": 4102560
+        },
+        {
+          "rank": 4,
+          "company": "하늘빛",
+          "amount": 1752030
+        },
+        {
+          "rank": 5,
+          "company": "초록나무",
+          "amount": 1174580
+        },
+        {
+          "rank": 6,
+          "company": "풀무원",
+          "amount": 940000
+        }
+      ]
+    },
+    {
+      "year": 2024,
+      "month": 8,
+      "total": 322233498,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "대상",
+          "amount": 249403829
+        },
+        {
+          "rank": 2,
+          "company": "씨제이",
+          "amount": 31005027
+        },
+        {
+          "rank": 3,
+          "company": "참조은",
+          "amount": 15236577
+        },
+        {
+          "rank": 4,
+          "company": "이우스",
+          "amount": 8047638
+        },
+        {
+          "rank": 5,
+          "company": "풀무원",
+          "amount": 5975121
+        },
+        {
+          "rank": 6,
+          "company": "하늘빛",
+          "amount": 5852160
+        },
+        {
+          "rank": 7,
+          "company": "크로바",
+          "amount": 3420450
+        },
+        {
+          "rank": 8,
+          "company": "소예푸드",
+          "amount": 2507428
+        },
+        {
+          "rank": 9,
+          "company": "식탁요정",
+          "amount": 785268
+        }
+      ]
+    },
+    {
+      "year": 2024,
+      "month": 9,
+      "total": 179888468,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "대상",
+          "amount": 117801372
+        },
+        {
+          "rank": 2,
+          "company": "씨제이",
+          "amount": 29129830
+        },
+        {
+          "rank": 3,
+          "company": "참조은",
+          "amount": 17126300
+        },
+        {
+          "rank": 4,
+          "company": "풀무원",
+          "amount": 10175109
+        },
+        {
+          "rank": 5,
+          "company": "신세계푸드",
+          "amount": 2615070
+        },
+        {
+          "rank": 6,
+          "company": "이우스",
+          "amount": 871047
+        },
+        {
+          "rank": 7,
+          "company": "레인보우",
+          "amount": 710730
+        },
+        {
+          "rank": 8,
+          "company": "식탁요정",
+          "amount": 520080
+        },
+        {
+          "rank": 9,
+          "company": "크로바",
+          "amount": 487850
+        },
+        {
+          "rank": 10,
+          "company": "하늘빛",
+          "amount": 451080
+        }
+      ]
+    },
+    {
+      "year": 2024,
+      "month": 10,
+      "total": 168350346,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "대상",
+          "amount": 84391155
+        },
+        {
+          "rank": 2,
+          "company": "씨제이",
+          "amount": 32910724
+        },
+        {
+          "rank": 3,
+          "company": "참조은",
+          "amount": 21965425
+        },
+        {
+          "rank": 4,
+          "company": "크로바",
+          "amount": 8053880
+        },
+        {
+          "rank": 5,
+          "company": "이우스",
+          "amount": 7611408
+        },
+        {
+          "rank": 6,
+          "company": "풀무원",
+          "amount": 5430474
+        },
+        {
+          "rank": 7,
+          "company": "하늘빛",
+          "amount": 4136310
+        },
+        {
+          "rank": 8,
+          "company": "레인보우",
+          "amount": 1783530
+        },
+        {
+          "rank": 9,
+          "company": "식탁요정",
+          "amount": 936320
+        },
+        {
+          "rank": 10,
+          "company": "더불어사는마을",
+          "amount": 737100
+        },
+        {
+          "rank": 11,
+          "company": "SRC",
+          "amount": 394020
+        }
+      ]
+    },
+    {
+      "year": 2024,
+      "month": 11,
+      "total": 219761031,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "대상",
+          "amount": 115185034
+        },
+        {
+          "rank": 2,
+          "company": "씨제이",
+          "amount": 43321365
+        },
+        {
+          "rank": 3,
+          "company": "참조은",
+          "amount": 31980708
+        },
+        {
+          "rank": 4,
+          "company": "풀무원",
+          "amount": 14752952
+        },
+        {
+          "rank": 5,
+          "company": "크로바",
+          "amount": 3922090
+        },
+        {
+          "rank": 6,
+          "company": "신세계푸드",
+          "amount": 2911104
+        },
+        {
+          "rank": 7,
+          "company": "소예푸드",
+          "amount": 2648151
+        },
+        {
+          "rank": 8,
+          "company": "식탁요정",
+          "amount": 1300200
+        },
+        {
+          "rank": 9,
+          "company": "더불어사는마을",
+          "amount": 1224720
+        },
+        {
+          "rank": 10,
+          "company": "이우스",
+          "amount": 833166
+        },
+        {
+          "rank": 11,
+          "company": "하늘빛",
+          "amount": 595350
+        },
+        {
+          "rank": 12,
+          "company": "마미스",
+          "amount": 540000
+        },
+        {
+          "rank": 13,
+          "company": "SRC",
+          "amount": 358200
+        },
+        {
+          "rank": 14,
+          "company": "레인보우",
+          "amount": 187991
+        }
+      ]
+    },
+    {
+      "year": 2024,
+      "month": 12,
+      "total": 23254606,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 20460253
+        },
+        {
+          "rank": 2,
+          "company": "하늘빛",
+          "amount": 920364
+        },
+        {
+          "rank": 3,
+          "company": "풀무원",
+          "amount": 737730
+        },
+        {
+          "rank": 4,
+          "company": "대상",
+          "amount": 685080
+        },
+        {
+          "rank": 5,
+          "company": "레인보우",
+          "amount": 451179
+        }
+      ]
+    }
+  ],
+  "annual_total": 2071507726,
+  "methodology": {
+    "foodnbid_coverage": 0.6,
+    "suwon_student_ratio": 0.405,
+    "dangtche_ratio": 0.225
+  }
+}

@@ -1,0 +1,832 @@
+{
+  "keyword": "가라아게",
+  "year": 2025,
+  "collected_at": "20260508_1337",
+  "results": [
+    {
+      "year": 2025,
+      "month": 1,
+      "total": 180660,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "풀무원",
+          "amount": 180660
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 2,
+      "total": 88989342,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 30857401
+        },
+        {
+          "rank": 2,
+          "company": "풀무원",
+          "amount": 21368889
+        },
+        {
+          "rank": 3,
+          "company": "소예푸드",
+          "amount": 10637352
+        },
+        {
+          "rank": 4,
+          "company": "이우스",
+          "amount": 8938395
+        },
+        {
+          "rank": 5,
+          "company": "씨엔아이",
+          "amount": 6027060
+        },
+        {
+          "rank": 6,
+          "company": "크로바",
+          "amount": 3707100
+        },
+        {
+          "rank": 7,
+          "company": "오뚜기",
+          "amount": 2851750
+        },
+        {
+          "rank": 8,
+          "company": "식탁요정",
+          "amount": 1375495
+        },
+        {
+          "rank": 9,
+          "company": "면사랑",
+          "amount": 935000
+        },
+        {
+          "rank": 10,
+          "company": "대상",
+          "amount": 923450
+        },
+        {
+          "rank": 11,
+          "company": "아워홈",
+          "amount": 710250
+        },
+        {
+          "rank": 12,
+          "company": "더불어사는마을",
+          "amount": 657200
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 3,
+      "total": 132556081,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "풀무원",
+          "amount": 34860871
+        },
+        {
+          "rank": 2,
+          "company": "씨엔아이",
+          "amount": 24295033
+        },
+        {
+          "rank": 3,
+          "company": "씨제이",
+          "amount": 21726845
+        },
+        {
+          "rank": 4,
+          "company": "오뚜기",
+          "amount": 16418600
+        },
+        {
+          "rank": 5,
+          "company": "소예푸드",
+          "amount": 15357960
+        },
+        {
+          "rank": 6,
+          "company": "이우스",
+          "amount": 5086143
+        },
+        {
+          "rank": 7,
+          "company": "더불어사는마을",
+          "amount": 4238400
+        },
+        {
+          "rank": 8,
+          "company": "아워홈",
+          "amount": 3859629
+        },
+        {
+          "rank": 9,
+          "company": "식감",
+          "amount": 2289600
+        },
+        {
+          "rank": 10,
+          "company": "크로바",
+          "amount": 1708800
+        },
+        {
+          "rank": 11,
+          "company": "SRC",
+          "amount": 1248750
+        },
+        {
+          "rank": 12,
+          "company": "식탁요정",
+          "amount": 846934
+        },
+        {
+          "rank": 13,
+          "company": "초록푸드",
+          "amount": 618516
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 4,
+      "total": 137258544,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "풀무원",
+          "amount": 51304461
+        },
+        {
+          "rank": 2,
+          "company": "씨제이",
+          "amount": 41843974
+        },
+        {
+          "rank": 3,
+          "company": "씨엔아이",
+          "amount": 12468005
+        },
+        {
+          "rank": 4,
+          "company": "소예푸드",
+          "amount": 8271720
+        },
+        {
+          "rank": 5,
+          "company": "오뚜기",
+          "amount": 6133600
+        },
+        {
+          "rank": 6,
+          "company": "아워홈",
+          "amount": 4355970
+        },
+        {
+          "rank": 7,
+          "company": "SRC",
+          "amount": 3429900
+        },
+        {
+          "rank": 8,
+          "company": "이우스",
+          "amount": 2705612
+        },
+        {
+          "rank": 9,
+          "company": "크로바",
+          "amount": 1254000
+        },
+        {
+          "rank": 10,
+          "company": "식감",
+          "amount": 1221120
+        },
+        {
+          "rank": 11,
+          "company": "슬로우메이드",
+          "amount": 1198440
+        },
+        {
+          "rank": 12,
+          "company": "더불어사는마을",
+          "amount": 960000
+        },
+        {
+          "rank": 13,
+          "company": "바른웰",
+          "amount": 839250
+        },
+        {
+          "rank": 14,
+          "company": "대상",
+          "amount": 683100
+        },
+        {
+          "rank": 15,
+          "company": "한올푸드",
+          "amount": 512117
+        },
+        {
+          "rank": 16,
+          "company": "식탁요정",
+          "amount": 77275
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 5,
+      "total": 101473845,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "풀무원",
+          "amount": 32136982
+        },
+        {
+          "rank": 2,
+          "company": "씨제이",
+          "amount": 22268388
+        },
+        {
+          "rank": 3,
+          "company": "오뚜기",
+          "amount": 17664570
+        },
+        {
+          "rank": 4,
+          "company": "씨엔아이",
+          "amount": 13173740
+        },
+        {
+          "rank": 5,
+          "company": "이우스",
+          "amount": 7062833
+        },
+        {
+          "rank": 6,
+          "company": "아워홈",
+          "amount": 2063480
+        },
+        {
+          "rank": 7,
+          "company": "소예푸드",
+          "amount": 1712520
+        },
+        {
+          "rank": 8,
+          "company": "크로바",
+          "amount": 1240800
+        },
+        {
+          "rank": 9,
+          "company": "식감",
+          "amount": 1099008
+        },
+        {
+          "rank": 10,
+          "company": "자연가득",
+          "amount": 900000
+        },
+        {
+          "rank": 11,
+          "company": "더불어사는마을",
+          "amount": 844560
+        },
+        {
+          "rank": 12,
+          "company": "대상",
+          "amount": 733700
+        },
+        {
+          "rank": 13,
+          "company": "SRC",
+          "amount": 416250
+        },
+        {
+          "rank": 14,
+          "company": "면사랑",
+          "amount": 157014
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 6,
+      "total": 179065070,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 73006162
+        },
+        {
+          "rank": 2,
+          "company": "풀무원",
+          "amount": 26603314
+        },
+        {
+          "rank": 3,
+          "company": "씨엔아이",
+          "amount": 19445891
+        },
+        {
+          "rank": 4,
+          "company": "아워홈",
+          "amount": 17511563
+        },
+        {
+          "rank": 5,
+          "company": "소예푸드",
+          "amount": 9776880
+        },
+        {
+          "rank": 6,
+          "company": "이우스",
+          "amount": 7961241
+        },
+        {
+          "rank": 7,
+          "company": "한올푸드",
+          "amount": 7394030
+        },
+        {
+          "rank": 8,
+          "company": "크로바",
+          "amount": 6376650
+        },
+        {
+          "rank": 9,
+          "company": "오뚜기",
+          "amount": 5401440
+        },
+        {
+          "rank": 10,
+          "company": "한결푸드",
+          "amount": 1813484
+        },
+        {
+          "rank": 11,
+          "company": "식감",
+          "amount": 1205856
+        },
+        {
+          "rank": 12,
+          "company": "대상",
+          "amount": 1012000
+        },
+        {
+          "rank": 13,
+          "company": "식탁요정",
+          "amount": 584199
+        },
+        {
+          "rank": 14,
+          "company": "자연가득",
+          "amount": 562500
+        },
+        {
+          "rank": 15,
+          "company": "초록푸드",
+          "amount": 409860
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 7,
+      "total": 23242461,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 12216137
+        },
+        {
+          "rank": 2,
+          "company": "씨엔아이",
+          "amount": 3508100
+        },
+        {
+          "rank": 3,
+          "company": "이우스",
+          "amount": 2188800
+        },
+        {
+          "rank": 4,
+          "company": "풀무원",
+          "amount": 1678937
+        },
+        {
+          "rank": 5,
+          "company": "면사랑",
+          "amount": 1618452
+        },
+        {
+          "rank": 6,
+          "company": "한올푸드",
+          "amount": 873300
+        },
+        {
+          "rank": 7,
+          "company": "식탁요정",
+          "amount": 386375
+        },
+        {
+          "rank": 8,
+          "company": "크로바",
+          "amount": 369600
+        },
+        {
+          "rank": 9,
+          "company": "소예푸드",
+          "amount": 266400
+        },
+        {
+          "rank": 10,
+          "company": "아워홈",
+          "amount": 136360
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 8,
+      "total": 166224394,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "풀무원",
+          "amount": 53519390
+        },
+        {
+          "rank": 2,
+          "company": "씨제이",
+          "amount": 25750351
+        },
+        {
+          "rank": 3,
+          "company": "이우스",
+          "amount": 16172280
+        },
+        {
+          "rank": 4,
+          "company": "씨엔아이",
+          "amount": 15150635
+        },
+        {
+          "rank": 5,
+          "company": "한올푸드",
+          "amount": 13076990
+        },
+        {
+          "rank": 6,
+          "company": "SPCGFS",
+          "amount": 7971316
+        },
+        {
+          "rank": 7,
+          "company": "크로바",
+          "amount": 7659200
+        },
+        {
+          "rank": 8,
+          "company": "오뚜기",
+          "amount": 6325000
+        },
+        {
+          "rank": 9,
+          "company": "아워홈",
+          "amount": 5346420
+        },
+        {
+          "rank": 10,
+          "company": "소예푸드",
+          "amount": 5181480
+        },
+        {
+          "rank": 11,
+          "company": "더불어사는마을",
+          "amount": 4571600
+        },
+        {
+          "rank": 12,
+          "company": "면사랑",
+          "amount": 1980792
+        },
+        {
+          "rank": 13,
+          "company": "식감",
+          "amount": 1817640
+        },
+        {
+          "rank": 14,
+          "company": "바르미",
+          "amount": 1701300
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 9,
+      "total": 105043413,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "풀무원",
+          "amount": 20804485
+        },
+        {
+          "rank": 2,
+          "company": "씨제이",
+          "amount": 17672758
+        },
+        {
+          "rank": 3,
+          "company": "씨엔아이",
+          "amount": 17019766
+        },
+        {
+          "rank": 4,
+          "company": "한올푸드",
+          "amount": 11820070
+        },
+        {
+          "rank": 5,
+          "company": "이우스",
+          "amount": 9804150
+        },
+        {
+          "rank": 6,
+          "company": "오뚜기",
+          "amount": 7250980
+        },
+        {
+          "rank": 7,
+          "company": "SPCGFS",
+          "amount": 5787484
+        },
+        {
+          "rank": 8,
+          "company": "소예푸드",
+          "amount": 5714280
+        },
+        {
+          "rank": 9,
+          "company": "바르미",
+          "amount": 2439600
+        },
+        {
+          "rank": 10,
+          "company": "크로바",
+          "amount": 2327440
+        },
+        {
+          "rank": 11,
+          "company": "식감",
+          "amount": 1790100
+        },
+        {
+          "rank": 12,
+          "company": "더불어사는마을",
+          "amount": 888000
+        },
+        {
+          "rank": 13,
+          "company": "아워홈",
+          "amount": 699600
+        },
+        {
+          "rank": 14,
+          "company": "대상",
+          "amount": 569250
+        },
+        {
+          "rank": 15,
+          "company": "식탁요정",
+          "amount": 413600
+        },
+        {
+          "rank": 16,
+          "company": "SRC",
+          "amount": 41850
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 10,
+      "total": 118615750,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "풀무원",
+          "amount": 27681215
+        },
+        {
+          "rank": 2,
+          "company": "씨제이",
+          "amount": 26877335
+        },
+        {
+          "rank": 3,
+          "company": "씨엔아이",
+          "amount": 14441945
+        },
+        {
+          "rank": 4,
+          "company": "SPCGFS",
+          "amount": 11818488
+        },
+        {
+          "rank": 5,
+          "company": "이우스",
+          "amount": 7971264
+        },
+        {
+          "rank": 6,
+          "company": "오뚜기",
+          "amount": 6760160
+        },
+        {
+          "rank": 7,
+          "company": "한올푸드",
+          "amount": 6655933
+        },
+        {
+          "rank": 8,
+          "company": "바르미",
+          "amount": 4472600
+        },
+        {
+          "rank": 9,
+          "company": "더불어사는마을",
+          "amount": 2431200
+        },
+        {
+          "rank": 10,
+          "company": "크로바",
+          "amount": 2344800
+        },
+        {
+          "rank": 11,
+          "company": "소예푸드",
+          "amount": 1998000
+        },
+        {
+          "rank": 12,
+          "company": "아워홈",
+          "amount": 1942920
+        },
+        {
+          "rank": 13,
+          "company": "식탁요정",
+          "amount": 992640
+        },
+        {
+          "rank": 14,
+          "company": "한결푸드",
+          "amount": 895050
+        },
+        {
+          "rank": 15,
+          "company": "식감",
+          "amount": 826200
+        },
+        {
+          "rank": 16,
+          "company": "대상",
+          "amount": 506000
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 11,
+      "total": 123352341,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 29384964
+        },
+        {
+          "rank": 2,
+          "company": "이우스",
+          "amount": 20874758
+        },
+        {
+          "rank": 3,
+          "company": "풀무원",
+          "amount": 18260095
+        },
+        {
+          "rank": 4,
+          "company": "씨엔아이",
+          "amount": 13996965
+        },
+        {
+          "rank": 5,
+          "company": "오뚜기",
+          "amount": 8045400
+        },
+        {
+          "rank": 6,
+          "company": "한올푸드",
+          "amount": 7362645
+        },
+        {
+          "rank": 7,
+          "company": "초록푸드",
+          "amount": 5898870
+        },
+        {
+          "rank": 8,
+          "company": "SPCGFS",
+          "amount": 3357916
+        },
+        {
+          "rank": 9,
+          "company": "소예푸드",
+          "amount": 3183480
+        },
+        {
+          "rank": 10,
+          "company": "크로바",
+          "amount": 2997590
+        },
+        {
+          "rank": 11,
+          "company": "바르미",
+          "amount": 2568000
+        },
+        {
+          "rank": 12,
+          "company": "더불어사는마을",
+          "amount": 1762800
+        },
+        {
+          "rank": 13,
+          "company": "아워홈",
+          "amount": 1537255
+        },
+        {
+          "rank": 14,
+          "company": "대상",
+          "amount": 1400355
+        },
+        {
+          "rank": 15,
+          "company": "바른웰",
+          "amount": 1292400
+        },
+        {
+          "rank": 16,
+          "company": "식탁요정",
+          "amount": 810656
+        },
+        {
+          "rank": 17,
+          "company": "초록나무",
+          "amount": 618192
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "month": 12,
+      "total": 21142628,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "씨제이",
+          "amount": 15891368
+        },
+        {
+          "rank": 2,
+          "company": "SPCGFS",
+          "amount": 2701123
+        },
+        {
+          "rank": 3,
+          "company": "풀무원",
+          "amount": 2550137
+        }
+      ]
+    }
+  ],
+  "annual_total": 1197144529,
+  "methodology": {
+    "foodnbid_coverage": 0.6,
+    "suwon_student_ratio": 0.405,
+    "dangtche_ratio": 0.225
+  }
+}
