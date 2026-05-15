@@ -198,10 +198,6 @@ def api_run():
     if not keyword:
         return jsonify({"error": "keyword_required"}), 400
 
-    if IS_CLOUD:
-        return jsonify({"error": "cloud_mode",
-                        "message": "클라우드 환경에서는 수집 불가합니다.\n노트북에서 수집 후 GitHub에 푸시해 주세요."}), 403
-
     if running_tasks.get(keyword) == "running":
         return jsonify({"status": "already_running"})
 
