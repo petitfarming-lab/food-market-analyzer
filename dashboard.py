@@ -43,6 +43,60 @@ def get_latest_log(keyword: str, year: int):
     return files[-1] if files else None
 
 
+def read_product_from_excel(keyword: str, year: int) -> list:
+    """Excel 경쟁사_제품정보 Sheet에서 제품 정보를 읽어 반환 (product_info JSON 없을 때 fallback)"""
+    try:
+        import openpyxl, re as _re
+    except ImportError:
+        return []
+
+    def _find_excel(yr):
+        pat = os.path.join(OUTPUT_DIR, f"{keyword}_학교급식규모_{yr}_*.xlsx")
+        return [f for f in sorted(glob.glob(pat)) if not os.path.basename(f).startswith("~$")]
+
+    files = _find_excel(year) or _find_excel(year - 1)
+    if not files:
+        return []
+
+    try:
+        wb = openpyxl.load_workbook(files[-1], data_only=True)
+        if "경쟁사_제품정보" not in wb.sheetnames:
+            return []
+        ws = wb["경쟁사_제품정보"]
+
+        # Sheet 구조: B=라벨, C=1위, D=2위, ... (최대 5위)
+        # Row4=업체명 Row5=제품명 Row6=중량 Row7=월평균 Row9=원산지 Row10=블루시스가격
+        result = []
+        for col in range(3, 9):
+            company = str(ws.cell(row=4, column=col).value or "").strip()
+            if not company or company in ("항목",):
+                break
+            product     = str(ws.cell(row=5, column=col).value or "").strip()
+            weight      = str(ws.cell(row=6, column=col).value or "확인 필요").strip()
+            mavg_raw    = str(ws.cell(row=7, column=col).value or "0").strip()
+            origin      = str(ws.cell(row=9, column=col).value or "확인 필요").strip()
+            bluesis     = str(ws.cell(row=10, column=col).value or "직접 확인").strip()
+
+            m = _re.search(r"([\d,]+)", mavg_raw)
+            monthly_avg = int(m.group(1).replace(",", "")) if m else 0
+
+            result.append({
+                "rank":          col - 2,
+                "company":       company,
+                "product":       product,
+                "annual":        0,       # comp_list에서 채움
+                "monthly_avg":   monthly_avg,
+                "weight":        weight,
+                "origin":        origin,
+                "bluesis_price": bluesis,
+            })
+        wb.close()
+        return result
+    except Exception as e:
+        print(f"[경고] Excel 제품정보 읽기 실패: {e}")
+        return []
+
+
 def find_best_year(keyword: str) -> int:
     """ANALYSIS_YEAR 기준 연도 로그가 있으면 반환, 없으면 ANALYSIS_YEAR 고정."""
     for yr in [ANALYSIS_YEAR, ANALYSIS_YEAR - 1]:
@@ -131,11 +185,29 @@ def compute_data(keyword: str):
         "monthly":              {str(m): comp_monthly.get(c, {}).get(m, 0) for m in range(1, 13)},
     } for c, a in sorted_comps[:15]]
 
-    # 제품 정보 (별도 JSON 있으면 로드)
+    # 제품 정보: JSON 우선, 없으면 Excel Sheet4 fallback
     product_info = []
     for pf in sorted(glob.glob(os.path.join(LOG_DIR, f"{keyword}_제품정보_{year}_*.json"))):
         with open(pf, encoding="utf-8") as f:
             product_info = json.load(f)
+
+    if not product_info:
+        product_info = read_product_from_excel(keyword, year)
+
+    # annual 값 및 bluesis_price 보완 (JSON에는 bluesis_price가 없으므로 Excel에서 추가)
+    if product_info:
+        comp_by_name   = {c["company"]: c for c in comp_list}
+        excel_info_map = {p["company"]: p for p in read_product_from_excel(keyword, year)}
+        for p in product_info:
+            co = comp_by_name.get(p["company"], {})
+            if co:
+                if not p.get("annual"):
+                    p["annual"] = co["annual"]
+                if not p.get("monthly_avg"):
+                    p["monthly_avg"] = co["monthly_avg_excl_vac"]
+            if "bluesis_price" not in p:
+                ep = excel_info_map.get(p["company"], {})
+                p["bluesis_price"] = ep.get("bluesis_price", "")
 
     return {
         "keyword":       keyword,

@@ -639,23 +639,25 @@ function renderProd() {
   const RCOLS = ['#FF6B35','#FF9500','#4CAF50','#2196F3','#9C27B0'];
   const hasProd = prods && prods.length > 0;
 
-  // product_info 없을 때 → 업체 TOP5 기반 fallback
+  // product_info 없을 때 → 업체 TOP5 기반 fallback (제품명 없음)
   const items = hasProd ? prods : comps.slice(0, 5).map((c, i) => ({
     rank: i + 1, company: c.company,
     product: '', annual: c.annual,
     monthly_avg: c.monthly_avg_excl_vac,
-    weight: '확인 필요', origin: '확인 필요',
+    weight: '확인 필요', origin: '확인 필요', bluesis_price: '',
   }));
 
-  const notice = hasProd ? '' : `
+  const noProductName = items.some(p => !p.product);
+  const notice = noProductName ? `
     <div style="background:#FFF8E1;border:1px solid #FFD54F;border-radius:8px;
       padding:10px 14px;margin-bottom:12px;font-size:.82rem;color:#7B5E00;">
       ℹ️ 제품 상세정보는 스킬 재실행 시 FoodnBid에서 자동 수집됩니다.
       (🔄 재수집 버튼 클릭)
-    </div>`;
+    </div>` : '';
 
   const cards = items.map((p, i) => {
     const col = RCOLS[i] || '#888';
+
     const originBadge = p.origin === '수입산'
       ? `<span class="badge-i">수입산</span>`
       : p.origin === '국내산'
@@ -663,22 +665,34 @@ function renderProd() {
         : `<span style="color:#aaa;font-size:.75rem;">직접 확인</span>`;
 
     const prodName = p.product
-      ? `<div style="font-size:.92rem;font-weight:700;color:var(--navy);
-           line-height:1.35;margin-bottom:6px;">${p.product}</div>`
-      : `<div style="color:#ccc;font-size:.78rem;margin-bottom:6px;">제품명 — 스킬 재실행 시 자동 수집</div>`;
+      ? `<div style="font-size:.88rem;font-weight:700;color:var(--navy);
+           line-height:1.4;margin-bottom:6px;word-break:keep-all;">${p.product}</div>`
+      : `<div style="color:#ccc;font-size:.75rem;margin-bottom:6px;">제품명 — 스킬 재실행 시 자동 수집</div>`;
+
+    const bluesisVal = (p.bluesis_price && p.bluesis_price !== '직접 확인 필요' && p.bluesis_price !== '직접 확인' && p.bluesis_price !== '')
+      ? `<span style="font-weight:600;color:var(--navy);">${p.bluesis_price}</span>`
+      : `<span style="color:#ccc;">직접 입력</span>`;
+
+    const weightVal = (p.weight && p.weight !== '확인 필요')
+      ? p.weight
+      : '<span style="color:#ccc;">직접 확인</span>';
+
+    const mavgVal = p.monthly_avg
+      ? `${(p.monthly_avg/1e8).toFixed(2)}억원 <small style="color:#aaa;font-size:.72rem;">(${(p.monthly_avg).toLocaleString('ko-KR')}원)</small>`
+      : '—';
 
     return `
       <div class="prod-card" style="border-top:4px solid ${col};">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
           <span style="background:${col};color:#fff;font-size:.68rem;font-weight:700;
             padding:2px 8px;border-radius:10px;white-space:nowrap;">
             FoodnBid ${year} ${p.rank}위 제품
           </span>
         </div>
-        ${prodName}
-        <div style="font-size:.78rem;color:#888;margin-bottom:8px;">
-          📦 ${p.company}
+        <div style="font-size:.82rem;font-weight:700;color:${col};margin-bottom:2px;">
+          ${p.company}
         </div>
+        ${prodName}
         <div style="background:var(--bg);border-radius:6px;height:56px;display:flex;
           align-items:center;justify-content:center;color:#ccc;font-size:.7rem;margin-bottom:8px;">
           이미지 직접 삽입
@@ -688,13 +702,13 @@ function renderProd() {
             <span class="prod-k">연간 추정 매출</span>
             <span class="prod-v">${fmtE1(p.annual)}</span>
           </div>
-          <div class="prod-row">
+          <div class="prod-row" style="align-items:flex-start;">
             <span class="prod-k">방학제외 월평균</span>
-            <span class="prod-v">${fmtE1(p.monthly_avg)}</span>
+            <span class="prod-v" style="text-align:right;">${mavgVal}</span>
           </div>
           <div class="prod-row">
             <span class="prod-k">중량</span>
-            <span class="prod-v">${p.weight !== '확인 필요' ? p.weight : '<span style="color:#ccc;">직접 확인</span>'}</span>
+            <span class="prod-v">${weightVal}</span>
           </div>
           <div class="prod-row">
             <span class="prod-k">원산지</span>
@@ -702,7 +716,7 @@ function renderProd() {
           </div>
           <div class="prod-row">
             <span class="prod-k">블루시스 납품가</span>
-            <span class="prod-v" style="color:#ccc;">직접 입력</span>
+            <span class="prod-v">${bluesisVal}</span>
           </div>
           <div class="prod-row">
             <span class="prod-k">육함량</span>
