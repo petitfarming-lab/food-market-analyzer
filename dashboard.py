@@ -33,7 +33,38 @@ MONTH_NAMES = ["1월","2월","3월","4월","5월","6월",
                "7월","8월","9월","10월","11월","12월"]
 
 app = Flask(__name__)
-running_tasks = {}   # keyword → "running" | "done" | "error:..."
+running_tasks  = {}   # keyword → "running" | "done" | "error:..."
+bluesis_tasks  = {}   # keyword → "running" | "done" | "error:..."
+
+
+# ── 블루시스 자동 수집 ────────────────────────────────────
+def _bluesis_needs_update(product_info: list) -> bool:
+    """product_info에 블루시스 상세 데이터가 없으면 True"""
+    if not product_info:
+        return False
+    return any(not p.get("bluesis_ingredients") for p in product_info)
+
+
+def _start_bluesis_bg(keyword: str, year: int, product_info: list):
+    """백그라운드로 블루시스 상세정보 수집 후 JSON 저장"""
+    if bluesis_tasks.get(keyword) == "running":
+        return
+    import copy
+    pi_copy = copy.deepcopy(product_info)   # 스레드 안전
+
+    def _run():
+        bluesis_tasks[keyword] = "running"
+        try:
+            from bluesis_collector import collect_and_save
+            collect_and_save(keyword, year, pi_copy, LOG_DIR)
+            bluesis_tasks[keyword] = "done"
+            print(f"[bluesis_bg] {keyword} 수집 완료")
+        except Exception as e:
+            bluesis_tasks[keyword] = f"error:{e}"
+            print(f"[bluesis_bg] {keyword} 오류: {e}")
+
+    threading.Thread(target=_run, daemon=True).start()
+    print(f"[bluesis_bg] {keyword} 백그라운드 수집 시작")
 
 
 # ── 유틸 ──────────────────────────────────────────────────
@@ -273,7 +304,27 @@ def api_search():
     if data is None:
         return jsonify({"error": "not_found",
                         "message": f'"{keyword}" 데이터가 없습니다. 수집을 시작해 주세요.'}), 404
+
+    # 블루시스 상세정보가 없으면 백그라운드 수집 자동 시작
+    if _bluesis_needs_update(data.get("product_info", [])):
+        _start_bluesis_bg(keyword, data["year"], data["product_info"])
+        data["bluesis_collecting"] = True
+    else:
+        data["bluesis_collecting"] = bluesis_tasks.get(keyword) == "running"
+
     return jsonify(data)
+
+
+@app.route("/api/bluesis_status")
+def api_bluesis_status():
+    """블루시스 백그라운드 수집 상태 확인"""
+    keyword = request.args.get("keyword", "").strip()
+    status  = bluesis_tasks.get(keyword, "idle")
+    # done이면 최신 데이터 반환
+    if status == "done":
+        data = compute_data(keyword)
+        return jsonify({"status": "done", "data": data})
+    return jsonify({"status": status})
 
 
 @app.route("/api/cache")
