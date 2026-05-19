@@ -28,8 +28,13 @@ body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;background:var(--bg)
 .srch-box button:hover{background:#c98a20;}
 .pills{display:flex;gap:6px;flex-wrap:wrap;}
 .pill{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);
-  padding:3px 11px;border-radius:20px;font-size:.78rem;cursor:pointer;white-space:nowrap;}
-.pill:hover{background:rgba(255,255,255,.28);}
+  padding:3px 6px 3px 11px;border-radius:20px;font-size:.78rem;cursor:pointer;white-space:nowrap;
+  display:flex;align-items:center;gap:4px;}
+.pill:hover{background:rgba(255,255,255,.25);}
+.pill-kw{cursor:pointer;}
+.pill-del{background:none;border:none;color:rgba(255,255,255,.5);cursor:pointer;
+  font-size:.72rem;line-height:1;padding:1px 3px;border-radius:50%;transition:.15s;}
+.pill-del:hover{color:#fff;background:rgba(255,255,255,.25);}
 
 /* ── 상태 페이지 ── */
 .state-page{padding:80px 20px;text-align:center;}
@@ -274,16 +279,55 @@ const fmtE1= n => n ? (n/1e8).toFixed(1) + '억원' : '—';
 const yoyStr = v => v === null || v === undefined ? '—'
   : `<span class="${v>=0?'up':'dn'}">${v>=0?'▲':'▼'}${Math.abs(v).toFixed(1)}%</span>`;
 
-// ── 초기화 ──────────────────────────────────────────────
-addEventListener('DOMContentLoaded', loadPills);
+// ── 검색 히스토리 (localStorage) ────────────────────────
+const HIST_KEY = 'schfood_hist';
+const HIST_MAX = 12;
 
-async function loadPills() {
-  try {
-    const list = await (await fetch('/api/cache')).json();
-    $('pills').innerHTML = list.slice(0, 8)
-      .map(x => `<div class="pill" onclick="qs('${x.keyword}')">${x.keyword}</div>`).join('');
-  } catch(e) {}
+function getHist() {
+  try { return JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); } catch { return []; }
 }
+function saveHist(arr) { localStorage.setItem(HIST_KEY, JSON.stringify(arr)); }
+
+function pushHist(kw) {
+  const h = getHist().filter(k => k !== kw);
+  h.unshift(kw);
+  saveHist(h.slice(0, HIST_MAX));
+  renderPills();
+}
+
+function delHist(kw) {
+  saveHist(getHist().filter(k => k !== kw));
+  renderPills();
+}
+
+function clearHist() {
+  saveHist([]);
+  renderPills();
+}
+
+function renderPills() {
+  const h = getHist();
+  const box = $('pills');
+  if (!h.length) { box.innerHTML = ''; return; }
+  box.innerHTML = h.map(kw =>
+    `<div class="pill" data-kw="${kw}">
+       <span class="pill-kw">${kw}</span>
+       <button class="pill-del" data-del title="삭제">✕</button>
+     </div>`
+  ).join('');
+}
+
+// 이벤트 위임: 클릭 한 번으로 검색 or 삭제
+document.addEventListener('DOMContentLoaded', () => {
+  renderPills();
+  $('pills').addEventListener('click', e => {
+    const pill = e.target.closest('[data-kw]');
+    if (!pill) return;
+    const kw = pill.dataset.kw;
+    if (e.target.closest('[data-del]')) delHist(kw);
+    else qs(kw);
+  });
+});
 
 function qs(kw) {
   $('kw').value = kw;
@@ -303,6 +347,7 @@ async function doSearch() {
     const r = await fetch(`/api/search?keyword=${encodeURIComponent(kw)}`);
     if (r.ok) {
       G = await r.json();
+      pushHist(kw);
       render(); showPage('dash');
     } else {
       const e = await r.json();
