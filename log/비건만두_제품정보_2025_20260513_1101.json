@@ -1,0 +1,32 @@
+[
+  {
+    "rank": 1,
+    "company": "파르팜",
+    "product": "비건만두",
+    "products": [
+      {
+        "name": "비건만두",
+        "amount": 63316255
+      }
+    ],
+    "annual": 63316255,
+    "monthly_avg": 6879843,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  },
+  {
+    "rank": 2,
+    "company": "푸드랜드",
+    "product": "플랜트립 비건만두 ★ 비건인증 ★",
+    "products": [
+      {
+        "name": "플랜트립 비건만두 ★ 비건인증 ★",
+        "amount": 9967698
+      }
+    ],
+    "annual": 9967698,
+    "monthly_avg": 1039740,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  }
+]

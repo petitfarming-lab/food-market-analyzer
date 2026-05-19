@@ -1,0 +1,77 @@
+[
+  {
+    "rank": 1,
+    "company": "대상",
+    "product": "우리아이건강한베이컨1kg",
+    "products": [
+      {
+        "name": "우리아이건강한베이컨1kg",
+        "amount": 1191383890
+      }
+    ],
+    "annual": 1191383890,
+    "monthly_avg": 127566181,
+    "weight": "1kg",
+    "origin": "확인 필요"
+  },
+  {
+    "rank": 2,
+    "company": "목우촌",
+    "product": "주부9단 베이컨",
+    "products": [
+      {
+        "name": "주부9단 베이컨",
+        "amount": 1080994738
+      }
+    ],
+    "annual": 1080994738,
+    "monthly_avg": 118423776,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  },
+  {
+    "rank": 3,
+    "company": "씨제이",
+    "product": "크레잇 육질탄탄베이컨",
+    "products": [
+      {
+        "name": "크레잇 육질탄탄베이컨",
+        "amount": 251858042
+      }
+    ],
+    "annual": 251858042,
+    "monthly_avg": 25925342,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  },
+  {
+    "rank": 4,
+    "company": "쿠킹맘",
+    "product": "치즈쏙베이컨말이",
+    "products": [
+      {
+        "name": "치즈쏙베이컨말이",
+        "amount": 215078742
+      }
+    ],
+    "annual": 215078742,
+    "monthly_avg": 16075060,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  },
+  {
+    "rank": 5,
+    "company": "대상",
+    "product": "쉐프원 쉬림프베이컨투움바파스타",
+    "products": [
+      {
+        "name": "쉐프원 쉬림프베이컨투움바파스타",
+        "amount": 190669161
+      }
+    ],
+    "annual": 190669161,
+    "monthly_avg": 20415700,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  }
+]

@@ -44,7 +44,8 @@ def get_latest_log(keyword: str, year: int):
 
 
 def read_product_from_excel(keyword: str, year: int) -> list:
-    """Excel 경쟁사_제품정보 Sheet에서 제품 정보를 읽어 반환 (product_info JSON 없을 때 fallback)"""
+    """Excel 경쟁사_제품정보 Sheet에서 제품 정보를 읽어 반환.
+    레이블(B열)을 동적으로 읽어 구버전/신버전 Sheet 모두 지원."""
     try:
         import openpyxl, re as _re
     except ImportError:
@@ -64,31 +65,56 @@ def read_product_from_excel(keyword: str, year: int) -> list:
             return []
         ws = wb["경쟁사_제품정보"]
 
-        # Sheet 구조: B=라벨, C=1위, D=2위, ... (최대 5위)
-        # Row4=업체명 Row5=제품명 Row6=중량 Row7=월평균 Row9=원산지 Row10=블루시스가격
+        # B열 레이블 → 행번호 매핑 (구버전/신버전 모두 지원)
+        row_map = {}
+        for row in range(1, 15):
+            lbl = str(ws.cell(row=row, column=2).value or "").strip()
+            if "업체명"   in lbl: row_map["company"]     = row
+            if "제품명"   in lbl: row_map["product"]     = row
+            if "규격"    in lbl or "중량" in lbl: row_map["standard"] = row
+            if "방학제외" in lbl: row_map["mavg"]        = row
+            if "원재료"   in lbl: row_map["ingredients"] = row
+            if "원산지"   in lbl: row_map["origin"]      = row  # 구버전
+            if "블루시스" in lbl and "단가" in lbl: row_map["kprice"] = row
+
+        r_co   = row_map.get("company",     4)
+        r_prod = row_map.get("product",     5)
+        r_std  = row_map.get("standard",    6)
+        r_mavg = row_map.get("mavg",        7)
+        r_ingr = row_map.get("ingredients", 8)
+        r_orig = row_map.get("origin",      None)
+        r_kp   = row_map.get("kprice",     10)
+
         result = []
         for col in range(3, 9):
-            company = str(ws.cell(row=4, column=col).value or "").strip()
-            if not company or company in ("항목",):
+            company = str(ws.cell(row=r_co, column=col).value or "").strip()
+            if not company or company in ("항목", "FoodnBid"):
                 break
-            product     = str(ws.cell(row=5, column=col).value or "").strip()
-            weight      = str(ws.cell(row=6, column=col).value or "확인 필요").strip()
-            mavg_raw    = str(ws.cell(row=7, column=col).value or "0").strip()
-            origin      = str(ws.cell(row=9, column=col).value or "확인 필요").strip()
-            bluesis     = str(ws.cell(row=10, column=col).value or "직접 확인").strip()
+
+            product     = str(ws.cell(row=r_prod, column=col).value or "").strip()
+            standard    = str(ws.cell(row=r_std,  column=col).value or "확인 필요").strip()
+            mavg_raw    = str(ws.cell(row=r_mavg, column=col).value or "0").strip()
+            ingredients = str(ws.cell(row=r_ingr, column=col).value or "").strip()
+            origin      = str(ws.cell(row=r_orig, column=col).value or "").strip() if r_orig else ""
+            bluesis     = str(ws.cell(row=r_kp,   column=col).value or "직접 확인").strip()
 
             m = _re.search(r"([\d,]+)", mavg_raw)
             monthly_avg = int(m.group(1).replace(",", "")) if m else 0
 
+            # 구버전 placeholder 텍스트는 빈값으로 처리
+            if any(kw in ingredients for kw in ("직접 기재", "직접 확인", "주원료(")):
+                ingredients = ""
+
             result.append({
-                "rank":          col - 2,
-                "company":       company,
-                "product":       product,
-                "annual":        0,       # comp_list에서 채움
-                "monthly_avg":   monthly_avg,
-                "weight":        weight,
-                "origin":        origin,
-                "bluesis_price": bluesis,
+                "rank":                  col - 2,
+                "company":               company,
+                "product":               product,
+                "annual":                0,
+                "monthly_avg":           monthly_avg,
+                "bluesis_standard":      standard,
+                "bluesis_ingredients":   ingredients,
+                "bluesis_kprice":        bluesis,
+                "origin":                origin,
             })
         wb.close()
         return result
@@ -194,7 +220,7 @@ def compute_data(keyword: str):
     if not product_info:
         product_info = read_product_from_excel(keyword, year)
 
-    # annual 값 및 bluesis_price 보완 (JSON에는 bluesis_price가 없으므로 Excel에서 추가)
+    # annual/bluesis 필드 보완
     if product_info:
         comp_by_name   = {c["company"]: c for c in comp_list}
         excel_info_map = {p["company"]: p for p in read_product_from_excel(keyword, year)}
@@ -205,9 +231,15 @@ def compute_data(keyword: str):
                     p["annual"] = co["annual"]
                 if not p.get("monthly_avg"):
                     p["monthly_avg"] = co["monthly_avg_excl_vac"]
-            if "bluesis_price" not in p:
-                ep = excel_info_map.get(p["company"], {})
-                p["bluesis_price"] = ep.get("bluesis_price", "")
+            ep = excel_info_map.get(p["company"], {})
+            # 구버전 JSON → Excel에서 새 필드 보완
+            for fld in ("bluesis_kprice", "bluesis_standard", "bluesis_ingredients",
+                        "bluesis_image_b64"):
+                if not p.get(fld):
+                    p[fld] = ep.get(fld, "")
+            # 하위 호환: 예전 bluesis_price 필드
+            if not p.get("bluesis_price"):
+                p["bluesis_price"] = p.get("bluesis_kprice", ep.get("bluesis_price", ""))
 
     return {
         "keyword":       keyword,

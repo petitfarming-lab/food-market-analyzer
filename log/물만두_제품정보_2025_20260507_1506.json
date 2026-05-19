@@ -1,0 +1,77 @@
+[
+  {
+    "rank": 1,
+    "company": "풀무원",
+    "product": "생물만두",
+    "products": [
+      {
+        "name": "생물만두",
+        "amount": 212947711
+      }
+    ],
+    "annual": 212947711,
+    "monthly_avg": 23318547,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  },
+  {
+    "rank": 2,
+    "company": "씨제이",
+    "product": "비비고 물만두",
+    "products": [
+      {
+        "name": "비비고 물만두",
+        "amount": 176230415
+      }
+    ],
+    "annual": 176230415,
+    "monthly_avg": 19108892,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  },
+  {
+    "rank": 3,
+    "company": "하늘빛",
+    "product": "궁중감자물만두",
+    "products": [
+      {
+        "name": "궁중감자물만두",
+        "amount": 87967412
+      }
+    ],
+    "annual": 87967412,
+    "monthly_avg": 9661509,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  },
+  {
+    "rank": 4,
+    "company": "오뚜기",
+    "product": "오쉐프_정성가득물만두",
+    "products": [
+      {
+        "name": "오쉐프_정성가득물만두",
+        "amount": 79689038
+      }
+    ],
+    "annual": 79689038,
+    "monthly_avg": 8523652,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  },
+  {
+    "rank": 5,
+    "company": "참조은",
+    "product": "참조은 감자물만두",
+    "products": [
+      {
+        "name": "참조은 감자물만두",
+        "amount": 72358536
+      }
+    ],
+    "annual": 72358536,
+    "monthly_avg": 7792432,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  }
+]

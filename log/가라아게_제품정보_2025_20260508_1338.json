@@ -1,0 +1,77 @@
+[
+  {
+    "rank": 1,
+    "company": "씨제이",
+    "product": "튼튼스쿨 순살치킨가라아게",
+    "products": [
+      {
+        "name": "튼튼스쿨 순살치킨가라아게",
+        "amount": 291489358
+      }
+    ],
+    "annual": 291489358,
+    "monthly_avg": 29520462,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  },
+  {
+    "rank": 2,
+    "company": "풀무원",
+    "product": "식물성 지구식단 한입 두부 가라아게",
+    "products": [
+      {
+        "name": "식물성 지구식단 한입 두부 가라아게",
+        "amount": 274206660
+      }
+    ],
+    "annual": 274206660,
+    "monthly_avg": 30005631,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  },
+  {
+    "rank": 3,
+    "company": "이우스",
+    "product": "파닭순살치킨가라아게 본품1봉+뿌려시즈닝100g세트",
+    "products": [
+      {
+        "name": "파닭순살치킨가라아게 본품1봉+뿌려시즈닝100g세트",
+        "amount": 88765476
+      }
+    ],
+    "annual": 88765476,
+    "monthly_avg": 9619630,
+    "weight": "100g",
+    "origin": "확인 필요"
+  },
+  {
+    "rank": 4,
+    "company": "씨엔아이",
+    "product": "갈릭쌀팝콘형 아귀가라아게 세트",
+    "products": [
+      {
+        "name": "갈릭쌀팝콘형 아귀가라아게 세트",
+        "amount": 76416278
+      }
+    ],
+    "annual": 76416278,
+    "monthly_avg": 8277217,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  },
+  {
+    "rank": 5,
+    "company": "소예푸드",
+    "product": "통살치킨가라아게",
+    "products": [
+      {
+        "name": "통살치킨가라아게",
+        "amount": 62100072
+      }
+    ],
+    "annual": 62100072,
+    "monthly_avg": 6870408,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  }
+]

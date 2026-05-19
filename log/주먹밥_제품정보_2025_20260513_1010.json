@@ -1,0 +1,77 @@
+[
+  {
+    "rank": 1,
+    "company": "참조은",
+    "product": "참치마요구운주먹밥",
+    "products": [
+      {
+        "name": "참치마요구운주먹밥",
+        "amount": 263857856
+      }
+    ],
+    "annual": 263857856,
+    "monthly_avg": 28553984,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  },
+  {
+    "rank": 2,
+    "company": "크로바",
+    "product": "소불고기 구운주먹밥",
+    "products": [
+      {
+        "name": "소불고기 구운주먹밥",
+        "amount": 114012675
+      }
+    ],
+    "annual": 114012675,
+    "monthly_avg": 12529844,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  },
+  {
+    "rank": 3,
+    "company": "오뚜기",
+    "product": "오쉐프_우리쌀전주비빔주먹밥",
+    "products": [
+      {
+        "name": "오쉐프_우리쌀전주비빔주먹밥",
+        "amount": 57405873
+      }
+    ],
+    "annual": 57405873,
+    "monthly_avg": 6245734,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  },
+  {
+    "rank": 4,
+    "company": "참조은",
+    "product": "소불고기구운주먹밥",
+    "products": [
+      {
+        "name": "소불고기구운주먹밥",
+        "amount": 57165260
+      }
+    ],
+    "annual": 57165260,
+    "monthly_avg": 6186269,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  },
+  {
+    "rank": 5,
+    "company": "푸드스토리",
+    "product": "도깨비주먹밥",
+    "products": [
+      {
+        "name": "도깨비주먹밥",
+        "amount": 48819405
+      }
+    ],
+    "annual": 48819405,
+    "monthly_avg": 6102425,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  }
+]

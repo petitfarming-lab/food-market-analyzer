@@ -1,0 +1,77 @@
+[
+  {
+    "rank": 1,
+    "company": "하늘빛",
+    "product": "데리야끼바베큐폭립",
+    "products": [
+      {
+        "name": "데리야끼바베큐폭립",
+        "amount": 437472673
+      }
+    ],
+    "annual": 437472673,
+    "monthly_avg": 47851399,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  },
+  {
+    "rank": 2,
+    "company": "참조은",
+    "product": "명품등갈비바베큐폭립",
+    "products": [
+      {
+        "name": "명품등갈비바베큐폭립",
+        "amount": 242909030
+      }
+    ],
+    "annual": 242909030,
+    "monthly_avg": 25928772,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  },
+  {
+    "rank": 3,
+    "company": "한올푸드",
+    "product": "베이비백립",
+    "products": [
+      {
+        "name": "베이비백립",
+        "amount": 223223800
+      }
+    ],
+    "annual": 223223800,
+    "monthly_avg": 24802644,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  },
+  {
+    "rank": 4,
+    "company": "대상",
+    "product": "쉐프원 우리돼지로만든바베큐폭립",
+    "products": [
+      {
+        "name": "쉐프원 우리돼지로만든바베큐폭립",
+        "amount": 184601975
+      }
+    ],
+    "annual": 184601975,
+    "monthly_avg": 22883803,
+    "weight": "확인 필요",
+    "origin": "국내산"
+  },
+  {
+    "rank": 5,
+    "company": "씨제이",
+    "product": "튼튼스쿨 우리돼지_달달허니_한돈폭립",
+    "products": [
+      {
+        "name": "튼튼스쿨 우리돼지_달달허니_한돈폭립",
+        "amount": 174963589
+      }
+    ],
+    "annual": 174963589,
+    "monthly_avg": 21406194,
+    "weight": "확인 필요",
+    "origin": "국내산"
+  }
+]

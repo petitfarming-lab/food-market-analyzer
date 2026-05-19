@@ -1,0 +1,77 @@
+[
+  {
+    "rank": 1,
+    "company": "선진FS",
+    "product": "활짝핀떡갈비55",
+    "products": [
+      {
+        "name": "활짝핀떡갈비55",
+        "amount": 428560108
+      }
+    ],
+    "annual": 428560108,
+    "monthly_avg": 47059563,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  },
+  {
+    "rank": 2,
+    "company": "원플러스원",
+    "product": "즉석떡갈비맛스테이크",
+    "products": [
+      {
+        "name": "즉석떡갈비맛스테이크",
+        "amount": 266277201
+      }
+    ],
+    "annual": 266277201,
+    "monthly_avg": 29144389,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  },
+  {
+    "rank": 3,
+    "company": "하늘빛",
+    "product": "궁중떡갈비60g",
+    "products": [
+      {
+        "name": "궁중떡갈비60g",
+        "amount": 261276217
+      }
+    ],
+    "annual": 261276217,
+    "monthly_avg": 28533616,
+    "weight": "60g",
+    "origin": "확인 필요"
+  },
+  {
+    "rank": 4,
+    "company": "가족사랑",
+    "product": "하이포크 한입 연근떡갈비",
+    "products": [
+      {
+        "name": "하이포크 한입 연근떡갈비",
+        "amount": 228649246
+      }
+    ],
+    "annual": 228649246,
+    "monthly_avg": 25250093,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  },
+  {
+    "rank": 5,
+    "company": "씨제이",
+    "product": "튼튼스쿨 한입떡갈비",
+    "products": [
+      {
+        "name": "튼튼스쿨 한입떡갈비",
+        "amount": 216998711
+      }
+    ],
+    "annual": 216998711,
+    "monthly_avg": 23688673,
+    "weight": "확인 필요",
+    "origin": "확인 필요"
+  }
+]
