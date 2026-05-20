@@ -34,6 +34,42 @@ MONTH_NAMES = ["1월","2월","3월","4월","5월","6월",
 
 app = Flask(__name__)
 running_tasks = {}   # keyword → "running" | "done" | "error:..."
+bluesis_tasks = {}   # keyword → "running" | "done" | "error:..."  (로컬 전용)
+
+COLLECTOR_PY = os.path.join(SCRIPT_DIR, "bluesis_collector.py")
+
+
+def _bluesis_needs_update(product_info: list) -> bool:
+    if not product_info:
+        return False
+    return any(not p.get("bluesis_ingredients") for p in product_info)
+
+
+def _start_bluesis_bg(keyword: str, year: int):
+    """로컬 전용: subprocess로 bluesis_collector.py를 실행해 백그라운드 수집."""
+    if IS_CLOUD:          # Railway에서는 실행 안 함
+        return
+    if bluesis_tasks.get(keyword) == "running":
+        return
+    if not os.path.exists(COLLECTOR_PY):
+        return
+
+    def _run():
+        bluesis_tasks[keyword] = "running"
+        try:
+            ret = subprocess.run(
+                [sys.executable, "-X", "utf8", COLLECTOR_PY,
+                 keyword, str(year), LOG_DIR],
+                cwd=SCRIPT_DIR, timeout=300
+            )
+            bluesis_tasks[keyword] = "done" if ret.returncode == 0 else f"error:{ret.returncode}"
+            print(f"[bluesis_bg] {keyword} {'완료' if ret.returncode == 0 else '오류'}")
+        except Exception as e:
+            bluesis_tasks[keyword] = f"error:{e}"
+            print(f"[bluesis_bg] {keyword} 예외: {e}")
+
+    threading.Thread(target=_run, daemon=True).start()
+    print(f"[bluesis_bg] {keyword} 백그라운드 수집 시작 (로컬)")
 
 
 # ── 유틸 ──────────────────────────────────────────────────
@@ -273,7 +309,28 @@ def api_search():
     if data is None:
         return jsonify({"error": "not_found",
                         "message": f'"{keyword}" 데이터가 없습니다. 수집을 시작해 주세요.'}), 404
+
+    # 로컬 전용: 블루시스 상세 없으면 자동 백그라운드 수집 시작
+    if not IS_CLOUD and _bluesis_needs_update(data.get("product_info", [])):
+        _start_bluesis_bg(keyword, data["year"])
+        data["bluesis_collecting"] = True
+    else:
+        data["bluesis_collecting"] = (not IS_CLOUD and bluesis_tasks.get(keyword) == "running")
+
     return jsonify(data)
+
+
+@app.route("/api/bluesis_status")
+def api_bluesis_status():
+    """로컬 전용: 블루시스 백그라운드 수집 상태 + 완료 시 최신 데이터 반환"""
+    keyword = request.args.get("keyword", "").strip()
+    if IS_CLOUD:
+        return jsonify({"status": "unavailable"})
+    status = bluesis_tasks.get(keyword, "idle")
+    if status == "done":
+        data = compute_data(keyword)
+        return jsonify({"status": "done", "data": data})
+    return jsonify({"status": status})
 
 
 @app.route("/api/cache")

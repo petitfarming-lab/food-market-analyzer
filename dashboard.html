@@ -262,13 +262,20 @@ body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;background:var(--bg)
 
   <!-- ── 탭3: 제품비교 ── -->
   <div class="panel" id="p3">
+    <div id="bluesis-banner" style="display:none;border-radius:8px;padding:10px 16px;
+      margin-bottom:10px;font-size:.83rem;align-items:center;gap:10px;">
+      <span id="bluesis-spin" style="display:inline-block;width:13px;height:13px;
+        border:2px solid currentColor;border-top-color:transparent;
+        border-radius:50%;animation:spin .9s linear infinite;flex-shrink:0;opacity:.7;"></span>
+      <span id="bluesis-banner-txt"></span>
+    </div>
     <div id="prod-sec"></div>
   </div>
 
 </div><!-- /pg-dash -->
 
 <script>
-let G = null, curKw = '', pollTmr = null;
+let G = null, curKw = '', pollTmr = null, bluesisTmr = null;
 let ch0 = null, ch1 = null, ch2 = null;
 
 const $ = id => document.getElementById(id);
@@ -349,11 +356,50 @@ async function doSearch() {
       G = await r.json();
       pushHist(kw);
       render(); showPage('dash');
+      if (G.bluesis_collecting) startBluesisPoll(kw);
     } else {
       const e = await r.json();
       showNone(kw, e.message || '데이터가 없습니다.');
     }
   } catch(e) { showNone(kw, '서버 오류. dashboard.py가 실행 중인지 확인하세요.'); }
+}
+
+// ── 블루시스 자동 수집 폴링 (로컬 전용) ──────────────────
+function startBluesisPoll(kw) {
+  if (bluesisTmr) clearInterval(bluesisTmr);
+  showBluesisBanner('collecting');
+  bluesisTmr = setInterval(async () => {
+    try {
+      const st = await (await fetch(`/api/bluesis_status?keyword=${encodeURIComponent(kw)}`)).json();
+      if (st.status === 'done' && st.data) {
+        clearInterval(bluesisTmr); bluesisTmr = null;
+        if (kw === curKw) { G = st.data; renderProd(); }
+        showBluesisBanner('done');
+        setTimeout(() => showBluesisBanner('hide'), 5000);
+      } else if ((st.status||'').startsWith('error') || st.status === 'unavailable') {
+        clearInterval(bluesisTmr); bluesisTmr = null;
+        showBluesisBanner('hide');
+      }
+    } catch(e) {}
+  }, 8000);
+}
+
+function showBluesisBanner(mode) {
+  const el = $('bluesis-banner');
+  const sp = $('bluesis-spin');
+  const tx = $('bluesis-banner-txt');
+  if (!el) return;
+  if (mode === 'hide') { el.style.display = 'none'; return; }
+  el.style.display = 'flex';
+  if (mode === 'collecting') {
+    el.style.cssText += ';background:#E3F2FD;border:1px solid #90CAF9;color:#1565C0;';
+    sp.style.display = 'inline-block';
+    tx.textContent = '블루시스에서 원재료·규격 자동 수집 중… (약 1~2분)';
+  } else {
+    el.style.cssText += ';background:#E8F5E9;border:1px solid #A5D6A7;color:#2E7D32;';
+    sp.style.display = 'none';
+    tx.textContent = '✅ 원재료·규격 정보 수집 완료! 경쟁사 제품비교 탭을 확인하세요.';
+  }
 }
 
 async function runSkill() {
