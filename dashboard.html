@@ -145,7 +145,10 @@ body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;background:var(--bg)
 
 <!-- 헤더 -->
 <header class="hdr">
-  <div class="hdr-logo">🍱 학교급식 <span>시장규모</span></div>
+  <div>
+    <div class="hdr-logo">🍱 학교급식 <span>시장규모</span></div>
+    <div style="color:rgba(255,255,255,.45);font-size:.68rem;margin-top:1px;letter-spacing:.3px;">v1.1 · 2026-06-10</div>
+  </div>
   <div class="srch-box">
     <input id="kw" type="text" placeholder="제품 키워드 입력 (폭립, 새우만두, 떡볶이 …)"
            onkeydown="if(event.key==='Enter')doSearch()">
@@ -432,6 +435,11 @@ function startPoll() {
         const r = await fetch(`/api/search?keyword=${encodeURIComponent(curKw)}`);
         if (r.ok) {
           G = await r.json(); render(); showPage('dash'); loadPills();
+          if ($('btn-recollect')) $('btn-recollect').disabled = false;
+        } else {
+          alert('수집은 완료됐지만 데이터를 찾지 못했습니다. 키워드를 확인 후 다시 시도해 주세요.');
+          showPage('home');
+          $('btn-run').disabled = false;
           if ($('btn-recollect')) $('btn-recollect').disabled = false;
         }
       } else if ((st.status||'').startsWith('error')) {
