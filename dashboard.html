@@ -11,8 +11,8 @@
   --navy:#1F4E79; --blue:#2E75B6;
   --orange:#E8A838; --green:#4CAF50; --red:#E74C3C;
   --bg:#F4F7FB;
-  --glass:rgba(255,255,255,.66); --glass-brd:rgba(255,255,255,.55);
-  --glass-shadow:0 6px 24px rgba(31,78,121,.08); --radius:16px;
+  --glass:rgba(255,255,255,.8); --glass-brd:rgba(255,255,255,.75);
+  --glass-shadow:0 6px 24px rgba(31,78,121,.10); --radius:16px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI','Malgun Gothic','맑은 고딕',sans-serif;
@@ -20,18 +20,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI','M
   color:#1d1d1f;font-size:14px;-webkit-font-smoothing:antialiased;}
 
 /* ── 헤더 ── */
-.hdr{background:rgba(26,63,99,.85);backdrop-filter:blur(20px) saturate(180%);
-  -webkit-backdrop-filter:blur(20px) saturate(180%);
+.hdr{background:rgba(15,46,77,.96);backdrop-filter:blur(14px) saturate(160%);
+  -webkit-backdrop-filter:blur(14px) saturate(160%);
   padding:10px 22px;display:flex;flex-direction:column;gap:8px;
   position:sticky;top:0;z-index:200;border-bottom:1px solid rgba(255,255,255,.08);
-  box-shadow:0 4px 24px rgba(15,35,60,.18);}
+  box-shadow:0 4px 24px rgba(15,35,60,.25);}
 .hdr-row{display:flex;align-items:flex-end;gap:18px;}
 .hdr-logo{color:#fff;font-size:1.18rem;font-weight:700;white-space:nowrap;letter-spacing:-.01em;}
 .hdr-logo span{color:var(--orange);}
 .srch-box{display:flex;gap:10px;flex:1;max-width:640px;align-items:flex-end;}
 .srch-field{display:flex;flex-direction:column;gap:3px;flex:1;}
 .srch-field.ex{flex:.7;}
-.srch-lbl{color:rgba(255,255,255,.55);font-size:.62rem;font-weight:700;padding-left:3px;letter-spacing:.04em;}
+.srch-lbl{color:rgba(255,255,255,.85);font-size:.78rem;font-weight:700;padding-left:3px;letter-spacing:.02em;white-space:nowrap;}
 .srch-box input{width:100%;padding:7px 13px;border-radius:10px;border:1px solid rgba(255,255,255,.12);
   font-size:.88rem;background:rgba(255,255,255,.95);color:#1d1d1f;transition:box-shadow .15s,background .15s;}
 .srch-box input::placeholder{color:#aaa;}
@@ -78,19 +78,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI','M
 .kpi{position:relative;overflow:hidden;background:var(--glass);backdrop-filter:blur(18px) saturate(180%);
   -webkit-backdrop-filter:blur(18px) saturate(180%);
   border:1px solid var(--glass-brd);border-radius:var(--radius);padding:14px 16px;
-  box-shadow:var(--glass-shadow);}
+  box-shadow:var(--glass-shadow);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
 .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
   background:linear-gradient(90deg,var(--blue),#8FC4ED);}
 .kpi.k2::before{background:linear-gradient(90deg,var(--orange),#F6D28A);}
 .kpi.k3::before{background:linear-gradient(90deg,var(--green),#9BE0AB);}
 .kpi.k4::before{background:linear-gradient(90deg,#9C27B0,#DBA8E8);}
-.kpi-lbl{font-size:.65rem;color:#8a8a8e;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+.kpi-main{display:flex;flex-direction:column;gap:3px;}
+.kpi-lbl{font-size:.65rem;color:#8a8a8e;font-weight:700;text-transform:uppercase;letter-spacing:.05em;}
 .kpi-val{font-size:1.3rem;font-weight:700;color:#1d1d1f;letter-spacing:-.01em;}
-.kpi-sub{font-size:.7rem;color:#9a9a9e;margin-top:3px;}
+.kpi-subs{display:flex;flex-direction:column;align-items:flex-end;gap:4px;text-align:right;}
+.kpi-sub{font-size:.85rem;font-weight:600;color:#6e6e73;}
 
 /* 탭 */
 .tab-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;flex-wrap:wrap;}
-.tabs{display:flex;gap:4px;background:rgba(255,255,255,.5);padding:4px;border-radius:12px;
+.tabs{display:flex;gap:4px;background:rgba(255,255,255,.75);padding:4px;border-radius:12px;
   backdrop-filter:blur(14px) saturate(180%);-webkit-backdrop-filter:blur(14px) saturate(180%);
   border:1px solid rgba(255,255,255,.6);box-shadow:inset 0 1px 2px rgba(31,78,121,.05);}
 .tab{padding:7px 16px;cursor:pointer;font-weight:600;font-size:.83rem;color:#6e6e73;
@@ -194,7 +197,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI','M
                onkeydown="if(event.key==='Enter')doSearch()">
       </div>
       <div class="srch-field ex">
-        <label class="srch-lbl">제외키워드</label>
+        <label class="srch-lbl">검색 제외 키워드</label>
         <input id="kw-ex" type="text" placeholder="마라, 김치 (선택)"
                onkeydown="if(event.key==='Enter')doSearch()">
       </div>
@@ -531,31 +534,47 @@ function renderKPI() {
          market_curr: C, monthly, y2026} = G;
   const bm  = monthly.find(m => m.is_best);
   const y26Sub = y2026 ? `
-      <div class="kpi-sub" style="margin-top:4px;padding-top:4px;border-top:1px dashed #e5e5e5;cursor:help;"
+      <div class="kpi-sub" style="padding-top:4px;border-top:1px dashed #ddd;cursor:help;"
            title="${next_year}년 추정 = (${next_year}년 1~${y2026.ytd_months}월 누적 ${fmtE(y2026.sum_ytd)}) ÷ (${year}·${prev_year}년 평균 1~${y2026.ytd_months}월 비중 ${y2026.weight_pct}%)\n· ${year}년 비중: ${y2026.weight_curr}%  · ${prev_year}년 비중: ${y2026.weight_prev}%\n· 1~${y2026.ytd_months}월 동기간 실성장률(YTD): ${y2026.ytd_yoy>=0?'▲':'▼'}${Math.abs(y2026.ytd_yoy).toFixed(1)}%\n※ 등락폭(%)은 방학월(1·7·12월) 제외 산정">
         ${next_year}년 추정 ${fmtE(y2026.est_annual)} ${yoyStr(y2026.est_yoy)} <span style="color:#aaa;">vs ${year}년 ⓘ</span>
       </div>` : '';
   $('kpi').innerHTML = `
     <div class="kpi">
-      <div class="kpi-lbl">FoodnBid 연간 실측 (수도권)</div>
-      <div class="kpi-val">${fmtE(annual)}</div>
-      <div class="kpi-sub" ${prev_annual ? `title="방학월(1·7·12월) 제외 등락폭" style="cursor:help;"` : ''}>${yoy_ex !== null && yoy_ex !== undefined ? yoyStr(yoy_ex) + ` vs ${prev_year}년` : `${year}년`}</div>
-      ${y26Sub}
+      <div class="kpi-main">
+        <div class="kpi-lbl">FoodnBid 연간 실측 (수도권)</div>
+        <div class="kpi-val">${fmtE(annual)}</div>
+      </div>
+      <div class="kpi-subs">
+        <div class="kpi-sub" ${prev_annual ? `title="방학월(1·7·12월) 제외 등락폭" style="cursor:help;"` : ''}>${yoy_ex !== null && yoy_ex !== undefined ? yoyStr(yoy_ex) + ` vs ${prev_year}년` : `${year}년`}</div>
+        ${y26Sub}
+      </div>
     </div>
     <div class="kpi k2">
-      <div class="kpi-lbl">전국 학교급식 (환산)</div>
-      <div class="kpi-val">${fmtE1(C.school_nation)}</div>
-      <div class="kpi-sub">÷ 수도권 학생비율 40.5%</div>
+      <div class="kpi-main">
+        <div class="kpi-lbl">전국 학교급식 (환산)</div>
+        <div class="kpi-val">${fmtE1(C.school_nation)}</div>
+      </div>
+      <div class="kpi-subs">
+        <div class="kpi-sub">÷ 수도권 학생비율 40.5%</div>
+      </div>
     </div>
     <div class="kpi k3">
-      <div class="kpi-lbl">전국 급식 전체 (환산)</div>
-      <div class="kpi-val">${fmtE1(C.total)}</div>
-      <div class="kpi-sub">전국 학교급식 × 1.225</div>
+      <div class="kpi-main">
+        <div class="kpi-lbl">전국 급식 전체 (환산)</div>
+        <div class="kpi-val">${fmtE1(C.total)}</div>
+      </div>
+      <div class="kpi-subs">
+        <div class="kpi-sub">전국 학교급식 × 1.225</div>
+      </div>
     </div>
     <div class="kpi k4">
-      <div class="kpi-lbl">최고 매출월 (${year})</div>
-      <div class="kpi-val">${bm ? bm.label : '—'}</div>
-      <div class="kpi-sub">${bm ? fmtW(bm.current) : ''}</div>
+      <div class="kpi-main">
+        <div class="kpi-lbl">최고 매출월 (${year})</div>
+        <div class="kpi-val">${bm ? bm.label : '—'}</div>
+      </div>
+      <div class="kpi-subs">
+        <div class="kpi-sub">${bm ? fmtW(bm.current) : ''}</div>
+      </div>
     </div>`;
 }
 
