@@ -16,18 +16,23 @@
 body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;background:var(--bg);color:#222;font-size:14px;}
 
 /* ── 헤더 ── */
-.hdr{background:var(--navy);padding:8px 20px;display:flex;align-items:center;gap:16px;
+.hdr{background:var(--navy);padding:8px 20px;display:flex;flex-direction:column;gap:6px;
      position:sticky;top:0;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,.35);}
+.hdr-row{display:flex;align-items:flex-end;gap:16px;}
 .hdr-logo{color:#fff;font-size:1.15rem;font-weight:700;white-space:nowrap;}
 .hdr-logo span{color:var(--orange);}
-.srch-box{display:flex;gap:8px;flex:1;max-width:620px;}
-.srch-box input{flex:1;padding:5px 12px;border-radius:6px;border:none;font-size:.88rem;}
-.srch-box input#kw-ex{flex:.7;}
+.srch-box{display:flex;gap:8px;flex:1;max-width:620px;align-items:flex-end;}
+.srch-field{display:flex;flex-direction:column;gap:2px;flex:1;}
+.srch-field.ex{flex:.7;}
+.srch-lbl{color:rgba(255,255,255,.55);font-size:.62rem;font-weight:700;padding-left:2px;letter-spacing:.3px;}
+.srch-box input{width:100%;padding:5px 12px;border-radius:6px;border:none;font-size:.88rem;}
 .srch-box input#kw-ex::placeholder{color:#b91c1c;opacity:.6;}
 .srch-box input:focus{outline:2px solid var(--orange);}
-.srch-box button{padding:5px 16px;background:var(--orange);color:#fff;border:none;
+.srch-box button{padding:6px 16px;background:var(--orange);color:#fff;border:none;
   border-radius:6px;font-weight:700;cursor:pointer;font-size:.85rem;}
 .srch-box button:hover{background:#c98a20;}
+.hdr-hist{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.hist-lbl{color:rgba(255,255,255,.5);font-size:.72rem;font-weight:600;white-space:nowrap;}
 .pills{display:flex;gap:6px;flex-wrap:wrap;}
 .pill{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);
   padding:3px 6px 3px 11px;border-radius:20px;font-size:.78rem;cursor:pointer;white-space:nowrap;
@@ -147,18 +152,29 @@ body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;background:var(--bg)
 
 <!-- 헤더 -->
 <header class="hdr">
-  <div>
-    <div class="hdr-logo">🍱 학교급식 <span>시장규모</span></div>
-    <div style="color:rgba(255,255,255,.45);font-size:.68rem;margin-top:1px;letter-spacing:.3px;">v1.1 · 2026-06-10</div>
+  <div class="hdr-row">
+    <div>
+      <div class="hdr-logo">🍱 학교급식 <span>시장규모</span></div>
+      <div style="color:rgba(255,255,255,.45);font-size:.68rem;margin-top:1px;letter-spacing:.3px;">v1.1 · 2026-06-10</div>
+    </div>
+    <div class="srch-box">
+      <div class="srch-field">
+        <label class="srch-lbl">검색키워드</label>
+        <input id="kw" type="text" placeholder="폭립, 새우만두, 떡볶이 …"
+               onkeydown="if(event.key==='Enter')doSearch()">
+      </div>
+      <div class="srch-field ex">
+        <label class="srch-lbl">제외키워드</label>
+        <input id="kw-ex" type="text" placeholder="마라, 김치 (선택)"
+               onkeydown="if(event.key==='Enter')doSearch()">
+      </div>
+      <button onclick="doSearch()">🔍 검색</button>
+    </div>
   </div>
-  <div class="srch-box">
-    <input id="kw" type="text" placeholder="검색 키워드 (폭립, 새우만두, 떡볶이 …)"
-           onkeydown="if(event.key==='Enter')doSearch()">
-    <input id="kw-ex" type="text" placeholder="검색제외 키워드 (선택)"
-           onkeydown="if(event.key==='Enter')doSearch()">
-    <button onclick="doSearch()">🔍 검색</button>
+  <div class="hdr-hist" id="hdr-hist" style="display:none;">
+    <span class="hist-lbl">최근 검색 기록:</span>
+    <div class="pills" id="pills"></div>
   </div>
-  <div class="pills" id="pills"></div>
 </header>
 
 <!-- 홈 -->
@@ -323,7 +339,9 @@ function clearHist() {
 function renderPills() {
   const h = getHist();
   const box = $('pills');
-  if (!h.length) { box.innerHTML = ''; return; }
+  const wrap = $('hdr-hist');
+  if (!h.length) { box.innerHTML = ''; if (wrap) wrap.style.display = 'none'; return; }
+  if (wrap) wrap.style.display = 'flex';
   box.innerHTML = h.map(kw =>
     `<div class="pill" data-kw="${kw}">
        <span class="pill-kw">${kw}</span>
