@@ -82,10 +82,10 @@ async def login(page):
 
 
 # ── 월별 검색 ─────────────────────────────────────────────
-async def search_month(page, year: int, month: int, keyword: str) -> dict:
+async def search_month(page, year: int, month: int, keyword: str, exclude: str = "") -> dict:
     """
     FoodnBid 월별예상금액 페이지에서 특정 연월·키워드로 검색 후
-    총금액 및 업체별 금액을 반환합니다.
+    총금액 및 업체별 금액을 반환합니다. (군부대제외 적용, exclude 검색제외 키워드 지원)
 
     Returns:
         {
@@ -100,7 +100,10 @@ async def search_month(page, year: int, month: int, keyword: str) -> dict:
 
     await page.select_option("#s_year", str(year))
     await page.select_option("#s_month", str(month))
+    await page.select_option("#gbn_k", "001")  # 군부대제외 - 학교급식 매출만 집계
     await page.fill("#keyword", keyword)
+    if exclude:
+        await page.fill("#not_keyword", exclude)
 
     # 검색 버튼 클릭
     await page.click('button:has-text("검 색")')
@@ -147,7 +150,7 @@ async def search_month(page, year: int, month: int, keyword: str) -> dict:
 
 
 # ── 연간 12개월 수집 ──────────────────────────────────────
-async def collect_annual(keyword: str, year: int) -> list:
+async def collect_annual(keyword: str, year: int, exclude: str = "") -> list:
     """1월~12월 전체 데이터를 수집합니다."""
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
@@ -159,7 +162,7 @@ async def collect_annual(keyword: str, year: int) -> list:
         results = []
         for month in range(1, 13):
             try:
-                data = await search_month(page, year, month, keyword)
+                data = await search_month(page, year, month, keyword, exclude)
                 results.append(data)
                 total_fmt = f"{data['total']:,}"
                 top = data["companies"][:3]
@@ -174,7 +177,7 @@ async def collect_annual(keyword: str, year: int) -> list:
 
 
 # ── 전체 시장 제품 TOP5 수집 ─────────────────────────────
-async def collect_top_products(keyword: str, year: int, results: list) -> list:
+async def collect_top_products(keyword: str, year: int, results: list, exclude: str = "") -> list:
     """
     FoodnBid에서 제품별 연간 추정 매출을 계산, 전체 시장 TOP5 제품을 반환합니다.
 
@@ -225,7 +228,10 @@ async def collect_top_products(keyword: str, year: int, results: list) -> list:
             await page.wait_for_timeout(800)
             await page.select_option("#s_year", str(year))
             await page.select_option("#s_month", str(month))
+            await page.select_option("#gbn_k", "001")  # 군부대제외 - 학교급식 매출만 집계
             await page.fill("#keyword", keyword)
+            if exclude:
+                await page.fill("#not_keyword", exclude)
             await page.click('button:has-text("검 색")')
             await page.wait_for_timeout(3000)
 
@@ -1157,7 +1163,7 @@ def _ingredient_hint(p: dict) -> str:
 
 
 # ── JSON 로그 저장 ────────────────────────────────────────
-def save_log(keyword: str, year: int, results: list):
+def save_log(keyword: str, year: int, results: list, exclude: str = ""):
     date_str = datetime.now().strftime("%Y%m%d_%H%M")
     log_data = {
         "keyword": keyword,
@@ -1168,7 +1174,9 @@ def save_log(keyword: str, year: int, results: list):
         "methodology": {
             "foodnbid_coverage": 0.60,
             "suwon_student_ratio": 0.405,
-            "dangtche_ratio": 0.225
+            "dangtche_ratio": 0.225,
+            "military_excluded": True,
+            "exclude_keyword": exclude
         }
     }
     fname = os.path.join(LOG_DIR, f"{keyword}_학교급식_{year}_{date_str}.json")
@@ -1203,18 +1211,21 @@ def main():
     keyword = args[0]
     # 연도 인수가 있어도 ANALYSIS_YEAR 고정 (2025 vs 2024)
     year    = ANALYSIS_YEAR
+    exclude = args[2] if len(args) > 2 else ""
 
     print("=" * 65)
     print(f"  학교급식 시장규모 스킬  |  키워드: {keyword}  |  {year}년 vs {year-1}년")
+    if exclude:
+        print(f"  검색제외 키워드: {exclude}")
     print("=" * 65)
     print()
     prev_year = year - 1
     print(f"[STEP 1] FoodnBid 로그인 및 {year}년 1~12월 데이터 수집...")
-    results = asyncio.run(collect_annual(keyword, year))
+    results = asyncio.run(collect_annual(keyword, year, exclude))
 
     print()
     print(f"[STEP 1-2] {prev_year}년 전년도 비교 데이터 수집...")
-    prev_results = asyncio.run(collect_annual(keyword, prev_year))
+    prev_results = asyncio.run(collect_annual(keyword, prev_year, exclude))
 
     # 진행중인 다음 연도(예: 2026) 데이터도 있으면 함께 수집
     next_year     = year + 1
@@ -1222,24 +1233,24 @@ def main():
     if datetime.now().year >= next_year:
         print()
         print(f"[STEP 1-3] {next_year}년 진행중 데이터 수집...")
-        next_results = asyncio.run(collect_annual(keyword, next_year))
+        next_results = asyncio.run(collect_annual(keyword, next_year, exclude))
 
     print()
     print("[STEP 2] 결과 요약...")
     print_summary(keyword, year, results)
 
     print("[STEP 3] 로그 저장...")
-    save_log(keyword, year, results)
-    save_log(keyword, prev_year, prev_results)   # 전년도 로그도 자동 저장
+    save_log(keyword, year, results, exclude)
+    save_log(keyword, prev_year, prev_results, exclude)   # 전년도 로그도 자동 저장
     if next_results:
-        save_log(keyword, next_year, next_results)   # 진행중 연도 로그 저장
+        save_log(keyword, next_year, next_results, exclude)   # 진행중 연도 로그 저장
 
     print("[STEP 4] 엑셀 저장...")
     fname = save_excel(keyword, year, results, prev_results)
 
     print()
     print("[STEP 5] 경쟁사 제품정보 수집 및 Sheet 4 생성...")
-    product_info = asyncio.run(collect_top_products(keyword, year, results))
+    product_info = asyncio.run(collect_top_products(keyword, year, results, exclude))
 
     if product_info:
         save_product_log(keyword, year, product_info)   # 대시보드용 JSON 저장

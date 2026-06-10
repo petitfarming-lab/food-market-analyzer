@@ -20,8 +20,10 @@ body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;background:var(--bg)
      position:sticky;top:0;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,.35);}
 .hdr-logo{color:#fff;font-size:1.15rem;font-weight:700;white-space:nowrap;}
 .hdr-logo span{color:var(--orange);}
-.srch-box{display:flex;gap:8px;flex:1;max-width:480px;}
+.srch-box{display:flex;gap:8px;flex:1;max-width:620px;}
 .srch-box input{flex:1;padding:5px 12px;border-radius:6px;border:none;font-size:.88rem;}
+.srch-box input#kw-ex{flex:.7;}
+.srch-box input#kw-ex::placeholder{color:#b91c1c;opacity:.6;}
 .srch-box input:focus{outline:2px solid var(--orange);}
 .srch-box button{padding:5px 16px;background:var(--orange);color:#fff;border:none;
   border-radius:6px;font-weight:700;cursor:pointer;font-size:.85rem;}
@@ -150,7 +152,9 @@ body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;background:var(--bg)
     <div style="color:rgba(255,255,255,.45);font-size:.68rem;margin-top:1px;letter-spacing:.3px;">v1.1 · 2026-06-10</div>
   </div>
   <div class="srch-box">
-    <input id="kw" type="text" placeholder="제품 키워드 입력 (폭립, 새우만두, 떡볶이 …)"
+    <input id="kw" type="text" placeholder="검색 키워드 (폭립, 새우만두, 떡볶이 …)"
+           onkeydown="if(event.key==='Enter')doSearch()">
+    <input id="kw-ex" type="text" placeholder="검색제외 키워드 (선택)"
            onkeydown="if(event.key==='Enter')doSearch()">
     <button onclick="doSearch()">🔍 검색</button>
   </div>
@@ -279,7 +283,7 @@ body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;background:var(--bg)
 </div><!-- /pg-dash -->
 
 <script>
-let G = null, curKw = '', pollTmr = null, bluesisTmr = null;
+let G = null, curKw = '', curExclude = '', pollTmr = null, bluesisTmr = null;
 let ch0 = null, ch1 = null, ch2 = null;
 
 const $ = id => document.getElementById(id);
@@ -350,6 +354,7 @@ async function doSearch() {
   const kw = $('kw').value.trim();
   if (!kw) { alert('키워드를 입력하세요.'); return; }
   curKw = kw;
+  curExclude = $('kw-ex').value.trim();
   showPage('load');
   $('load-kw').textContent = `"${kw}" 2025·2024년 데이터 확인 중…`;
   $('load-sub').textContent  = '캐시 데이터를 조회합니다.';
@@ -411,18 +416,20 @@ async function runSkill() {
   showPage('load');
   $('load-kw').textContent = `FoodnBid에서 "${curKw}" 2025·2024년 수집 중…`;
   $('load-sub').textContent  = '약 10~15분 소요됩니다. 이 페이지를 닫지 마세요.';
-  await fetch(`/api/run?keyword=${encodeURIComponent(curKw)}`);
+  await fetch(`/api/run?keyword=${encodeURIComponent(curKw)}&exclude=${encodeURIComponent(curExclude)}`);
   startPoll();
 }
 
 async function reCollect() {
   if (!curKw) return;
-  if (!confirm(`"${curKw}" 데이터를 FoodnBid에서 다시 수집합니다.\n약 5~10분 소요됩니다. 계속하시겠습니까?`)) return;
+  curExclude = $('kw-ex').value.trim();
+  const exMsg = curExclude ? `\n검색제외 키워드: "${curExclude}"` : '';
+  if (!confirm(`"${curKw}" 데이터를 FoodnBid에서 다시 수집합니다.${exMsg}\n약 5~10분 소요됩니다. 계속하시겠습니까?`)) return;
   $('btn-recollect').disabled = true;
   showPage('load');
   $('load-kw').textContent = `FoodnBid에서 "${curKw}" 2025·2024년 재수집 중…`;
   $('load-sub').textContent  = '약 10~15분 소요됩니다. 이 페이지를 닫지 마세요.';
-  await fetch(`/api/run?keyword=${encodeURIComponent(curKw)}`);
+  await fetch(`/api/run?keyword=${encodeURIComponent(curKw)}&exclude=${encodeURIComponent(curExclude)}`);
   startPoll();
 }
 
@@ -482,20 +489,19 @@ function render() {
 
 // ── KPI 카드 ─────────────────────────────────────────────
 function renderKPI() {
-  const {keyword, year, prev_year, next_year, annual, prev_annual, best_month,
+  const {keyword, year, prev_year, next_year, annual, prev_annual, yoy_ex, best_month,
          market_curr: C, monthly, y2026} = G;
-  const yoy = prev_annual ? ((annual - prev_annual)/prev_annual*100).toFixed(1) : null;
   const bm  = monthly.find(m => m.is_best);
   const y26Sub = y2026 ? `
       <div class="kpi-sub" style="margin-top:4px;padding-top:4px;border-top:1px dashed #e5e5e5;cursor:help;"
-           title="${next_year}년 추정 = (${next_year}년 1~${y2026.ytd_months}월 누적 ${fmtE(y2026.sum_ytd)}) ÷ (${year}·${prev_year}년 평균 1~${y2026.ytd_months}월 비중 ${y2026.weight_pct}%)\n· ${year}년 비중: ${y2026.weight_curr}%  · ${prev_year}년 비중: ${y2026.weight_prev}%\n· 1~${y2026.ytd_months}월 동기간 실성장률(YTD): ${y2026.ytd_yoy>=0?'▲':'▼'}${Math.abs(y2026.ytd_yoy).toFixed(1)}%">
+           title="${next_year}년 추정 = (${next_year}년 1~${y2026.ytd_months}월 누적 ${fmtE(y2026.sum_ytd)}) ÷ (${year}·${prev_year}년 평균 1~${y2026.ytd_months}월 비중 ${y2026.weight_pct}%)\n· ${year}년 비중: ${y2026.weight_curr}%  · ${prev_year}년 비중: ${y2026.weight_prev}%\n· 1~${y2026.ytd_months}월 동기간 실성장률(YTD): ${y2026.ytd_yoy>=0?'▲':'▼'}${Math.abs(y2026.ytd_yoy).toFixed(1)}%\n※ 등락폭(%)은 방학월(1·7·12월) 제외 산정">
         ${next_year}년 추정 ${fmtE(y2026.est_annual)} ${yoyStr(y2026.est_yoy)} <span style="color:#aaa;">vs ${year}년 ⓘ</span>
       </div>` : '';
   $('kpi').innerHTML = `
     <div class="kpi">
       <div class="kpi-lbl">FoodnBid 연간 실측 (수도권)</div>
       <div class="kpi-val">${fmtE(annual)}</div>
-      <div class="kpi-sub">${yoy !== null ? yoyStr(parseFloat(yoy)) + ` vs ${prev_year}년` : `${year}년`}</div>
+      <div class="kpi-sub" ${prev_annual ? `title="방학월(1·7·12월) 제외 등락폭" style="cursor:help;"` : ''}>${yoy_ex !== null && yoy_ex !== undefined ? yoyStr(yoy_ex) + ` vs ${prev_year}년` : `${year}년`}</div>
       ${y26Sub}
     </div>
     <div class="kpi k2">
@@ -517,13 +523,13 @@ function renderKPI() {
 
 // ── 탭0: 월별실측 ────────────────────────────────────────
 function renderMonthly() {
-  const {keyword, year, prev_year, next_year, annual, prev_annual, monthly, collected_at, y2026} = G;
+  const {keyword, year, prev_year, next_year, annual, prev_annual, yoy_ex, monthly, collected_at, y2026, exclude_keyword} = G;
 
   // 타이틀·출처
   $('ch0-title').textContent =
     `【${keyword}】 FoodnBid 수도권 월별 낙찰금액 (${year}년 vs ${prev_year}년)`;
   $('ch0-src').textContent =
-    `※ 출처: FoodnBid info.foodnbid.com 월별예상금액 (수도권·서울·경기·인천 학교) | 수집일: ${collected_at}`;
+    `※ 출처: FoodnBid info.foodnbid.com 월별예상금액 (수도권·서울·경기·인천 학교, 군부대제외)${exclude_keyword ? ` | 검색제외: "${exclude_keyword}"` : ''} | 수집일: ${collected_at}`;
 
   // 꺾은선 차트 (엑셀 Sheet1 차트와 동일)
   if (ch0) ch0.destroy();
@@ -604,7 +610,6 @@ function renderMonthly() {
   });
 
   // 연간 합계 행
-  const totYoy = prev_annual ? ((annual - prev_annual)/prev_annual*100).toFixed(1) : null;
   const y26SumCells = y2026 ? `
     <td>${fmt(y2026.sum_ytd)}<br><span style="font-weight:400;font-size:.74rem;color:#888;">(1~${y2026.ytd_months}월 누적)</span></td>
     <td class="c">${yoyStr(y2026.ytd_yoy)}<br><span style="font-weight:400;font-size:.74rem;color:#888;">(YTD)</span></td>` : '';
@@ -613,7 +618,7 @@ function renderMonthly() {
     <td>${fmt(annual)}</td>
     <td class="c">100.0%</td>
     <td>${fmt(prev_annual)}</td>
-    <td class="c">${yoyStr(totYoy !== null ? parseFloat(totYoy) : null)}</td>
+    <td class="c" ${prev_annual ? `title="방학월(1·7·12월) 제외 등락폭" style="cursor:help;"` : ''}>${yoyStr(yoy_ex !== null && yoy_ex !== undefined ? yoy_ex : null)}</td>
     ${y26SumCells}
     <td class="l">연간 ${fmtE(annual)} | 전년(${prev_year}) ${fmtE(prev_annual)} (수도권 FoodnBid 기준)${y2026 ? ` | ${next_year} 추정 ${fmtE(y2026.est_annual)} (${yoyStr(y2026.est_yoy)} vs ${year})` : ''}</td>
   </tr>`;
@@ -623,7 +628,9 @@ function renderMonthly() {
   $('y26-note').innerHTML = y2026 ? `
     ※ <b>${next_year}년 추정</b>: ${next_year}년 1~${y2026.ytd_months}월 누적 실적(${fmtE(y2026.sum_ytd)})을
     ${year}·${prev_year}년의 1~${y2026.ytd_months}월 평균 비중(${y2026.weight_pct}%, 각 ${y2026.weight_curr}%·${y2026.weight_prev}%)으로 나눠
-    계절성을 반영해 연환산한 추정치입니다. 1~${y2026.ytd_months}월 동기간 실성장률(YTD)은 ${yoyStr(y2026.ytd_yoy)}입니다.` : '';
+    계절성을 반영해 연환산한 추정치입니다. 1~${y2026.ytd_months}월 동기간 실성장률(YTD)은 ${yoyStr(y2026.ytd_yoy)}입니다.
+    등락폭(%) 지표는 매출 변동이 큰 방학월(1·7·12월)을 제외하고 산정합니다.` : `
+    ※ 연간 합계의 등락폭(%)은 매출 변동이 큰 방학월(1·7·12월)을 제외하고 산정합니다. (월별 전년 동월 대비는 모든 달 표시)`;
 }
 
 // ── 탭1: 시장규모 환산 ───────────────────────────────────

@@ -205,6 +205,12 @@ def compute_data(keyword: str):
         for r in prev_raw["results"]:
             prev_map[r["month"]] = r["total"]
 
+    # 방학월(1·7·12월) 제외 합계 — 방학월은 매출 변동폭이 비정상적으로 커서
+    # 전년대비 증감률(%) 계산에서만 제외 (연간 실측 총액 자체는 방학월 포함)
+    annual_ex      = sum(r["total"] for r in results if r["month"] not in VACATION)
+    prev_annual_ex = sum(prev_map.get(m, 0) for m in range(1, 13) if m not in VACATION)
+    yoy_ex = round((annual_ex - prev_annual_ex) / prev_annual_ex * 100, 1) if prev_annual_ex else None
+
     # 차년도(진행중) 월별 맵 — 있으면 로드 (예: 2026년 1~5월)
     next_path = get_latest_log(keyword, year + 1)
     next_raw  = None
@@ -238,8 +244,20 @@ def compute_data(keyword: str):
             w_avg   = sum(weights) / len(weights) if weights else 0
 
             est_annual = int(sum_next / w_avg) if w_avg else 0
-            ytd_yoy    = round((sum_next - sum_curr_ytd) / sum_curr_ytd * 100, 1) if sum_curr_ytd else None
-            est_yoy    = round((est_annual - annual) / annual * 100, 1) if annual and est_annual else None
+
+            # 방학월(1·7·12월) 제외 — 등락폭(%) 계산은 방학월을 빼고 산정
+            sum_next_ex     = sum(next_map.get(m, 0) for m in range(1, ytd_months + 1) if m not in VACATION)
+            sum_curr_ytd_ex = sum(r["total"] for r in results if r["month"] <= ytd_months and r["month"] not in VACATION)
+            sum_prev_ytd_ex = sum(prev_map.get(m, 0) for m in range(1, ytd_months + 1) if m not in VACATION)
+
+            w_curr_ex  = sum_curr_ytd_ex / annual_ex if annual_ex else 0
+            w_prev_ex  = sum_prev_ytd_ex / prev_annual_ex if prev_annual_ex else 0
+            weights_ex = [w for w in (w_curr_ex, w_prev_ex) if w > 0]
+            w_avg_ex   = sum(weights_ex) / len(weights_ex) if weights_ex else 0
+
+            est_annual_ex = int(sum_next_ex / w_avg_ex) if w_avg_ex else 0
+            ytd_yoy = round((sum_next_ex - sum_curr_ytd_ex) / sum_curr_ytd_ex * 100, 1) if sum_curr_ytd_ex else None
+            est_yoy = round((est_annual_ex - annual_ex) / annual_ex * 100, 1) if annual_ex and est_annual_ex else None
 
             y2026 = {
                 "year":         year + 1,
@@ -247,9 +265,9 @@ def compute_data(keyword: str):
                 "sum_ytd":      sum_next,
                 "sum_curr_ytd": sum_curr_ytd,
                 "ytd_yoy":      ytd_yoy,
-                "weight_pct":   round(w_avg * 100, 1),
-                "weight_curr":  round(w_curr * 100, 1),
-                "weight_prev":  round(w_prev * 100, 1),
+                "weight_pct":   round(w_avg_ex * 100, 1),
+                "weight_curr":  round(w_curr_ex * 100, 1),
+                "weight_prev":  round(w_prev_ex * 100, 1),
                 "est_annual":   est_annual,
                 "est_yoy":      est_yoy,
             }
@@ -337,6 +355,9 @@ def compute_data(keyword: str):
         "next_year":     year + 1,
         "annual":        annual,
         "prev_annual":   prev_annual,
+        "annual_ex":     annual_ex,
+        "prev_annual_ex": prev_annual_ex,
+        "yoy_ex":        yoy_ex,
         "best_month":    best_month,
         "collected_at":  curr.get("collected_at", ""),
         "market_curr":   curr_mkt,
@@ -346,6 +367,7 @@ def compute_data(keyword: str):
         "product_info":  product_info,
         "has_prev":      prev_raw is not None,
         "y2026":         y2026,
+        "exclude_keyword": curr.get("methodology", {}).get("exclude_keyword", ""),
     }
 
 
@@ -411,6 +433,7 @@ def api_cache():
 @app.route("/api/run")
 def api_run():
     keyword = request.args.get("keyword", "").strip()
+    exclude = request.args.get("exclude", "").strip()
     if not keyword:
         return jsonify({"error": "keyword_required"}), 400
 
@@ -424,7 +447,7 @@ def api_run():
         running_tasks[keyword] = "running"
         try:
             subprocess.run(
-                [sys.executable, "-X", "utf8", SKILL_PY, keyword, year_str],
+                [sys.executable, "-X", "utf8", SKILL_PY, keyword, year_str, exclude],
                 cwd=SCRIPT_DIR
             )
             running_tasks[keyword] = "done"
@@ -432,7 +455,7 @@ def api_run():
             running_tasks[keyword] = f"error:{e}"
 
     threading.Thread(target=_run, daemon=True).start()
-    return jsonify({"status": "started", "keyword": keyword, "year": year_str})
+    return jsonify({"status": "started", "keyword": keyword, "year": year_str, "exclude": exclude})
 
 
 @app.route("/api/excel")
