@@ -217,6 +217,11 @@ def compute_data(keyword: str):
         for r in next_raw["results"]:
             next_map[r["month"]] = r["total"]
 
+        # 진행 중인 이번 달은 낙찰 데이터가 미완결 상태이므로 집계에서 제외
+        if year + 1 == datetime.now().year:
+            cur_month = datetime.now().month
+            next_map = {m: v for m, v in next_map.items() if m < cur_month}
+
     # 차년도 연간 추정 — 계절성 비중(과거 동기간 평균 비중) 반영 연환산
     y2026 = None
     if next_map:
