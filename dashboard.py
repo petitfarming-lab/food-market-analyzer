@@ -205,18 +205,66 @@ def compute_data(keyword: str):
         for r in prev_raw["results"]:
             prev_map[r["month"]] = r["total"]
 
+    # 차년도(진행중) 월별 맵 — 있으면 로드 (예: 2026년 1~5월)
+    next_path = get_latest_log(keyword, year + 1)
+    next_raw  = None
+    if next_path:
+        with open(next_path, encoding="utf-8") as f:
+            next_raw = json.load(f)
+
+    next_map = {}
+    if next_raw:
+        for r in next_raw["results"]:
+            next_map[r["month"]] = r["total"]
+
+    # 차년도 연간 추정 — 계절성 비중(과거 동기간 평균 비중) 반영 연환산
+    y2026 = None
+    if next_map:
+        ytd_months = max((m for m, v in next_map.items() if v > 0), default=0)
+        if ytd_months:
+            sum_next     = sum(next_map.get(m, 0) for m in range(1, ytd_months + 1))
+            sum_curr_ytd = sum(r["total"] for r in results if r["month"] <= ytd_months)
+            sum_prev_ytd = sum(prev_map.get(m, 0) for m in range(1, ytd_months + 1))
+
+            # 1~ytd_months월이 연간에서 차지하는 비중 (당해/전년 평균)
+            w_curr  = sum_curr_ytd / annual if annual else 0
+            w_prev  = sum_prev_ytd / prev_annual if prev_annual else 0
+            weights = [w for w in (w_curr, w_prev) if w > 0]
+            w_avg   = sum(weights) / len(weights) if weights else 0
+
+            est_annual = int(sum_next / w_avg) if w_avg else 0
+            ytd_yoy    = round((sum_next - sum_curr_ytd) / sum_curr_ytd * 100, 1) if sum_curr_ytd else None
+            est_yoy    = round((est_annual - annual) / annual * 100, 1) if annual and est_annual else None
+
+            y2026 = {
+                "year":         year + 1,
+                "ytd_months":   ytd_months,
+                "sum_ytd":      sum_next,
+                "sum_curr_ytd": sum_curr_ytd,
+                "ytd_yoy":      ytd_yoy,
+                "weight_pct":   round(w_avg * 100, 1),
+                "weight_curr":  round(w_curr * 100, 1),
+                "weight_prev":  round(w_prev * 100, 1),
+                "est_annual":   est_annual,
+                "est_yoy":      est_yoy,
+            }
+
     # 월별 데이터
     best_month = max(results, key=lambda x: x["total"])["month"]
     monthly = []
     for r in results:
         prev_m = prev_map.get(r["month"], 0)
         yoy    = round((r["total"] - prev_m) / prev_m * 100, 1) if prev_m else None
+        next_m = next_map.get(r["month"], 0)
+        yoy_next = round((next_m - r["total"]) / r["total"] * 100, 1) if next_m and r["total"] else None
         monthly.append({
             "month":       r["month"],
             "label":       MONTH_NAMES[r["month"] - 1],
             "current":     r["total"],
             "prev":        prev_m,
             "yoy":         yoy,
+            "next":        next_m or None,
+            "yoy_next":    yoy_next,
             "is_vacation": r["month"] in VACATION,
             "is_best":     r["month"] == best_month,
             "top3":        r.get("companies", [])[:3],
@@ -281,6 +329,7 @@ def compute_data(keyword: str):
         "keyword":       keyword,
         "year":          year,
         "prev_year":     year - 1,
+        "next_year":     year + 1,
         "annual":        annual,
         "prev_annual":   prev_annual,
         "best_month":    best_month,
@@ -291,6 +340,7 @@ def compute_data(keyword: str):
         "competitors":   comp_list,
         "product_info":  product_info,
         "has_prev":      prev_raw is not None,
+        "y2026":         y2026,
     }
 
 

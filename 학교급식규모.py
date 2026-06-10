@@ -1216,6 +1216,14 @@ def main():
     print(f"[STEP 1-2] {prev_year}년 전년도 비교 데이터 수집...")
     prev_results = asyncio.run(collect_annual(keyword, prev_year))
 
+    # 진행중인 다음 연도(예: 2026) 데이터도 있으면 함께 수집
+    next_year     = year + 1
+    next_results  = None
+    if datetime.now().year >= next_year:
+        print()
+        print(f"[STEP 1-3] {next_year}년 진행중 데이터 수집...")
+        next_results = asyncio.run(collect_annual(keyword, next_year))
+
     print()
     print("[STEP 2] 결과 요약...")
     print_summary(keyword, year, results)
@@ -1223,6 +1231,8 @@ def main():
     print("[STEP 3] 로그 저장...")
     save_log(keyword, year, results)
     save_log(keyword, prev_year, prev_results)   # 전년도 로그도 자동 저장
+    if next_results:
+        save_log(keyword, next_year, next_results)   # 진행중 연도 로그 저장
 
     print("[STEP 4] 엑셀 저장...")
     fname = save_excel(keyword, year, results, prev_results)

@@ -217,6 +217,7 @@ body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;background:var(--bg)
         <thead id="th0"></thead><tbody id="tb0"></tbody>
       </table></div>
     </div>
+    <div class="src-note" id="y26-note" style="margin:-6px 0 8px;"></div>
     <div class="box">
       <div class="box-title" id="ch0-title"></div>
       <div class="ch-wrap"><canvas id="ch0" style="height:160px"></canvas></div>
@@ -481,15 +482,21 @@ function render() {
 
 // ── KPI 카드 ─────────────────────────────────────────────
 function renderKPI() {
-  const {keyword, year, prev_year, annual, prev_annual, best_month,
-         market_curr: C, monthly} = G;
+  const {keyword, year, prev_year, next_year, annual, prev_annual, best_month,
+         market_curr: C, monthly, y2026} = G;
   const yoy = prev_annual ? ((annual - prev_annual)/prev_annual*100).toFixed(1) : null;
   const bm  = monthly.find(m => m.is_best);
+  const y26Sub = y2026 ? `
+      <div class="kpi-sub" style="margin-top:4px;padding-top:4px;border-top:1px dashed #e5e5e5;cursor:help;"
+           title="${next_year}년 추정 = (${next_year}년 1~${y2026.ytd_months}월 누적 ${fmtE(y2026.sum_ytd)}) ÷ (${year}·${prev_year}년 평균 1~${y2026.ytd_months}월 비중 ${y2026.weight_pct}%)\n· ${year}년 비중: ${y2026.weight_curr}%  · ${prev_year}년 비중: ${y2026.weight_prev}%\n· 1~${y2026.ytd_months}월 동기간 실성장률(YTD): ${y2026.ytd_yoy>=0?'▲':'▼'}${Math.abs(y2026.ytd_yoy).toFixed(1)}%">
+        ${next_year}년 추정 ${fmtE(y2026.est_annual)} ${yoyStr(y2026.est_yoy)} <span style="color:#aaa;">vs ${year}년 ⓘ</span>
+      </div>` : '';
   $('kpi').innerHTML = `
     <div class="kpi">
       <div class="kpi-lbl">FoodnBid 연간 실측 (수도권)</div>
       <div class="kpi-val">${fmtE(annual)}</div>
       <div class="kpi-sub">${yoy !== null ? yoyStr(parseFloat(yoy)) + ` vs ${prev_year}년` : `${year}년`}</div>
+      ${y26Sub}
     </div>
     <div class="kpi k2">
       <div class="kpi-lbl">전국 학교급식 (환산)</div>
@@ -510,7 +517,7 @@ function renderKPI() {
 
 // ── 탭0: 월별실측 ────────────────────────────────────────
 function renderMonthly() {
-  const {keyword, year, prev_year, annual, prev_annual, monthly, collected_at} = G;
+  const {keyword, year, prev_year, next_year, annual, prev_annual, monthly, collected_at, y2026} = G;
 
   // 타이틀·출처
   $('ch0-title').textContent =
@@ -539,6 +546,13 @@ function renderMonthly() {
           borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#E8A838',
           borderDash: [6,3], pointStyle: 'rectRot', fill: false, tension: .3,
         },
+        ...(y2026 ? [{
+          label: `${next_year}년`,
+          data: monthly.map(m => m.next),
+          borderColor: '#4CAF50', backgroundColor: 'rgba(76,175,80,.07)',
+          borderWidth: 2.5, pointRadius: 5, pointBackgroundColor: '#4CAF50',
+          pointStyle: 'triangle', fill: false, tension: .3, spanGaps: false,
+        }] : []),
       ],
     },
     options: {
@@ -562,7 +576,9 @@ function renderMonthly() {
     <th>FoodnBid 실측<br>(${year}, 수도권, 원)</th>
     <th>비중(%)</th>
     <th>FoodnBid 실측<br>(${prev_year}, 수도권, 원)</th>
-    <th>전년 동월 대비</th>
+    <th>${year} vs ${prev_year}<br>(전년 동월 대비)</th>
+    ${y2026 ? `<th>FoodnBid 실측<br>(${next_year}, 수도권, 원)</th>
+    <th>${next_year} vs ${year}<br>(동월 대비)</th>` : ''}
     <th>경쟁사 TOP 3 (낙찰금액)</th>
   </tr>`;
 
@@ -573,27 +589,41 @@ function renderMonthly() {
     const top3 = m.top3.map((c,i) =>
       `${['①','②','③'][i]} ${c.company} ${c.amount.toLocaleString('ko-KR')}원`).join(' | ');
     const cls  = [m.is_vacation ? 'vac' : '', m.is_best ? 'best' : ''].filter(Boolean).join(' ');
+    const y26Cells = y2026 ? `
+      <td>${m.next != null ? fmt(m.next) : '<span style="color:#ccc;">-</span>'}</td>
+      <td class="c">${m.yoy_next != null ? yoyStr(m.yoy_next) : '<span style="color:#ccc;">-</span>'}</td>` : '';
     rows += `<tr class="${cls}">
       <td class="c mc">${m.label}</td>
       <td>${fmt(m.current)}</td>
       <td class="c">${pct}%</td>
       <td>${fmt(m.prev)}</td>
       <td class="c">${yoyStr(m.yoy)}</td>
+      ${y26Cells}
       <td class="l" style="font-size:.78rem;white-space:normal;">${top3 || '—'}</td>
     </tr>`;
   });
 
   // 연간 합계 행
   const totYoy = prev_annual ? ((annual - prev_annual)/prev_annual*100).toFixed(1) : null;
+  const y26SumCells = y2026 ? `
+    <td>${fmt(y2026.sum_ytd)}<br><span style="font-weight:400;font-size:.74rem;color:#888;">(1~${y2026.ytd_months}월 누적)</span></td>
+    <td class="c">${yoyStr(y2026.ytd_yoy)}<br><span style="font-weight:400;font-size:.74rem;color:#888;">(YTD)</span></td>` : '';
   rows += `<tr class="sum">
     <td class="c">연간 합계</td>
     <td>${fmt(annual)}</td>
     <td class="c">100.0%</td>
     <td>${fmt(prev_annual)}</td>
     <td class="c">${yoyStr(totYoy !== null ? parseFloat(totYoy) : null)}</td>
-    <td class="l">연간 ${fmtE(annual)} | 전년(${prev_year}) ${fmtE(prev_annual)} (수도권 FoodnBid 기준)</td>
+    ${y26SumCells}
+    <td class="l">연간 ${fmtE(annual)} | 전년(${prev_year}) ${fmtE(prev_annual)} (수도권 FoodnBid 기준)${y2026 ? ` | ${next_year} 추정 ${fmtE(y2026.est_annual)} (${yoyStr(y2026.est_yoy)} vs ${year})` : ''}</td>
   </tr>`;
   $('tb0').innerHTML = rows;
+
+  // 2026 추정 방법론 안내
+  $('y26-note').innerHTML = y2026 ? `
+    ※ <b>${next_year}년 추정</b>: ${next_year}년 1~${y2026.ytd_months}월 누적 실적(${fmtE(y2026.sum_ytd)})을
+    ${year}·${prev_year}년의 1~${y2026.ytd_months}월 평균 비중(${y2026.weight_pct}%, 각 ${y2026.weight_curr}%·${y2026.weight_prev}%)으로 나눠
+    계절성을 반영해 연환산한 추정치입니다. 1~${y2026.ytd_months}월 동기간 실성장률(YTD)은 ${yoyStr(y2026.ytd_yoy)}입니다.` : '';
 }
 
 // ── 탭1: 시장규모 환산 ───────────────────────────────────
