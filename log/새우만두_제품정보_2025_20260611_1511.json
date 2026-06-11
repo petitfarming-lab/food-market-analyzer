@@ -1,0 +1,78 @@
+[
+  {
+    "rank": 1,
+    "company": "대상",
+    "product": "청정원 생생통새우만두",
+    "products": [
+      {
+        "name": "청정원 생생통새우만두",
+        "amount": 181009509
+      }
+    ],
+    "annual": 181009509,
+    "monthly_avg": 22214472,
+    "weight": "확인 필요",
+    "origin": "확인 필요",
+    "bluesis_kprice": "블루시스 미등록",
+    "bluesis_standard": "",
+    "bluesis_ingredients": "",
+    "bluesis_image_b64": ""
+  },
+  {
+    "rank": 2,
+    "company": "씨제이",
+    "product": "비비고 통새우만두",
+    "products": [
+      {
+        "name": "비비고 통새우만두",
+        "amount": 170133618
+      }
+    ],
+    "annual": 170133618,
+    "monthly_avg": 18370704,
+    "weight": "확인 필요",
+    "origin": "확인 필요",
+    "bluesis_kprice": "블루시스 미등록",
+    "bluesis_standard": "",
+    "bluesis_ingredients": "",
+    "bluesis_image_b64": ""
+  },
+  {
+    "rank": 3,
+    "company": "풀무원",
+    "product": "통통탱글 속이꽉찬 통새우만두",
+    "products": [
+      {
+        "name": "통통탱글 속이꽉찬 통새우만두",
+        "amount": 112086353
+      }
+    ],
+    "annual": 112086353,
+    "monthly_avg": 11628950,
+    "weight": "확인 필요",
+    "origin": "확인 필요",
+    "bluesis_kprice": "블루시스 미등록",
+    "bluesis_standard": "",
+    "bluesis_ingredients": "",
+    "bluesis_image_b64": ""
+  },
+  {
+    "rank": 4,
+    "company": "파르팜",
+    "product": "탱글탱글 통새우만두",
+    "products": [
+      {
+        "name": "탱글탱글 통새우만두",
+        "amount": 55568111
+      }
+    ],
+    "annual": 55568111,
+    "monthly_avg": 10279743,
+    "weight": "확인 필요",
+    "origin": "확인 필요",
+    "bluesis_kprice": "블루시스 미등록",
+    "bluesis_standard": "",
+    "bluesis_ingredients": "",
+    "bluesis_image_b64": ""
+  }
+]

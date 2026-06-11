@@ -220,6 +220,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI','M
   background:rgba(255,255,255,.65);padding:2px 7px;border-radius:5px;display:inline-block;margin-top:2px;}
 .y26-detail .calc-note{color:#9a9a9e;font-size:.72rem;font-style:italic;}
 
+/* 시장규모 환산 - 연도 비교 산출식 상세 (네이비 톤) */
+.cmp-detail summary{cursor:pointer;color:var(--navy);font-weight:700;font-size:.78rem;
+  padding:2px 0;list-style:none;}
+.cmp-detail summary::-webkit-details-marker{display:none;}
+.cmp-detail summary::before{content:'▸ ';}
+.cmp-detail[open] summary::before{content:'▾ ';}
+.cmp-detail .calc-box{margin:8px 0 4px;background:rgba(31,78,121,.05);
+  border:1px solid rgba(31,78,121,.15);border-radius:10px;padding:12px 16px;
+  line-height:1.85;font-size:.78rem;color:#48484a;font-style:normal;}
+.cmp-detail .calc-step{margin-bottom:8px;}
+.cmp-detail .calc-step:last-child{margin-bottom:0;}
+.cmp-detail .calc-step b{color:var(--navy);}
+.cmp-detail .calc-formula{font-family:'SF Mono',Consolas,monospace;font-size:.74rem;color:#1F4E79;
+  background:rgba(255,255,255,.65);padding:2px 7px;border-radius:5px;display:inline-block;margin-top:2px;}
+.cmp-detail .calc-note{color:#9a9a9e;font-size:.72rem;font-style:italic;}
+
 @media(max-width:900px){.kpi-row{grid-template-columns:1fr 1fr;}.mkt-grid{grid-template-columns:1fr;}.prod-grid{grid-template-columns:1fr 1fr;}}
 @media(max-width:600px){.kpi-row{grid-template-columns:1fr;}.prod-grid{grid-template-columns:1fr;}}
 </style>
@@ -231,7 +247,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI','M
   <div class="hdr-row">
     <div>
       <div class="hdr-logo">🍱 학교급식 <span>시장규모</span></div>
-      <div style="color:rgba(255,255,255,.45);font-size:.68rem;margin-top:1px;letter-spacing:.3px;">v1.1 · 2026-06-10</div>
+      <div style="color:rgba(255,255,255,.45);font-size:.68rem;margin-top:1px;letter-spacing:.3px;">v1.2 · 2026-06-11</div>
     </div>
     <div class="srch-box">
       <div class="srch-field">
@@ -318,9 +334,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI','M
   <!-- ── 탭1: 시장규모 ── -->
   <div class="panel" id="p1">
     <div class="mkt-grid" id="mkt-grid"></div>
-    <div class="box">
-      <div class="box-title">연도별 시장규모 비교</div>
-      <div class="ch-wrap"><canvas id="ch1" style="height:180px"></canvas></div>
+    <div class="box" id="mkt-cmp-box">
+      <div class="box-title">📊 연도별 시장규모 비교</div>
+      <div id="mkt-cmp-detail"></div>
+    </div>
+    <div class="box" id="mkt-y26-box">
+      <div class="box-title">📈 차년도 시장규모 전망</div>
+      <div id="mkt-y26-detail"></div>
     </div>
   </div>
 
@@ -370,7 +390,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI','M
 
 <script>
 let G = null, curKw = '', curExclude = '', pollTmr = null, bluesisTmr = null;
-let ch0 = null, ch1 = null, ch2 = null;
+let ch0 = null, ch2 = null;
 
 const $ = id => document.getElementById(id);
 const fmt  = n => n ? n.toLocaleString('ko-KR') : '0';
@@ -379,6 +399,14 @@ const fmtE = n => n ? (n/1e8).toFixed(2) + '억원' : '—';
 const fmtE1= n => n ? (n/1e8).toFixed(1) + '억원' : '—';
 const yoyStr = v => v === null || v === undefined ? '—'
   : `<span class="${v>=0?'up':'dn'}">${v>=0?'▲':'▼'}${Math.abs(v).toFixed(1)}%</span>`;
+
+// FoodnBid 실측 → 시장규모 환산 (dashboard.py의 market()과 동일한 비율)
+function marketConv(a) {
+  if (!a) return { foodnbid: 0, school_suwon: 0, school_nation: 0, total: 0 };
+  const sw = Math.floor(a / 0.60);
+  const sn = Math.floor(sw / 0.405);
+  return { foodnbid: a, school_suwon: sw, school_nation: sn, total: Math.floor(sn * 1.225) };
+}
 
 // ── 검색 히스토리 (localStorage) ────────────────────────
 const HIST_KEY = 'schfood_hist';
@@ -590,7 +618,7 @@ function renderKPI() {
 
   const yoyStat = `
       <div class="kpi-stat${prev_annual ? ' help' : ''}" ${prev_annual ? `title="방학월(1·7·12월) 제외 등락폭"` : ''}>
-        <span class="kpi-stat-lbl">${prev_year}년 대비</span>
+        <span class="kpi-stat-lbl">${year}년 증가율(${prev_year}년 대비)</span>
         <span class="kpi-stat-val">${yoy_ex !== null && yoy_ex !== undefined ? yoyStr(yoy_ex) : `${year}년 (비교불가)`}</span>
       </div>`;
   const y26Stat = y2026 ? `
@@ -789,7 +817,8 @@ function renderMonthly() {
 
 // ── 탭1: 시장규모 환산 ───────────────────────────────────
 function renderMarket() {
-  const {year, prev_year, market_curr: C, market_prev: P} = G;
+  const {year, prev_year, next_year, market_curr: C, market_prev: P,
+         annual, prev_annual, annual_ex, prev_annual_ex, yoy_ex, has_prev, y2026} = G;
 
   const steps = [
     ['①', `FoodnBid 실측 (${year})`, 'FoodnBid 직접 수집 (수도권·서울·경기·인천 학교)', C.foodnbid, P.foodnbid],
@@ -818,28 +847,70 @@ function renderMarket() {
     card(year,      [C.foodnbid, C.school_suwon, C.school_nation, C.total]) +
     card(prev_year, [P.foodnbid, P.school_suwon, P.school_nation, P.total]);
 
-  if (ch1) ch1.destroy();
-  const lbls = ['FoodnBid 실측', '수도권 학교급식', '전국 학교급식', '전국 급식 전체'];
-  ch1 = new Chart($('ch1'), {
-    type: 'bar',
-    data: {
-      labels: lbls,
-      datasets: [
-        { label: `${year}년`, data: [C.foodnbid, C.school_suwon, C.school_nation, C.total],
-          backgroundColor: 'rgba(31,78,121,.78)', borderRadius: 4 },
-        { label: `${prev_year}년`, data: [P.foodnbid, P.school_suwon, P.school_nation, P.total],
-          backgroundColor: 'rgba(232,168,56,.7)', borderRadius: 4 },
-      ],
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'top' },
-        tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${fmtE1(c.parsed.y)}` } },
-      },
-      scales: { y: { ticks: { callback: v => (v/1e8).toFixed(0)+'억' } } },
-    },
-  });
+  // ① 연도별(전년 vs 당해) 비교 산출식
+  let cmpHtml;
+  if (has_prev && prev_annual) {
+    const rawYoy = Math.round((annual - prev_annual) / prev_annual * 1000) / 10;
+    cmpHtml = `
+      <details class="cmp-detail" open>
+        <summary>${year}년 vs ${prev_year}년 ${yoyStr(rawYoy)} 산출식 자세히 보기</summary>
+        <div class="calc-box">
+          <div class="calc-step">
+            <b>① FoodnBid 실측 비교</b> (방학월 포함 연간 실측)<br>
+            ${prev_year}년 연간 실측 = ${fmt(prev_annual)}원 (${fmtE(prev_annual)})<br>
+            ${year}년 연간 실측 = ${fmt(annual)}원 (${fmtE(annual)})<br>
+            <span class="calc-formula">증감률 = (${fmt(annual)} − ${fmt(prev_annual)}) ÷ ${fmt(prev_annual)} × 100 = ${yoyStr(rawYoy)}</span>
+          </div>
+          <div class="calc-step">
+            <b>② 시장규모 환산 단계별 비교</b> (환산 비율은 모든 단계에 동일하게 적용되는 고정 상수이므로, 각 단계의 증감률은 ①과 동일합니다)<br>
+            ÷ 60% (FoodnBid 커버리지) → 수도권 학교급식: ${fmtE1(P.school_suwon)} → ${fmtE1(C.school_suwon)}<br>
+            ÷ 40.5% (수도권 학생비율) → 전국 학교급식: ${fmtE1(P.school_nation)} → ${fmtE1(C.school_nation)}<br>
+            × 1.225 (단체급식 22.5% 추가) → 전국 급식 전체: ${fmtE1(P.total)} → ${fmtE1(C.total)}<br>
+            <span class="calc-formula">각 단계 증감률 = ${yoyStr(rawYoy)} (①과 동일)</span>
+          </div>
+          <div class="calc-step calc-note">
+            ※ 위 ${yoyStr(rawYoy)}는 방학월(1·7·12월)을 포함한 연간 실측 기준 증감률입니다.
+            "FoodnBid 연간 실측" KPI 카드의 "${year}년 증가율(${prev_year}년 대비) ${yoyStr(yoy_ex)}"는
+            매출 변동이 큰 방학월을 제외하고 별도 산정한 실성장률입니다.
+          </div>
+        </div>
+      </details>`;
+  } else {
+    cmpHtml = `<p style="font-size:.82rem;color:#9a9a9e;">${prev_year}년 데이터가 없어 연도별 비교를 표시할 수 없습니다.</p>`;
+  }
+  $('mkt-cmp-detail').innerHTML = cmpHtml;
+
+  // ② 차년도(진행중) 시장규모 전망 추정
+  let y26Html;
+  if (y2026) {
+    const E = marketConv(y2026.est_annual);
+    y26Html = `
+      <details class="y26-detail" open>
+        <summary>${next_year}년 시장규모 환산 추정 ${yoyStr(y2026.est_yoy)} 산출식 자세히 보기</summary>
+        <div class="calc-box">
+          <div class="calc-step">
+            <b>① ${next_year}년 FoodnBid 실측 연간 추정</b> (방학월 제외 기준 환산)<br>
+            ${next_year}년 1~${y2026.ytd_months}월 누적(방학월 제외) = ${fmt(y2026.sum_next_ex)}원 (${fmtE(y2026.sum_next_ex)})<br>
+            ${year}·${prev_year}년 1~${y2026.ytd_months}월 평균 비중 = ${y2026.weight_pct}% (각 ${y2026.weight_curr}%·${y2026.weight_prev}%)<br>
+            <span class="calc-formula">${next_year}년 추정 = ${fmt(y2026.sum_next_ex)} ÷ ${y2026.weight_pct}% = ${fmt(y2026.est_annual_ex)}원 (${fmtE(y2026.est_annual_ex)})</span>
+          </div>
+          <div class="calc-step">
+            <b>② ${next_year}년 시장규모 환산 추정</b> (위 ①의 ${next_year}년 추정 ${fmtE(y2026.est_annual)} 기준, ${year}년과 동일한 환산 비율 적용)<br>
+            ÷ 60% (FoodnBid 커버리지) → 수도권 학교급식 추정 ≈ <b>${fmtE1(E.school_suwon)}</b><br>
+            ÷ 40.5% (수도권 학생비율) → 전국 학교급식 추정 ≈ <b>${fmtE1(E.school_nation)}</b><br>
+            × 1.225 (단체급식 22.5% 추가) → 전국 급식 전체 추정 ≈ <b>${fmtE1(E.total)}</b><br>
+            <span class="calc-formula">각 단계 추정 증감률 ≈ ${yoyStr(y2026.est_yoy)} (①과 동일 비율 적용)</span>
+          </div>
+          <div class="calc-step calc-note">
+            ※ ${next_year}년 추정의 YTD 누적 비교·계절성 비중 산출 과정은 "📊 학교급식 월별실측" 탭 하단의 산출식 안내를 함께 참고하세요.
+            방학월 거래액은 매우 작아 방학월 포함/제외 추정치(${fmtE(y2026.est_annual)} / ${fmtE(y2026.est_annual_ex)})는 비슷한 수준입니다.
+          </div>
+        </div>
+      </details>`;
+  } else {
+    y26Html = `<p style="font-size:.82rem;color:#9a9a9e;">${year + 1}년 진행 데이터가 없어 시장규모 전망을 표시할 수 없습니다.</p>`;
+  }
+  $('mkt-y26-detail').innerHTML = y26Html;
 }
 
 // ── 탭2: 경쟁사 현황 ─────────────────────────────────────

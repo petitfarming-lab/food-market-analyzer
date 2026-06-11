@@ -1,0 +1,558 @@
+{
+  "keyword": "부대찌개",
+  "year": 2026,
+  "collected_at": "20260611_1515",
+  "results": [
+    {
+      "year": 2026,
+      "month": 1,
+      "total": 6181396,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "선진FS",
+          "amount": 3719385
+        },
+        {
+          "rank": 2,
+          "company": "대상",
+          "amount": 914522
+        },
+        {
+          "rank": 3,
+          "company": "씨제이",
+          "amount": 826596
+        },
+        {
+          "rank": 4,
+          "company": "레인보우",
+          "amount": 311535
+        },
+        {
+          "rank": 5,
+          "company": "목우촌",
+          "amount": 164480
+        },
+        {
+          "rank": 6,
+          "company": "SRC",
+          "amount": 114480
+        },
+        {
+          "rank": 7,
+          "company": "서안이가",
+          "amount": 64358
+        },
+        {
+          "rank": 8,
+          "company": "아이푸드스쿨",
+          "amount": 34500
+        },
+        {
+          "rank": 9,
+          "company": "아워홈",
+          "amount": 31540
+        }
+      ]
+    },
+    {
+      "year": 2026,
+      "month": 2,
+      "total": 428531952,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "선진FS",
+          "amount": 206297265
+        },
+        {
+          "rank": 2,
+          "company": "대상",
+          "amount": 87947512
+        },
+        {
+          "rank": 3,
+          "company": "씨제이",
+          "amount": 34276223
+        },
+        {
+          "rank": 4,
+          "company": "목우촌",
+          "amount": 18904794
+        },
+        {
+          "rank": 5,
+          "company": "레인보우",
+          "amount": 17410167
+        },
+        {
+          "rank": 6,
+          "company": "서안이가",
+          "amount": 16771695
+        },
+        {
+          "rank": 7,
+          "company": "SRC",
+          "amount": 13443417
+        },
+        {
+          "rank": 8,
+          "company": "아이푸드스쿨",
+          "amount": 12506780
+        },
+        {
+          "rank": 9,
+          "company": "한결푸드",
+          "amount": 8497257
+        },
+        {
+          "rank": 10,
+          "company": "참조은",
+          "amount": 5507756
+        },
+        {
+          "rank": 11,
+          "company": "아워홈",
+          "amount": 1706419
+        },
+        {
+          "rank": 12,
+          "company": "델리쿡",
+          "amount": 1677950
+        },
+        {
+          "rank": 13,
+          "company": "신세계푸드",
+          "amount": 914462
+        },
+        {
+          "rank": 14,
+          "company": "크로바",
+          "amount": 817230
+        },
+        {
+          "rank": 15,
+          "company": "초록나무",
+          "amount": 756940
+        },
+        {
+          "rank": 16,
+          "company": "하늘빛",
+          "amount": 553320
+        },
+        {
+          "rank": 17,
+          "company": "마미스",
+          "amount": 251795
+        },
+        {
+          "rank": 18,
+          "company": "싱싱플러스",
+          "amount": 158400
+        },
+        {
+          "rank": 19,
+          "company": "소예푸드",
+          "amount": 113760
+        },
+        {
+          "rank": 20,
+          "company": "쿠킹맘",
+          "amount": 18810
+        }
+      ]
+    },
+    {
+      "year": 2026,
+      "month": 3,
+      "total": 346222385,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "선진FS",
+          "amount": 161746429
+        },
+        {
+          "rank": 2,
+          "company": "대상",
+          "amount": 71753294
+        },
+        {
+          "rank": 3,
+          "company": "씨제이",
+          "amount": 29668738
+        },
+        {
+          "rank": 4,
+          "company": "목우촌",
+          "amount": 16833660
+        },
+        {
+          "rank": 5,
+          "company": "SRC",
+          "amount": 13289940
+        },
+        {
+          "rank": 6,
+          "company": "레인보우",
+          "amount": 12504494
+        },
+        {
+          "rank": 7,
+          "company": "아이푸드스쿨",
+          "amount": 12132000
+        },
+        {
+          "rank": 8,
+          "company": "서안이가",
+          "amount": 8823114
+        },
+        {
+          "rank": 9,
+          "company": "참조은",
+          "amount": 6011505
+        },
+        {
+          "rank": 10,
+          "company": "델리쿡",
+          "amount": 5800009
+        },
+        {
+          "rank": 11,
+          "company": "한결푸드",
+          "amount": 4842690
+        },
+        {
+          "rank": 12,
+          "company": "아워홈",
+          "amount": 932224
+        },
+        {
+          "rank": 13,
+          "company": "신세계푸드",
+          "amount": 845048
+        },
+        {
+          "rank": 14,
+          "company": "쿠킹맘",
+          "amount": 432630
+        },
+        {
+          "rank": 15,
+          "company": "크로바",
+          "amount": 337170
+        },
+        {
+          "rank": 16,
+          "company": "소예푸드",
+          "amount": 113760
+        },
+        {
+          "rank": 17,
+          "company": "싱싱플러스",
+          "amount": 86400
+        },
+        {
+          "rank": 18,
+          "company": "마미스",
+          "amount": 52700
+        },
+        {
+          "rank": 19,
+          "company": "초록나무",
+          "amount": 16580
+        }
+      ]
+    },
+    {
+      "year": 2026,
+      "month": 4,
+      "total": 306731343,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "선진FS",
+          "amount": 149174970
+        },
+        {
+          "rank": 2,
+          "company": "대상",
+          "amount": 60691890
+        },
+        {
+          "rank": 3,
+          "company": "씨제이",
+          "amount": 27473752
+        },
+        {
+          "rank": 4,
+          "company": "서안이가",
+          "amount": 13394554
+        },
+        {
+          "rank": 5,
+          "company": "목우촌",
+          "amount": 12854248
+        },
+        {
+          "rank": 6,
+          "company": "아이푸드스쿨",
+          "amount": 10560120
+        },
+        {
+          "rank": 7,
+          "company": "레인보우",
+          "amount": 9371129
+        },
+        {
+          "rank": 8,
+          "company": "SRC",
+          "amount": 7872390
+        },
+        {
+          "rank": 9,
+          "company": "한결푸드",
+          "amount": 4870560
+        },
+        {
+          "rank": 10,
+          "company": "참조은",
+          "amount": 3483325
+        },
+        {
+          "rank": 11,
+          "company": "델리쿡",
+          "amount": 1344750
+        },
+        {
+          "rank": 12,
+          "company": "크로바",
+          "amount": 1198650
+        },
+        {
+          "rank": 13,
+          "company": "한올푸드",
+          "amount": 929880
+        },
+        {
+          "rank": 14,
+          "company": "소예푸드",
+          "amount": 881640
+        },
+        {
+          "rank": 15,
+          "company": "아워홈",
+          "amount": 657325
+        },
+        {
+          "rank": 16,
+          "company": "신세계푸드",
+          "amount": 549860
+        },
+        {
+          "rank": 17,
+          "company": "초록나무",
+          "amount": 414500
+        },
+        {
+          "rank": 18,
+          "company": "하늘빛",
+          "amount": 381600
+        },
+        {
+          "rank": 19,
+          "company": "쿠킹맘",
+          "amount": 376200
+        },
+        {
+          "rank": 20,
+          "company": "마미스",
+          "amount": 250000
+        }
+      ]
+    },
+    {
+      "year": 2026,
+      "month": 5,
+      "total": 381773848,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "선진FS",
+          "amount": 180486179
+        },
+        {
+          "rank": 2,
+          "company": "대상",
+          "amount": 76995229
+        },
+        {
+          "rank": 3,
+          "company": "씨제이",
+          "amount": 27871166
+        },
+        {
+          "rank": 4,
+          "company": "서안이가",
+          "amount": 17123711
+        },
+        {
+          "rank": 5,
+          "company": "목우촌",
+          "amount": 16339291
+        },
+        {
+          "rank": 6,
+          "company": "아이푸드스쿨",
+          "amount": 15456000
+        },
+        {
+          "rank": 7,
+          "company": "레인보우",
+          "amount": 15060620
+        },
+        {
+          "rank": 8,
+          "company": "SRC",
+          "amount": 13557240
+        },
+        {
+          "rank": 9,
+          "company": "한결푸드",
+          "amount": 5706327
+        },
+        {
+          "rank": 10,
+          "company": "참조은",
+          "amount": 5494860
+        },
+        {
+          "rank": 11,
+          "company": "초록나무",
+          "amount": 2170501
+        },
+        {
+          "rank": 12,
+          "company": "델리쿡",
+          "amount": 1922250
+        },
+        {
+          "rank": 13,
+          "company": "아워홈",
+          "amount": 911056
+        },
+        {
+          "rank": 14,
+          "company": "크로바",
+          "amount": 813760
+        },
+        {
+          "rank": 15,
+          "company": "마미스",
+          "amount": 748400
+        },
+        {
+          "rank": 16,
+          "company": "신세계푸드",
+          "amount": 613528
+        },
+        {
+          "rank": 17,
+          "company": "쿠킹맘",
+          "amount": 432630
+        },
+        {
+          "rank": 18,
+          "company": "소예푸드",
+          "amount": 71100
+        }
+      ]
+    },
+    {
+      "year": 2026,
+      "month": 6,
+      "total": 9406240,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "선진FS",
+          "amount": 4800520
+        },
+        {
+          "rank": 2,
+          "company": "대상",
+          "amount": 2749546
+        },
+        {
+          "rank": 3,
+          "company": "씨제이",
+          "amount": 1182322
+        },
+        {
+          "rank": 4,
+          "company": "마미스",
+          "amount": 297000
+        },
+        {
+          "rank": 5,
+          "company": "아이푸드스쿨",
+          "amount": 192000
+        },
+        {
+          "rank": 6,
+          "company": "목우촌",
+          "amount": 161700
+        },
+        {
+          "rank": 7,
+          "company": "신세계푸드",
+          "amount": 23152
+        }
+      ]
+    },
+    {
+      "year": 2026,
+      "month": 7,
+      "total": 0,
+      "companies": []
+    },
+    {
+      "year": 2026,
+      "month": 8,
+      "total": 0,
+      "companies": []
+    },
+    {
+      "year": 2026,
+      "month": 9,
+      "total": 0,
+      "companies": []
+    },
+    {
+      "year": 2026,
+      "month": 10,
+      "total": 0,
+      "companies": []
+    },
+    {
+      "year": 2026,
+      "month": 11,
+      "total": 0,
+      "companies": []
+    },
+    {
+      "year": 2026,
+      "month": 12,
+      "total": 0,
+      "companies": []
+    }
+  ],
+  "annual_total": 1478847164,
+  "methodology": {
+    "foodnbid_coverage": 0.6,
+    "suwon_student_ratio": 0.405,
+    "dangtche_ratio": 0.225,
+    "military_excluded": true,
+    "exclude_keyword": "마라"
+  }
+}
