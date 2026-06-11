@@ -191,13 +191,18 @@ def compute_data(keyword: str):
     prev_annual = prev_raw["annual_total"] if prev_raw else 0
 
     # 시장규모 환산
-    COV, SU, DAN = 0.60, 0.405, 0.225
+    # - SU: 서울·경기 학생수가 전국 학생수에서 차지하는 비율 (약 40.5%)
+    # - COV: FoodnBid의 서울·경기 학교급식 식자재 거래 커버리지
+    #        (FoodnBid 실측 × 2.5 ≈ 전국 학교급식이 되도록 SU 기준 역산: COV = 0.4 / SU)
+    # - SCHOOL_SHARE: 전국 학교급식이 전국 단체급식 전체(군급식·기업급식·병원급식·요양원·어린이집 등 포함)에서 차지하는 비중 (약 30%)
+    SU, SCHOOL_SHARE = 0.405, 0.30
+    COV = 0.4 / SU
     def market(a):
         if not a:
             return {"foodnbid": 0, "school_suwon": 0, "school_nation": 0, "total": 0}
         sw = int(a / COV)
         sn = int(sw / SU)
-        return {"foodnbid": a, "school_suwon": sw, "school_nation": sn, "total": int(sn * (1 + DAN))}
+        return {"foodnbid": a, "school_suwon": sw, "school_nation": sn, "total": int(sn / SCHOOL_SHARE)}
 
     curr_mkt = market(annual)
     prev_mkt = market(prev_annual)
