@@ -192,11 +192,11 @@ def compute_data(keyword: str):
 
     # 시장규모 환산
     # - SU: 서울·경기 학생수가 전국 학생수에서 차지하는 비율 (약 40.5%)
-    # - COV: FoodnBid의 서울·경기 학교급식 식자재 거래 커버리지
-    #        (FoodnBid 실측 × 2.5 ≈ 전국 학교급식이 되도록 SU 기준 역산: COV = 0.4 / SU)
+    # - COV: FoodnBid의 서울·경기 학교급식 식자재 거래 커버리지 (약 85%)
+    #        FoodnBid는 입찰·발주를 통해 시스템상 매출이 집계되는 거래만 포착하므로,
+    #        직거래·수의계약 등 시스템 외 거래는 제외됨
     # - SCHOOL_SHARE: 전국 학교급식이 전국 단체급식 전체(군급식·기업급식·병원급식·요양원·어린이집 등 포함)에서 차지하는 비중 (약 30%)
-    SU, SCHOOL_SHARE = 0.405, 0.30
-    COV = 0.4 / SU
+    COV, SU, SCHOOL_SHARE = 0.85, 0.405, 0.30
     def market(a):
         if not a:
             return {"foodnbid": 0, "school_suwon": 0, "school_nation": 0, "total": 0}
