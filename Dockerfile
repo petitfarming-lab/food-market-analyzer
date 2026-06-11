@@ -16,5 +16,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN playwright install chromium
 
 COPY . .
+RUN cp -r log log_seed && cp -r output output_seed
 
-CMD gunicorn --bind 0.0.0.0:$PORT dashboard:app
+CMD python seed_data.py && gunicorn --bind 0.0.0.0:$PORT dashboard:app

@@ -42,9 +42,13 @@ BLUESIS_ID  = "씨제이프레시웨이서울"
 BLUESIS_PW  = "1234"
 BLUESIS_URL = "https://market.bluesis.com/web/pc/main.php"
 
+IS_CLOUD = bool(os.environ.get("RAILWAY_ENVIRONMENT") or os.environ.get("RAILWAY_PROJECT_ID"))
+
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-LOG_DIR    = os.path.join(SCRIPT_DIR, "log")
-OUTPUT_DIR = os.path.join(SCRIPT_DIR, "output")
+# 클라우드(Railway)에서는 영구 볼륨(/app/data)에 저장해 재배포 후에도 유지되도록 함
+DATA_DIR   = "/app/data" if IS_CLOUD else SCRIPT_DIR
+LOG_DIR    = os.path.join(DATA_DIR, "log")
+OUTPUT_DIR = os.path.join(DATA_DIR, "output")
 os.makedirs(LOG_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 

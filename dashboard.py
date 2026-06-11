@@ -21,8 +21,11 @@ ensure_flask()
 from flask import Flask, jsonify, send_file, request
 
 SCRIPT_DIR   = os.path.dirname(os.path.abspath(__file__))
-LOG_DIR      = os.path.join(SCRIPT_DIR, "log")
-OUTPUT_DIR   = os.path.join(SCRIPT_DIR, "output")
+# 클라우드(Railway)에서는 영구 볼륨(/app/data)에 log/output을 두어
+# 재배포 후에도 재수집 결과가 유지되도록 함. 로컬은 기존 경로 그대로.
+DATA_DIR     = "/app/data" if IS_CLOUD else SCRIPT_DIR
+LOG_DIR      = os.path.join(DATA_DIR, "log")
+OUTPUT_DIR   = os.path.join(DATA_DIR, "output")
 SKILL_PY     = os.path.join(SCRIPT_DIR, "학교급식규모.py")
 
 # ── 분석 기준 연도 (매년 1월에 수동 업데이트) ────────────────
