@@ -1,0 +1,478 @@
+{
+  "keyword": "폭립",
+  "year": 2026,
+  "collected_at": "20260611_1446",
+  "results": [
+    {
+      "year": 2026,
+      "month": 1,
+      "total": 18525129,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "가족사랑",
+          "amount": 10692000
+        },
+        {
+          "rank": 2,
+          "company": "하늘빛",
+          "amount": 2962575
+        },
+        {
+          "rank": 3,
+          "company": "크로바",
+          "amount": 2890650
+        },
+        {
+          "rank": 4,
+          "company": "씨제이",
+          "amount": 603300
+        },
+        {
+          "rank": 5,
+          "company": "스마일푸드야미",
+          "amount": 443340
+        },
+        {
+          "rank": 6,
+          "company": "푸드스토리",
+          "amount": 402300
+        },
+        {
+          "rank": 7,
+          "company": "풀무원",
+          "amount": 350784
+        },
+        {
+          "rank": 8,
+          "company": "원플러스원",
+          "amount": 180180
+        }
+      ]
+    },
+    {
+      "year": 2026,
+      "month": 2,
+      "total": 139657881,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "스마일푸드야미",
+          "amount": 22240541
+        },
+        {
+          "rank": 2,
+          "company": "하늘빛",
+          "amount": 20837952
+        },
+        {
+          "rank": 3,
+          "company": "대상",
+          "amount": 18211600
+        },
+        {
+          "rank": 4,
+          "company": "푸드스토리",
+          "amount": 15160860
+        },
+        {
+          "rank": 5,
+          "company": "원플러스원",
+          "amount": 14151165
+        },
+        {
+          "rank": 6,
+          "company": "한올푸드",
+          "amount": 13759160
+        },
+        {
+          "rank": 7,
+          "company": "풀무원",
+          "amount": 10839463
+        },
+        {
+          "rank": 8,
+          "company": "참조은",
+          "amount": 10064250
+        },
+        {
+          "rank": 9,
+          "company": "크로바",
+          "amount": 5656290
+        },
+        {
+          "rank": 10,
+          "company": "싱싱플러스",
+          "amount": 4752600
+        },
+        {
+          "rank": 11,
+          "company": "씨제이",
+          "amount": 2531840
+        },
+        {
+          "rank": 12,
+          "company": "아이푸드스쿨",
+          "amount": 1300000
+        },
+        {
+          "rank": 13,
+          "company": "델리쿡",
+          "amount": 152160
+        }
+      ]
+    },
+    {
+      "year": 2026,
+      "month": 3,
+      "total": 157498857,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "하늘빛",
+          "amount": 38615562
+        },
+        {
+          "rank": 2,
+          "company": "스마일푸드야미",
+          "amount": 22103880
+        },
+        {
+          "rank": 3,
+          "company": "원플러스원",
+          "amount": 17348877
+        },
+        {
+          "rank": 4,
+          "company": "대상",
+          "amount": 14912150
+        },
+        {
+          "rank": 5,
+          "company": "크로바",
+          "amount": 12854460
+        },
+        {
+          "rank": 6,
+          "company": "아이푸드스쿨",
+          "amount": 8916000
+        },
+        {
+          "rank": 7,
+          "company": "풀무원",
+          "amount": 7361284
+        },
+        {
+          "rank": 8,
+          "company": "한올푸드",
+          "amount": 6859790
+        },
+        {
+          "rank": 9,
+          "company": "오뚜기",
+          "amount": 6167040
+        },
+        {
+          "rank": 10,
+          "company": "참조은",
+          "amount": 4320459
+        },
+        {
+          "rank": 11,
+          "company": "씨제이",
+          "amount": 3797760
+        },
+        {
+          "rank": 12,
+          "company": "신세계푸드",
+          "amount": 2648765
+        },
+        {
+          "rank": 13,
+          "company": "레인보우",
+          "amount": 2313800
+        },
+        {
+          "rank": 14,
+          "company": "바르미",
+          "amount": 2138400
+        },
+        {
+          "rank": 15,
+          "company": "한결푸드",
+          "amount": 1958400
+        },
+        {
+          "rank": 16,
+          "company": "싱싱플러스",
+          "amount": 1815600
+        },
+        {
+          "rank": 17,
+          "company": "가족사랑",
+          "amount": 1737450
+        },
+        {
+          "rank": 18,
+          "company": "푸드스토리",
+          "amount": 1072800
+        },
+        {
+          "rank": 19,
+          "company": "델리쿡",
+          "amount": 307980
+        },
+        {
+          "rank": 20,
+          "company": "초록푸드",
+          "amount": 248400
+        }
+      ]
+    },
+    {
+      "year": 2026,
+      "month": 4,
+      "total": 172506567,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "스마일푸드야미",
+          "amount": 41002247
+        },
+        {
+          "rank": 2,
+          "company": "참조은",
+          "amount": 40826448
+        },
+        {
+          "rank": 3,
+          "company": "하늘빛",
+          "amount": 18115304
+        },
+        {
+          "rank": 4,
+          "company": "레인보우",
+          "amount": 11812680
+        },
+        {
+          "rank": 5,
+          "company": "원플러스원",
+          "amount": 11613442
+        },
+        {
+          "rank": 6,
+          "company": "크로바",
+          "amount": 7910310
+        },
+        {
+          "rank": 7,
+          "company": "한올푸드",
+          "amount": 7896400
+        },
+        {
+          "rank": 8,
+          "company": "풀무원",
+          "amount": 7153729
+        },
+        {
+          "rank": 9,
+          "company": "씨제이",
+          "amount": 6176632
+        },
+        {
+          "rank": 10,
+          "company": "대상",
+          "amount": 4862000
+        },
+        {
+          "rank": 11,
+          "company": "쿠킹맘",
+          "amount": 3930480
+        },
+        {
+          "rank": 12,
+          "company": "한결푸드",
+          "amount": 3366000
+        },
+        {
+          "rank": 13,
+          "company": "싱싱플러스",
+          "amount": 2589900
+        },
+        {
+          "rank": 14,
+          "company": "푸드스토리",
+          "amount": 2145600
+        },
+        {
+          "rank": 15,
+          "company": "바르미",
+          "amount": 1082400
+        },
+        {
+          "rank": 16,
+          "company": "바른웰",
+          "amount": 811800
+        },
+        {
+          "rank": 17,
+          "company": "오뚜기",
+          "amount": 792000
+        },
+        {
+          "rank": 18,
+          "company": "델리쿡",
+          "amount": 419195
+        }
+      ]
+    },
+    {
+      "year": 2026,
+      "month": 5,
+      "total": 162618689,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "하늘빛",
+          "amount": 31311630
+        },
+        {
+          "rank": 2,
+          "company": "참조은",
+          "amount": 28450296
+        },
+        {
+          "rank": 3,
+          "company": "원플러스원",
+          "amount": 16021716
+        },
+        {
+          "rank": 4,
+          "company": "스마일푸드야미",
+          "amount": 15288223
+        },
+        {
+          "rank": 5,
+          "company": "크로바",
+          "amount": 14158690
+        },
+        {
+          "rank": 6,
+          "company": "가족사랑",
+          "amount": 11517928
+        },
+        {
+          "rank": 7,
+          "company": "한올푸드",
+          "amount": 10831467
+        },
+        {
+          "rank": 8,
+          "company": "푸드스토리",
+          "amount": 10486620
+        },
+        {
+          "rank": 9,
+          "company": "풀무원",
+          "amount": 8002966
+        },
+        {
+          "rank": 10,
+          "company": "레인보우",
+          "amount": 7086600
+        },
+        {
+          "rank": 11,
+          "company": "대상",
+          "amount": 6061000
+        },
+        {
+          "rank": 12,
+          "company": "씨제이",
+          "amount": 1314174
+        },
+        {
+          "rank": 13,
+          "company": "파르팜",
+          "amount": 1183115
+        },
+        {
+          "rank": 14,
+          "company": "델리쿡",
+          "amount": 904264
+        },
+        {
+          "rank": 15,
+          "company": "아워홈",
+          "amount": 0
+        }
+      ]
+    },
+    {
+      "year": 2026,
+      "month": 6,
+      "total": 10945718,
+      "companies": [
+        {
+          "rank": 1,
+          "company": "크로바",
+          "amount": 6234480
+        },
+        {
+          "rank": 2,
+          "company": "씨제이",
+          "amount": 4683608
+        },
+        {
+          "rank": 3,
+          "company": "원플러스원",
+          "amount": 27630
+        }
+      ]
+    },
+    {
+      "year": 2026,
+      "month": 7,
+      "total": 0,
+      "companies": []
+    },
+    {
+      "year": 2026,
+      "month": 8,
+      "total": 0,
+      "companies": []
+    },
+    {
+      "year": 2026,
+      "month": 9,
+      "total": 0,
+      "companies": []
+    },
+    {
+      "year": 2026,
+      "month": 10,
+      "total": 0,
+      "companies": []
+    },
+    {
+      "year": 2026,
+      "month": 11,
+      "total": 0,
+      "companies": []
+    },
+    {
+      "year": 2026,
+      "month": 12,
+      "total": 0,
+      "companies": []
+    }
+  ],
+  "annual_total": 661752841,
+  "methodology": {
+    "foodnbid_coverage": 0.6,
+    "suwon_student_ratio": 0.405,
+    "dangtche_ratio": 0.225,
+    "military_excluded": true,
+    "exclude_keyword": ""
+  }
+}

@@ -167,6 +167,14 @@ async def collect_annual(keyword: str, year: int, exclude: str = "") -> list:
         for month in range(1, 13):
             try:
                 data = await search_month(page, year, month, keyword, exclude)
+                # 0건(총금액 0 + 업체내역 없음)은 페이지 로딩 지연 등 일시적 오류일 수 있으므로
+                # 잠시 대기 후 같은 월을 최대 2회까지 재조회한다.
+                retry = 0
+                while data["total"] == 0 and not data["companies"] and retry < 2:
+                    retry += 1
+                    print(f"  {year}년 {month:2d}월: 0건 감지 - 재조회 {retry}/2")
+                    await page.wait_for_timeout(1500)
+                    data = await search_month(page, year, month, keyword, exclude)
                 results.append(data)
                 total_fmt = f"{data['total']:,}"
                 top = data["companies"][:3]
@@ -342,57 +350,138 @@ async def collect_top_products(keyword: str, year: int, results: list, exclude: 
 # ── 블루시스 가격 수집 ────────────────────────────────────
 _BLUESIS_JS_ROWS = """
 () => {
-    var brandEls  = Array.from(document.querySelectorAll(".w_brand"));
+    var brandEls = Array.from(document.querySelectorAll(".w_brand"));
     var res = [];
     for (var i = 0; i < brandEls.length; i++) {
         var row = brandEls[i].parentElement;
         if (!row) continue;
-        var comEl    = row.querySelector(".w_com");
-        var pnameEl  = row.querySelector(".w_pname");
-        var kpriceEl = row.querySelector(".w_kprice");
+
+        var g = function(cls) {
+            var el = row.querySelector("." + cls);
+            if (!el) return "";
+            var clone = el.cloneNode(true);
+            Array.from(clone.querySelectorAll("button")).forEach(function(b){ b.remove(); });
+            return clone.innerText.trim().replace(/\\s+/g, " ");
+        };
+
         var b = brandEls[i].innerText.split("\\n")[0].replace("가입","").trim();
-        var c = comEl    ? comEl.innerText.split("\\n")[0].replace("가입","").trim() : "";
-        var price = "";
-        if (kpriceEl) {
-            var t = kpriceEl.innerText.replace("학교 kg단가","").trim();
-            var m = t.match(/([0-9]{1,3}(?:,[0-9]{3})+)/);
-            price = m ? m[1] + "원/kg" : "싯가";
-        }
+        var c = g("w_com").split("\\n")[0].replace("가입","").trim();
+
+        var kpriceRaw = g("w_kprice").replace("학교 kg단가","").trim();
+        var km = kpriceRaw.match(/([0-9]{1,3}(?:,[0-9]{3})+)/);
+        var price = km ? km[1] + "원/kg" : "싯가";
+
+        var pnameEl = row.querySelector(".w_pname");
         var pn = "";
         if (pnameEl) {
-            var clone = pnameEl.cloneNode(true);
-            var btn = clone.querySelector("button");
-            if (btn) btn.remove();
-            pn = clone.innerText.trim().split("\\n")[0].slice(0, 80);
+            var cl = pnameEl.cloneNode(true);
+            Array.from(cl.querySelectorAll("button")).forEach(function(b){ b.remove(); });
+            pn = cl.innerText.trim().split("\\n")[0].slice(0, 80);
         }
-        res.push({brand: b, com: c, pname: pn, kprice: price});
+
+        // 규격 (중량/용량)
+        var std = g("w_standard").split("\\n")[0].trim();
+
+        // 식품설명 (원재료명 포함)
+        var desc = g("w_description").replace(/\\s+/g, " ").trim().slice(0, 500);
+
+        // 이미지 URL
+        var imgEl = row.querySelector(".w_image img");
+        var imgSrc = imgEl ? (imgEl.getAttribute("src") || "") : "";
+        if (imgSrc && !imgSrc.startsWith("http")) {
+            imgSrc = location.origin + imgSrc;
+        }
+
+        res.push({brand: b, com: c, pname: pn, kprice: price,
+                  standard: std, description: desc, imgSrc: imgSrc});
     }
     return res;
 }
 """
 
 
-async def collect_bluesis_prices(keyword: str, product_info: list) -> dict:
+def parse_top_ingredients(desc: str, n: int = 5) -> str:
+    """식품설명에서 상위 n개 원재료를 추출해 반환."""
+    if not desc:
+        return ""
+    import re as _re
+    # 괄호 깊이를 고려한 comma 분리
+    parts, depth, cur = [], 0, ""
+    for ch in desc:
+        if ch in ("(", "（"):
+            depth += 1; cur += ch
+        elif ch in (")", "）"):
+            depth -= 1; cur += ch
+        elif ch == "," and depth == 0:
+            parts.append(cur.strip()); cur = ""
+        else:
+            cur += ch
+    if cur.strip():
+        parts.append(cur.strip())
+
+    # 숫자·특수기호만 있거나 2자 미만인 항목 제거, 함량 뒤 불필요 텍스트 정리
+    cleaned = []
+    for p in parts:
+        p = _re.sub(r"\s+", " ", p).strip()
+        if len(p) < 2 or _re.fullmatch(r"[\d%.\s/]+", p):
+            continue
+        cleaned.append(p)
+    return ", ".join(cleaned[:n])
+
+
+def parse_bluesis_standard(std: str) -> str:
+    """규격 문자열에서 총 중량/규격을 추출."""
+    import re as _re
+    if not std:
+        return "확인 필요"
+    m = _re.search(r"(\d+(?:\.\d+)?\s*(?:kg|g|ml|L|KG|G|ML))", std, _re.IGNORECASE)
+    return m.group(0).strip() if m else std.split()[0] if std else "확인 필요"
+
+
+async def _fetch_img_b64(page, img_url: str) -> str:
+    """블루시스 세션 포함 이미지 fetch → base64 data URL 반환."""
+    if not img_url or "noimage" in img_url:
+        return ""
+    try:
+        result = await page.evaluate("""async (url) => {
+            try {
+                const r = await fetch(url, {credentials: 'include'});
+                if (!r.ok) return '';
+                const ab = await r.arrayBuffer();
+                const bytes = new Uint8Array(ab);
+                let bin = '';
+                for (let i = 0; i < bytes.byteLength; i++) bin += String.fromCharCode(bytes[i]);
+                const ct = r.headers.get('content-type') || 'image/jpeg';
+                return 'data:' + ct + ';base64,' + btoa(bin);
+            } catch(e) { return ''; }
+        }""", img_url)
+        return result or ""
+    except Exception:
+        return ""
+
+
+async def collect_bluesis_details(keyword: str, product_info: list) -> dict:
     """
     블루시스(market.bluesis.com)에 로그인하여 키워드 검색 후
-    경쟁사 TOP5의 학교kg단가를 수집합니다.
+    경쟁사 TOP5의 학교kg단가·규격·원재료·제품이미지를 수집합니다.
 
     - 로그인: login.php → #blue_uid / #pwd / input[value='로그인하기']
     - 검색: product.php?from=main&_qr={keyword}
     - 건수: #rows select → 100건
-    - 파싱: .w_brand 부모 컨테이너 기준, .w_kprice에서 가격 추출
-    - 매칭: product_info의 origin(국내산/수입산)과 일치하는 제품 우선 선택
+    - 파싱: .w_brand 부모 컨테이너 기준, kprice/standard/description/이미지 추출
+    - 매칭: product_info의 company(브랜드/업체명)와 일치하는 제품 중
+      가격·설명·이미지가 있는 항목 우선 선택
 
     Returns:
-        {company: "XX,XXX원/kg"} 형태의 딕셔너리
+        {company: {kprice, standard, ingredients, image_b64}} 딕셔너리
     """
     import urllib.parse
     company_names = [p["company"] for p in product_info]
-    origin_map    = {p["company"]: p.get("origin", "") for p in product_info}
-    prices = {name: "직접 확인 필요" for name in company_names}
+    empty   = {"kprice": "블루시스 미등록", "standard": "", "ingredients": "", "image_b64": ""}
+    details = {name: dict(empty) for name in company_names}
 
-    LOGIN_URL   = "https://market.bluesis.com/web/pc/login.php"
-    SEARCH_URL  = (
+    LOGIN_URL  = "https://market.bluesis.com/web/pc/login.php"
+    SEARCH_URL = (
         "https://market.bluesis.com/web/pc/product.php"
         f"?from=main&_qr={urllib.parse.quote(keyword)}"
     )
@@ -427,41 +516,43 @@ async def collect_bluesis_prices(keyword: str, product_info: list) -> dict:
             items = await page.evaluate(_BLUESIS_JS_ROWS)
             print(f"  [블루시스] {len(items)}건 파싱")
 
-            # ── 업체별 매칭: origin 일치 제품 우선 ──
+            # ── 업체별 매칭 ──
             for company in company_names:
-                want_origin = origin_map.get(company, "")
                 matches = [
                     it for it in items
                     if company in it["brand"] or company in it["com"]
                 ]
                 if not matches:
-                    prices[company] = "블루시스 미등록"
                     print(f"  [블루시스] {company}: 미등록")
                     continue
 
-                # origin 일치 + 실제 가격 있는 것 우선
-                # origin이 명시적으로 반대인 제품(수입산을 원하는데 국내산이 pname에 있거나 vice versa)은 하위 순위
-                opposite = {"국내산": "수입산", "수입산": "국내산"}.get(want_origin, "")
                 def score(it):
-                    pn        = it["pname"]
                     has_price = it["kprice"] not in ("", "싯가")
-                    origin_hit  = bool(want_origin and want_origin in pn)
-                    origin_miss = bool(opposite and opposite in pn)
-                    return (origin_hit and has_price,
-                            has_price and not origin_miss,
-                            origin_hit,
-                            not origin_miss)
+                    has_desc  = bool(it.get("description"))
+                    has_img   = bool(it.get("imgSrc")) and "noimage" not in it.get("imgSrc", "")
+                    return (has_price, has_desc, has_img)
 
                 best = max(matches, key=score)
-                prices[company] = best["kprice"] if best["kprice"] not in ("", "싯가") else "싯가"
-                print(f"  [블루시스] {company}: {prices[company]}  ({best['pname'][:40]})")
+                kprice      = best["kprice"] if best["kprice"] not in ("", "싯가") else "싯가"
+                standard    = parse_bluesis_standard(best.get("standard", ""))
+                ingredients = parse_top_ingredients(best.get("description", ""))
+                image_b64   = await _fetch_img_b64(page, best.get("imgSrc", ""))
+
+                details[company] = {
+                    "kprice":      kprice,
+                    "standard":    standard,
+                    "ingredients": ingredients,
+                    "image_b64":   image_b64,
+                }
+                has_img = "✓" if image_b64 else "✗"
+                print(f"  [블루시스] {company}: {kprice}  규격={standard}  이미지={has_img}  ({best['pname'][:40]})")
 
         except Exception as e:
             print(f"  [블루시스] 수집 오류: {e}")
         finally:
             await browser.close()
 
-    return prices
+    return details
 
 
 def _extract_weight(product_name: str) -> str:
@@ -1037,133 +1128,128 @@ def save_excel(keyword: str, year: int, results: list, prev_results=None):
     return fname
 
 
-def add_product_sheet(wb, keyword: str, year: int, product_info: list, bluesis_prices: dict = None):
+def add_product_sheet(wb, keyword: str, year: int, product_info: list, bluesis_details: dict = None):
     """
-    Sheet 4: 경쟁사_제품정보
-    FoodnBid에서 수집한 TOP5 경쟁사의 대표 제품 비교표를 생성합니다.
-    - 업체명·제품명·중량·원산지: FoodnBid 자동 수집
-    - FoodnBid 방학제외 월평균: 1·7·12월 제외 9개월 평균
-    - 블루시스 납품가·제품 이미지·육함량: 직접 입력 필요 (placeholder)
+    Sheet 4: 경쟁사_제품정보  (v2 - 블루시스 원재료/이미지 포함)
+    행 구조: 제목→헤더→이미지→업체명→제품명→규격/중량→방학제외월평균→원재료명TOP5→블루시스kg단가→특이사항→출처
     """
     from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
     from openpyxl.utils import get_column_letter
+    from io import BytesIO
+    import base64
 
     def s(): return Side(style="thin", color="CCCCCC")
     BD2 = Border(left=s(), right=s(), top=s(), bottom=s())
-
     AC2 = Alignment(horizontal="center", vertical="center", wrap_text=True)
     AL2 = Alignment(horizontal="left",   vertical="center", wrap_text=True)
     AR2 = Alignment(horizontal="right",  vertical="center", wrap_text=True)
 
     P_BLUE   = PatternFill("solid", fgColor="1F4E79")
-    P_LBLUE  = PatternFill("solid", fgColor="D6E4F0")
     P_LGREEN = PatternFill("solid", fgColor="E8F5E9")
     P_ORANGE = PatternFill("solid", fgColor="FFF3E0")
     P_GOLD   = PatternFill("solid", fgColor="FFFDE7")
     P_GRAY   = PatternFill("solid", fgColor="F0F0F0")
+    P_LBLUE  = PatternFill("solid", fgColor="D6E4F0")
     P_WHITE  = PatternFill()
-    P_RED    = PatternFill("solid", fgColor="FFE0E0")
-
-    FH  = Font(name="맑은 고딕", bold=True, color="FFFFFF", size=10)
-    FT2 = Font(name="맑은 고딕", bold=True, color="FFFFFF", size=13)
-    FL  = Font(name="맑은 고딕", bold=True, color="1F4E79", size=10)
-    FB  = Font(name="맑은 고딕", bold=True, size=10)
-    FN2 = Font(name="맑은 고딕", size=10)
-    FS2 = Font(name="맑은 고딕", size=9)
-    FR  = Font(name="맑은 고딕", bold=True, color="C00000", size=10)
-    FSRC2 = Font(name="맑은 고딕", size=8, italic=True, color="888888")
-    FIMG = Font(name="맑은 고딕", size=9, italic=True, color="BBBBBB")
-
     RANK_COLORS = ["FF6B35", "FF9500", "4CAF50", "2196F3", "9C27B0"]
+
+    FH    = Font(name="맑은 고딕", bold=True, color="FFFFFF", size=10)
+    FT2   = Font(name="맑은 고딕", bold=True, color="FFFFFF", size=13)
+    FL    = Font(name="맑은 고딕", bold=True, color="1F4E79", size=10)
+    FB    = Font(name="맑은 고딕", bold=True, size=10)
+    FN2   = Font(name="맑은 고딕", size=10)
+    FS2   = Font(name="맑은 고딕", size=9)
+    FSRC2 = Font(name="맑은 고딕", size=8, italic=True, color="888888")
+    FIMG  = Font(name="맑은 고딕", size=9, italic=True, color="BBBBBB")
 
     if "경쟁사_제품정보" in wb.sheetnames:
         del wb["경쟁사_제품정보"]
     ws = wb.create_sheet("경쟁사_제품정보")
+    ws.sheet_view.showGridLines = False
 
     n = len(product_info)
     last_col = get_column_letter(n + 2)
 
     ws.column_dimensions["A"].width = 2
-    ws.column_dimensions["B"].width = 15
+    ws.column_dimensions["B"].width = 16
     for j in range(n):
-        ws.column_dimensions[get_column_letter(j + 3)].width = 24
+        ws.column_dimensions[get_column_letter(j + 3)].width = 26
 
-    for r, h in [(1,40),(2,26),(3,90),(4,26),(5,56),(6,32),(7,36),(8,70),(9,28),(10,44),(11,44),(12,20)]:
+    # 행 높이: 1=제목 2=헤더 3=이미지 4=업체 5=제품명 6=규격 7=월평균 8=원재료 9=kg단가 10=특이 11=출처
+    for r, h in [(1,40),(2,26),(3,100),(4,26),(5,52),(6,28),(7,36),(8,80),(9,36),(10,36),(11,20)]:
         ws.row_dimensions[r].height = h
 
-    # 1행 제목
+    # ── 1행 제목
     ws.merge_cells(f"B1:{last_col}1")
     c = ws.cell(1, 2, f"【{keyword}】  경쟁사 제품 비교  ({year}년 FoodnBid 기준)")
     c.fill = P_BLUE; c.font = FT2; c.alignment = AC2; c.border = BD2
 
-    # 2행 순위 헤더
-    lh = ws.cell(2, 2, "항목")
-    lh.fill = P_BLUE; lh.font = FH; lh.alignment = AC2; lh.border = BD2
+    # ── 2행 헤더
+    ws.cell(2, 2, "항목").fill = P_BLUE
+    ws.cell(2, 2).font = FH; ws.cell(2, 2).alignment = AC2; ws.cell(2, 2).border = BD2
     for j, p in enumerate(product_info, 3):
         c = ws.cell(2, j, f"FoodnBid {year} 제품 {p['rank']}위")
         c.fill = PatternFill("solid", fgColor=RANK_COLORS[j-3])
         c.font = FH; c.alignment = AC2; c.border = BD2
 
-    # 3행 이미지 placeholder
+    # ── 3행 이미지
     li = ws.cell(3, 2, "제품\n이미지")
     li.fill = P_GRAY; li.font = FL; li.alignment = AC2; li.border = BD2
-    for j in range(n):
-        c = ws.cell(3, j+3, "[ 제품 이미지\n직접 삽입 ]")
-        c.fill = PatternFill("solid", fgColor="F9F9F9")
-        c.font = FIMG; c.alignment = AC2; c.border = BD2
 
-    # 데이터 행 정의: (행번호, 라벨, 값함수, 정렬, 배경)
+    for j, p in enumerate(product_info, 3):
+        img_b64 = p.get("bluesis_image_b64", "")
+        cell = ws.cell(3, j, "")
+        cell.fill = PatternFill("solid", fgColor="F9F9F9"); cell.border = BD2
+
+        if img_b64 and img_b64.startswith("data:"):
+            try:
+                from openpyxl.drawing.image import Image as XLImg
+                raw = base64.b64decode(img_b64.split(",", 1)[1])
+                xl_img = XLImg(BytesIO(raw))
+                xl_img.width = 90; xl_img.height = 90
+                col_ltr = get_column_letter(j)
+                ws.add_image(xl_img, f"{col_ltr}3")
+            except Exception:
+                c2 = ws.cell(3, j, "[ 이미지 오류 ]")
+                c2.font = FIMG; c2.alignment = AC2
+        else:
+            c2 = ws.cell(3, j, "[ 이미지 없음 ]")
+            c2.font = FIMG; c2.alignment = AC2
+
+    # ── 4~10행 데이터
     def make_rows(p):
-        bluesis_val = (bluesis_prices or {}).get(p["company"], "직접 확인 필요")
+        bd = (bluesis_details or {}).get(p["company"], {})
+        kprice      = bd.get("kprice",      p.get("bluesis_kprice",      "직접 확인 필요"))
+        standard    = bd.get("standard",    p.get("bluesis_standard",    "확인 필요"))
+        ingredients = bd.get("ingredients", p.get("bluesis_ingredients", ""))
         return [
-            (4,  "업체명",             p["company"],        AC2, None,     FH),
-            (5,  "제품명",             p["product"] or "확인 필요", AC2, P_WHITE, FB),
-            (6,  "중량",               p["weight"],          AC2, P_GRAY,  FN2),
+            (4,  "업체명",                p["company"],                AC2, None,     FH),
+            (5,  "제품명\n(FoodnBid)",    p["product"] or "확인 필요", AC2, P_WHITE,  FB),
+            (6,  "규격/중량\n(블루시스)", standard or "확인 필요",     AC2, P_GRAY,   FN2),
             (7,  "FoodnBid\n방학제외 월평균", f"{p['monthly_avg']:,}원", AR2, P_LGREEN, FB),
-            (8,  "원재료 TOP3\n(육함량 직접 기재)", _ingredient_hint(p), AL2, P_GOLD, FS2),
-            (9,  "원산지",             p["origin"],          AC2, P_WHITE, FN2),
-            (10, "블루시스\n학교kg단가", bluesis_val,          AC2, P_ORANGE, FS2),
-            (11, "특이사항",           "",                   AL2, P_LBLUE, FS2),
+            (8,  "원재료명 TOP5\n(블루시스)", ingredients or "직접 확인", AL2, P_GOLD, FS2),
+            (9,  "블루시스\n학교kg단가",  kprice,                      AC2, P_ORANGE,  FS2),
+            (10, "특이사항",              "",                           AL2, P_LBLUE,  FS2),
         ]
 
     for j, p in enumerate(product_info, 3):
-        rows = make_rows(p)
-        for row_num, label, val, align, fill, font in rows:
-            # 라벨
+        for row_num, label, val, align, fill, font in make_rows(p):
             if j == 3:
                 lc = ws.cell(row_num, 2, label)
                 lc.fill = P_BLUE if row_num == 4 else P_GRAY
                 lc.font = FH if row_num == 4 else FL
                 lc.alignment = AC2; lc.border = BD2
-
-            row_fill = fill
-            row_font = font
-            if row_num == 4:
-                row_fill = PatternFill("solid", fgColor=RANK_COLORS[j-3])
-            if row_num == 9 and p["origin"] == "수입산":
-                row_fill = P_RED
-                row_font = FR
-
+            row_fill = fill if row_num != 4 else PatternFill("solid", fgColor=RANK_COLORS[j-3])
             c2 = ws.cell(row_num, j, val)
             c2.fill = row_fill if row_fill else P_WHITE
-            c2.font = row_font; c2.alignment = align; c2.border = BD2
+            c2.font = font; c2.alignment = align; c2.border = BD2
 
-    # 12행 출처
-    ws.merge_cells(f"B12:{last_col}12")
-    src = ws.cell(12, 2,
+    # ── 11행 출처
+    ws.merge_cells(f"B11:{last_col}11")
+    src = ws.cell(11, 2,
         f"※ 출처: FoodnBid info.foodnbid.com  |  방학제외 = 1·7·12월 제외  "
-        f"|  블루시스 학교kg단가: market.bluesis.com 자동 수집  |  이미지·육함량: 직접 입력  |  수집일: {datetime.now().strftime('%Y-%m-%d')}")
+        f"|  블루시스(market.bluesis.com): 규격·원재료·kg단가 자동 수집  |  수집일: {datetime.now().strftime('%Y-%m-%d')}")
     src.font = FSRC2; src.alignment = AL2
-
-
-def _ingredient_hint(p: dict) -> str:
-    """원재료 힌트 (육함량·세부 성분은 직접 확인 필요)"""
-    origin_tag = p["origin"] if p["origin"] != "확인 필요" else "원산지 직접확인"
-    return (
-        f"① 주원료({origin_tag}) - 육함량: 직접 기재\n"
-        f"② 소스류(간장·설탕·전분 등) - 직접 기재\n"
-        f"③ 향신료·기타 첨가물 - 직접 기재"
-    )
 
 
 # ── JSON 로그 저장 ────────────────────────────────────────
@@ -1256,21 +1342,28 @@ def main():
     print("[STEP 5] 경쟁사 제품정보 수집 및 Sheet 4 생성...")
     product_info = asyncio.run(collect_top_products(keyword, year, results, exclude))
 
-    if product_info:
-        save_product_log(keyword, year, product_info)   # 대시보드용 JSON 저장
-
-    bluesis_prices = {}
+    bluesis_details = {}
     if product_info:
         print()
-        print("[STEP 6] 블루시스 학교kg단가 자동 수집...")
-        bluesis_prices = asyncio.run(collect_bluesis_prices(keyword, product_info))
+        print("[STEP 6] 블루시스 상세정보 수집 (kg단가·규격·원재료·이미지)...")
+        bluesis_details = asyncio.run(collect_bluesis_details(keyword, product_info))
+
+        # product_info에 블루시스 데이터 병합 후 JSON 저장
+        for p in product_info:
+            d = bluesis_details.get(p["company"], {})
+            p["bluesis_kprice"]      = d.get("kprice", "블루시스 미등록")
+            p["bluesis_standard"]    = d.get("standard", "")
+            p["bluesis_ingredients"] = d.get("ingredients", "")
+            p["bluesis_image_b64"]   = d.get("image_b64", "")
+        save_product_log(keyword, year, product_info)   # 대시보드용 JSON 저장
 
     if fname and product_info:
         import openpyxl
         wb2 = openpyxl.load_workbook(fname)
-        add_product_sheet(wb2, keyword, year, product_info, bluesis_prices)
+        add_product_sheet(wb2, keyword, year, product_info, bluesis_details)
         wb2.save(fname)
-        print(f"  [Sheet 4] 경쟁사_제품정보 추가 완료 (블루시스 가격 {sum(1 for v in bluesis_prices.values() if '확인 필요' not in v)}/{len(product_info)}건 수집)")
+        ok_cnt = sum(1 for d in bluesis_details.values() if d.get("kprice","") not in ("블루시스 미등록","싯가",""))
+        print(f"  [Sheet 4] 경쟁사_제품정보 추가 완료 (블루시스 {ok_cnt}/{len(product_info)}건 수집)")
 
     if fname:
         import subprocess

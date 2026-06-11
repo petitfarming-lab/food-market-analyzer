@@ -73,8 +73,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI','M
 /* ── 대시보드 ── */
 #pg-dash{padding:14px 20px 28px;}
 
+/* 검색 키워드 타이틀 */
+.search-title{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;
+  margin:2px 0 12px;font-weight:800;letter-spacing:-.01em;color:var(--navy);}
+.search-title .st-kw{font-size:1.5rem;}
+.search-title .st-sub{font-size:.85rem;font-weight:700;color:#8a8a8e;}
+.search-title .st-ex{font-size:.74rem;font-weight:700;color:#c0392b;
+  background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.18);
+  padding:2px 9px;border-radius:8px;}
+
 /* KPI 카드 */
-.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px;}
+.kpi-row{display:grid;grid-template-columns:1.7fr 1fr 1fr 1fr;gap:12px;margin-bottom:14px;}
 .kpi{position:relative;overflow:hidden;background:var(--glass);backdrop-filter:blur(18px) saturate(180%);
   -webkit-backdrop-filter:blur(18px) saturate(180%);
   border:1px solid var(--glass-brd);border-radius:var(--radius);padding:14px 16px;
@@ -90,6 +99,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI','M
 .kpi-val{font-size:1.3rem;font-weight:700;color:#1d1d1f;letter-spacing:-.01em;}
 .kpi-subs{display:flex;flex-direction:column;align-items:flex-end;gap:4px;text-align:right;}
 .kpi-sub{font-size:.85rem;font-weight:600;color:#6e6e73;}
+
+/* KPI 카드 1 (FoodnBid 연간 실측) - 강조형 레이아웃 */
+.kpi.k1{flex-direction:column;align-items:flex-start;justify-content:center;gap:10px;}
+.kpi.k1 .kpi-lbl{font-size:.72rem;}
+.kpi.k1 .kpi-val{font-size:2.1rem;}
+.kpi-stats{display:flex;gap:10px;width:100%;flex-wrap:wrap;}
+.kpi-stat{flex:1;min-width:128px;background:rgba(31,78,121,.05);border-radius:11px;
+  padding:7px 12px;display:flex;flex-direction:column;gap:2px;}
+.kpi-stat.help{cursor:help;}
+.kpi-stat-lbl{font-size:.65rem;color:#9a9a9e;font-weight:700;letter-spacing:.02em;}
+.kpi-stat-val{font-size:1.02rem;font-weight:700;color:#1d1d1f;}
 
 /* 탭 */
 .tab-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;flex-wrap:wrap;}
@@ -136,6 +156,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI','M
 .xl-tbl tr.best .mc::after{content:" ★";color:var(--orange);}
 .xl-tbl tr.sum td{background:rgba(76,175,80,.1);font-weight:700;border-top:1.5px solid rgba(76,175,80,.3);}
 .xl-tbl tr.sum:hover td{background:rgba(76,175,80,.14);}
+.xl-tbl th.y26{background:rgba(76,175,80,.92);}
+.xl-tbl td.y26{background:rgba(76,175,80,.06);}
+.xl-tbl tr:hover td.y26{background:rgba(76,175,80,.12);}
+.xl-tbl tr.vac td.y26{background:rgba(76,175,80,.13);}
+.xl-tbl tr.vac:hover td.y26{background:rgba(76,175,80,.18);}
+.xl-tbl tr.sum td.y26{background:rgba(76,175,80,.2);}
+.xl-tbl tr.sum:hover td.y26{background:rgba(76,175,80,.24);}
 .up{color:#1B873F;font-weight:700;}
 .dn{color:#D9362A;font-weight:700;}
 .tbl-wrap{overflow-x:auto;}
@@ -176,6 +203,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI','M
 
 /* 출처 */
 .src-note{font-size:.72rem;color:#9a9a9e;font-style:italic;margin-top:8px;}
+
+/* 2026년 추정 산출식 상세 */
+.y26-detail summary{cursor:pointer;color:var(--navy);font-weight:700;font-size:.78rem;
+  padding:2px 0;list-style:none;}
+.y26-detail summary::-webkit-details-marker{display:none;}
+.y26-detail summary::before{content:'▸ ';}
+.y26-detail[open] summary::before{content:'▾ ';}
+.y26-detail .calc-box{margin:8px 0 4px;background:rgba(76,175,80,.06);
+  border:1px solid rgba(76,175,80,.18);border-radius:10px;padding:12px 16px;
+  line-height:1.85;font-size:.78rem;color:#48484a;font-style:normal;}
+.y26-detail .calc-step{margin-bottom:8px;}
+.y26-detail .calc-step:last-child{margin-bottom:0;}
+.y26-detail .calc-step b{color:var(--navy);}
+.y26-detail .calc-formula{font-family:'SF Mono',Consolas,monospace;font-size:.74rem;color:#1B873F;
+  background:rgba(255,255,255,.65);padding:2px 7px;border-radius:5px;display:inline-block;margin-top:2px;}
+.y26-detail .calc-note{color:#9a9a9e;font-size:.72rem;font-style:italic;}
 
 @media(max-width:900px){.kpi-row{grid-template-columns:1fr 1fr;}.mkt-grid{grid-template-columns:1fr;}.prod-grid{grid-template-columns:1fr 1fr;}}
 @media(max-width:600px){.kpi-row{grid-template-columns:1fr;}.prod-grid{grid-template-columns:1fr;}}
@@ -236,6 +279,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI','M
 <!-- 대시보드 -->
 <div id="pg-dash" style="display:none">
 
+  <!-- 검색 키워드 타이틀 -->
+  <div class="search-title" id="search-title"></div>
+
   <!-- KPI -->
   <div class="kpi-row" id="kpi"></div>
 
@@ -261,6 +307,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI','M
       </table></div>
     </div>
     <div class="src-note" id="y26-note" style="margin:-6px 0 8px;"></div>
+    <div id="y26-detail"></div>
     <div class="box">
       <div class="box-title" id="ch0-title"></div>
       <div class="ch-wrap"><canvas id="ch0" style="height:160px"></canvas></div>
@@ -338,19 +385,22 @@ const HIST_KEY = 'schfood_hist';
 const HIST_MAX = 12;
 
 function getHist() {
-  try { return JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); } catch { return []; }
+  let h;
+  try { h = JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); } catch { h = []; }
+  // 구버전(문자열 배열) 호환: {kw, exclude} 객체로 정규화
+  return h.map(item => typeof item === 'string' ? {kw: item, exclude: ''} : item);
 }
 function saveHist(arr) { localStorage.setItem(HIST_KEY, JSON.stringify(arr)); }
 
-function pushHist(kw) {
-  const h = getHist().filter(k => k !== kw);
-  h.unshift(kw);
+function pushHist(kw, exclude = '') {
+  const h = getHist().filter(item => item.kw !== kw);
+  h.unshift({kw, exclude: exclude || ''});
   saveHist(h.slice(0, HIST_MAX));
   renderPills();
 }
 
 function delHist(kw) {
-  saveHist(getHist().filter(k => k !== kw));
+  saveHist(getHist().filter(item => item.kw !== kw));
   renderPills();
 }
 
@@ -365,9 +415,9 @@ function renderPills() {
   const wrap = $('hdr-hist');
   if (!h.length) { box.innerHTML = ''; if (wrap) wrap.style.display = 'none'; return; }
   if (wrap) wrap.style.display = 'flex';
-  box.innerHTML = h.map(kw =>
-    `<div class="pill" data-kw="${kw}">
-       <span class="pill-kw">${kw}</span>
+  box.innerHTML = h.map(({kw, exclude}) =>
+    `<div class="pill" data-kw="${kw}" data-ex="${exclude || ''}">
+       <span class="pill-kw">${kw}${exclude ? ` <span style="color:#FFB74D;">(${exclude} 제외)</span>` : ''}</span>
        <button class="pill-del" data-del title="삭제">✕</button>
      </div>`
   ).join('');
@@ -381,12 +431,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!pill) return;
     const kw = pill.dataset.kw;
     if (e.target.closest('[data-del]')) delHist(kw);
-    else qs(kw);
+    else qs(kw, pill.dataset.ex || '');
   });
 });
 
-function qs(kw) {
+function qs(kw, exclude = '') {
   $('kw').value = kw;
+  $('kw-ex').value = exclude || '';
   doSearch();
 }
 
@@ -404,7 +455,7 @@ async function doSearch() {
     const r = await fetch(`/api/search?keyword=${encodeURIComponent(kw)}`);
     if (r.ok) {
       G = await r.json();
-      pushHist(kw);
+      pushHist(kw, G.exclude_keyword || '');
       render(); showPage('dash');
       if (G.bluesis_collecting) startBluesisPoll(kw);
     } else {
@@ -531,22 +582,33 @@ function render() {
 // ── KPI 카드 ─────────────────────────────────────────────
 function renderKPI() {
   const {keyword, year, prev_year, next_year, annual, prev_annual, yoy_ex, best_month,
-         market_curr: C, monthly, y2026} = G;
+         market_curr: C, monthly, y2026, exclude_keyword} = G;
   const bm  = monthly.find(m => m.is_best);
-  const y26Sub = y2026 ? `
-      <div class="kpi-sub" style="padding-top:4px;border-top:1px dashed #ddd;cursor:help;"
-           title="${next_year}년 추정 = (${next_year}년 1~${y2026.ytd_months}월 누적 ${fmtE(y2026.sum_ytd)}) ÷ (${year}·${prev_year}년 평균 1~${y2026.ytd_months}월 비중 ${y2026.weight_pct}%)\n· ${year}년 비중: ${y2026.weight_curr}%  · ${prev_year}년 비중: ${y2026.weight_prev}%\n· 1~${y2026.ytd_months}월 동기간 실성장률(YTD): ${y2026.ytd_yoy>=0?'▲':'▼'}${Math.abs(y2026.ytd_yoy).toFixed(1)}%\n※ 등락폭(%)은 방학월(1·7·12월) 제외 산정">
-        ${next_year}년 추정 ${fmtE(y2026.est_annual)} ${yoyStr(y2026.est_yoy)} <span style="color:#aaa;">vs ${year}년 ⓘ</span>
+
+  // 검색 키워드 타이틀
+  $('search-title').innerHTML = `🔎 <span class="st-kw">${keyword}</span><span class="st-sub">학교급식 시장규모</span>${exclude_keyword ? `<span class="st-ex">"${exclude_keyword}" 제외</span>` : ''}`;
+
+  const yoyStat = `
+      <div class="kpi-stat${prev_annual ? ' help' : ''}" ${prev_annual ? `title="방학월(1·7·12월) 제외 등락폭"` : ''}>
+        <span class="kpi-stat-lbl">${prev_year}년 대비</span>
+        <span class="kpi-stat-val">${yoy_ex !== null && yoy_ex !== undefined ? yoyStr(yoy_ex) : `${year}년 (비교불가)`}</span>
+      </div>`;
+  const y26Stat = y2026 ? `
+      <div class="kpi-stat help"
+           title="${next_year}년 추정 = (${next_year}년 1~${y2026.ytd_months}월 누적 ${fmtE(y2026.sum_ytd)}) ÷ (${year}·${prev_year}년 평균 1~${y2026.ytd_months}월 비중 ${y2026.weight_pct}%)\n· ${year}년 비중: ${y2026.weight_curr}%  · ${prev_year}년 비중: ${y2026.weight_prev}%\n· 1~${y2026.ytd_months}월 동기간 실성장률(YTD): ${y2026.ytd_yoy>=0?'▲':'▼'}${Math.abs(y2026.ytd_yoy).toFixed(1)}%\n※ 등락폭(%)은 방학월(1·7·12월) 제외 산정\n※ 자세한 산출식은 아래 표 하단 안내문을 참고하세요.">
+        <span class="kpi-stat-lbl">${next_year}년 추정 vs ${year}년 ⓘ</span>
+        <span class="kpi-stat-val">${fmtE(y2026.est_annual)} ${yoyStr(y2026.est_yoy)}</span>
       </div>` : '';
+
   $('kpi').innerHTML = `
-    <div class="kpi">
+    <div class="kpi k1">
       <div class="kpi-main">
-        <div class="kpi-lbl">FoodnBid 연간 실측 (수도권)</div>
+        <div class="kpi-lbl">FoodnBid 연간 실측 (수도권) · ${year}년</div>
         <div class="kpi-val">${fmtE(annual)}</div>
       </div>
-      <div class="kpi-subs">
-        <div class="kpi-sub" ${prev_annual ? `title="방학월(1·7·12월) 제외 등락폭" style="cursor:help;"` : ''}>${yoy_ex !== null && yoy_ex !== undefined ? yoyStr(yoy_ex) + ` vs ${prev_year}년` : `${year}년`}</div>
-        ${y26Sub}
+      <div class="kpi-stats">
+        ${yoyStat}
+        ${y26Stat}
       </div>
     </div>
     <div class="kpi k2">
@@ -580,7 +642,8 @@ function renderKPI() {
 
 // ── 탭0: 월별실측 ────────────────────────────────────────
 function renderMonthly() {
-  const {keyword, year, prev_year, next_year, annual, prev_annual, yoy_ex, monthly, collected_at, y2026, exclude_keyword} = G;
+  const {keyword, year, prev_year, next_year, annual, prev_annual, annual_ex, prev_annual_ex,
+         yoy_ex, monthly, collected_at, y2026, exclude_keyword} = G;
 
   // 타이틀·출처
   $('ch0-title').textContent =
@@ -640,8 +703,8 @@ function renderMonthly() {
     <th>비중(%)</th>
     <th>FoodnBid 실측<br>(${prev_year}, 수도권, 원)</th>
     <th>${year} vs ${prev_year}<br>(전년 동월 대비)</th>
-    ${y2026 ? `<th>FoodnBid 실측<br>(${next_year}, 수도권, 원)</th>
-    <th>${next_year} vs ${year}<br>(동월 대비)</th>` : ''}
+    ${y2026 ? `<th class="y26">FoodnBid 실측<br>(${next_year}, 수도권, 원)</th>
+    <th class="y26">${next_year} vs ${year}<br>(동월 대비)</th>` : ''}
     <th>경쟁사 TOP 3 (낙찰금액)</th>
   </tr>`;
 
@@ -653,8 +716,8 @@ function renderMonthly() {
       `${['①','②','③'][i]} ${c.company} ${c.amount.toLocaleString('ko-KR')}원`).join(' | ');
     const cls  = [m.is_vacation ? 'vac' : '', m.is_best ? 'best' : ''].filter(Boolean).join(' ');
     const y26Cells = y2026 ? `
-      <td>${m.next != null ? fmt(m.next) : '<span style="color:#ccc;">-</span>'}</td>
-      <td class="c">${m.yoy_next != null ? yoyStr(m.yoy_next) : '<span style="color:#ccc;">-</span>'}</td>` : '';
+      <td class="y26">${m.next != null ? fmt(m.next) : '<span style="color:#ccc;">-</span>'}</td>
+      <td class="c y26">${m.yoy_next != null ? yoyStr(m.yoy_next) : '<span style="color:#ccc;">-</span>'}</td>` : '';
     rows += `<tr class="${cls}">
       <td class="c mc">${m.label}</td>
       <td>${fmt(m.current)}</td>
@@ -668,8 +731,8 @@ function renderMonthly() {
 
   // 연간 합계 행
   const y26SumCells = y2026 ? `
-    <td>${fmt(y2026.sum_ytd)}<br><span style="font-weight:400;font-size:.74rem;color:#888;">(1~${y2026.ytd_months}월 누적)</span></td>
-    <td class="c">${yoyStr(y2026.ytd_yoy)}<br><span style="font-weight:400;font-size:.74rem;color:#888;">(YTD)</span></td>` : '';
+    <td class="y26">${fmt(y2026.sum_ytd)}<br><span style="font-weight:400;font-size:.74rem;color:#888;">(1~${y2026.ytd_months}월 누적)</span></td>
+    <td class="c y26">${yoyStr(y2026.ytd_yoy)}<br><span style="font-weight:400;font-size:.74rem;color:#888;">(YTD)</span></td>` : '';
   rows += `<tr class="sum">
     <td class="c">연간 합계</td>
     <td>${fmt(annual)}</td>
@@ -688,6 +751,40 @@ function renderMonthly() {
     계절성을 반영해 연환산한 추정치입니다. 1~${y2026.ytd_months}월 동기간 실성장률(YTD)은 ${yoyStr(y2026.ytd_yoy)}입니다.
     등락폭(%) 지표는 매출 변동이 큰 방학월(1·7·12월)을 제외하고 산정합니다.` : `
     ※ 연간 합계의 등락폭(%)은 매출 변동이 큰 방학월(1·7·12월)을 제외하고 산정합니다. (월별 전년 동월 대비는 모든 달 표시)`;
+
+  // 2026 추정 산출식 상세 (단계별 계산 과정 + 실제 수치)
+  $('y26-detail').innerHTML = y2026 ? `
+    <details class="y26-detail">
+      <summary>📐 ${next_year}년 추정 ${yoyStr(y2026.est_yoy)} 산출식 자세히 보기</summary>
+      <div class="calc-box">
+        <div class="calc-step">
+          <b>① ${year}년 vs ${next_year}년 1~${y2026.ytd_months}월 누적 비교</b> (방학월 1·7·12월 제외)<br>
+          ${year}년 1~${y2026.ytd_months}월 누적 = ${fmt(y2026.sum_curr_ytd_ex)}원 (${fmtE(y2026.sum_curr_ytd_ex)})<br>
+          ${next_year}년 1~${y2026.ytd_months}월 누적 = ${fmt(y2026.sum_next_ex)}원 (${fmtE(y2026.sum_next_ex)})<br>
+          <span class="calc-formula">YTD 실성장률 = (${fmt(y2026.sum_next_ex)} − ${fmt(y2026.sum_curr_ytd_ex)}) ÷ ${fmt(y2026.sum_curr_ytd_ex)} × 100 = ${yoyStr(y2026.ytd_yoy)}</span>
+        </div>
+        <div class="calc-step">
+          <b>② 1~${y2026.ytd_months}월이 연간에서 차지하는 비중</b> (방학월 제외 연간 합계 대비)<br>
+          ${year}년 비중 = ${fmt(y2026.sum_curr_ytd_ex)} ÷ ${fmt(annual_ex)}(${year}년 연간) = <b>${y2026.weight_curr}%</b><br>
+          ${prev_year}년 비중 = ${fmt(y2026.sum_prev_ytd_ex)} ÷ ${fmt(prev_annual_ex)}(${prev_year}년 연간) = <b>${y2026.weight_prev}%</b><br>
+          <span class="calc-formula">평균 비중 = ${y2026.weight_curr}%·${y2026.weight_prev}%의 평균(0%인 값 제외) = ${y2026.weight_pct}%</span>
+        </div>
+        <div class="calc-step">
+          <b>③ ${next_year}년 연간 추정</b> (방학월 제외 기준 환산)<br>
+          <span class="calc-formula">${fmt(y2026.sum_next_ex)} ÷ ${y2026.weight_pct}% = ${fmt(y2026.est_annual_ex)}원 (${fmtE(y2026.est_annual_ex)})</span>
+        </div>
+        <div class="calc-step">
+          <b>④ ${next_year}년 추정 등락률</b><br>
+          <span class="calc-formula">(${fmt(y2026.est_annual_ex)} − ${fmt(annual_ex)}) ÷ ${fmt(annual_ex)} × 100 = ${yoyStr(y2026.est_yoy)}</span>
+        </div>
+        <div class="calc-step calc-note">
+          ※ 위 KPI 카드의 "${next_year}년 추정 ${fmtE(y2026.est_annual)}"은 방학월을 포함한 전체 금액 기준 추정치이며,
+          등락률(%)은 방학월 매출 변동성을 제거하기 위해 위와 같이 방학월 제외 기준으로 별도 계산합니다.
+          방학월 거래액은 매우 작아 두 추정 금액(${fmtE(y2026.est_annual)} / ${fmtE(y2026.est_annual_ex)})은 비슷한 수준입니다.
+          만약 특정 월의 실측값이 0으로 누락되어 있다면 위 ①~④ 수치가 왜곡될 수 있으니, 월별 표에서 0으로 표시된 달이 있는지 확인해 주세요.
+        </div>
+      </div>
+    </details>` : '';
 }
 
 // ── 탭1: 시장규모 환산 ───────────────────────────────────

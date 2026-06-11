@@ -18,7 +18,7 @@ def ensure_flask():
 
 ensure_flask()
 
-from flask import Flask, jsonify, send_file, request
+from flask import Flask, jsonify, send_file, request, after_this_request
 
 SCRIPT_DIR   = os.path.dirname(os.path.abspath(__file__))
 # 클라우드(Railway)에서는 영구 볼륨(/app/data)에 log/output을 두어
@@ -273,6 +273,11 @@ def compute_data(keyword: str):
                 "weight_prev":  round(w_prev_ex * 100, 1),
                 "est_annual":   est_annual,
                 "est_yoy":      est_yoy,
+                # 산출식 상세 표시용 (방학월 1·7·12월 제외 기준 원자료)
+                "sum_next_ex":     sum_next_ex,
+                "sum_curr_ytd_ex": sum_curr_ytd_ex,
+                "sum_prev_ytd_ex": sum_prev_ytd_ex,
+                "est_annual_ex":   est_annual_ex,
             }
 
     # 월별 데이터
@@ -461,9 +466,156 @@ def api_run():
     return jsonify({"status": "started", "keyword": keyword, "year": year_str, "exclude": exclude})
 
 
+def _add_y2026_sheet(wb, data):
+    """{next_year}년(진행중) 데이터를 별도 시트로 추가/갱신합니다.
+    Sheet1의 차트·컬럼 구조는 건드리지 않고 새 시트만 추가합니다."""
+    from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
+
+    y2026     = data["y2026"]
+    keyword   = data["keyword"]
+    year      = data["year"]
+    next_year = data["next_year"]
+    monthly   = data["monthly"]
+    annual_ex = data["annual_ex"]
+
+    def fmt(n):
+        return f"{n:,}"
+
+    def fmt_eok(n):
+        return f"{n / 1e8:.2f}억원"
+
+    def yoy_str(v):
+        if v is None:
+            return "-"
+        arrow = "▲" if v >= 0 else "▼"
+        return f"{arrow}{abs(v):.1f}%"
+
+    sheet_name = f"{next_year}년_진행현황"
+    if sheet_name in wb.sheetnames:
+        del wb[sheet_name]
+    ws = wb.create_sheet(sheet_name)
+    ws.sheet_view.showGridLines = False
+
+    def side(): return Side(style="thin", color="CCCCCC")
+    BD = Border(left=side(), right=side(), top=side(), bottom=side())
+    AC = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    AL = Alignment(horizontal="left",   vertical="center", wrap_text=True)
+
+    P_BLUE  = PatternFill("solid", fgColor="1F4E79")
+    P_GREEN = PatternFill("solid", fgColor="E8F5E9")
+    P_VAC   = PatternFill("solid", fgColor="FFF3E0")
+    P_GRAY  = PatternFill("solid", fgColor="F0F0F0")
+
+    FT   = Font(name="맑은 고딕", bold=True, color="FFFFFF", size=13)
+    FH   = Font(name="맑은 고딕", bold=True, color="FFFFFF", size=11)
+    FB   = Font(name="맑은 고딕", bold=True, size=10)
+    FN   = Font(name="맑은 고딕", size=10)
+    FSRC = Font(name="맑은 고딕", size=8, italic=True, color="888888")
+
+    ws.column_dimensions["A"].width = 2
+    ws.column_dimensions["B"].width = 26
+    for col in "CDEF":
+        ws.column_dimensions[col].width = 17
+
+    r = 1
+    ws.merge_cells(f"B{r}:F{r}")
+    c = ws.cell(r, 2, f"【{keyword}】 {next_year}년 진행현황  (vs {year}년 동월 비교)")
+    c.fill = P_BLUE; c.font = FT; c.alignment = AC; c.border = BD
+    ws.row_dimensions[r].height = 32
+    r += 1
+
+    headers = ["월", f"{year}년 실측(원)", f"{next_year}년 실측(원)", "동월대비", "비고"]
+    for j, h in enumerate(headers, 2):
+        cell = ws.cell(r, j, h)
+        cell.fill = P_BLUE; cell.font = FH; cell.alignment = AC; cell.border = BD
+    ws.row_dimensions[r].height = 24
+    r += 1
+
+    for m in monthly:
+        is_vac = m["is_vacation"]
+        ws.cell(r, 2, m["label"])
+        ws.cell(r, 3, m["current"]).number_format = "#,##0"
+        if m["next"] is not None:
+            ws.cell(r, 4, m["next"]).number_format = "#,##0"
+        else:
+            ws.cell(r, 4, "-")
+        if m["yoy_next"] is not None:
+            yc = ws.cell(r, 5, m["yoy_next"] / 100)
+            yc.number_format = "+0.0%;-0.0%"
+        else:
+            ws.cell(r, 5, "-")
+        ws.cell(r, 6, "방학월 (등락률 산정 제외)" if is_vac else "")
+        for col in range(2, 7):
+            cell = ws.cell(r, col)
+            cell.border = BD
+            cell.font = FN
+            cell.alignment = AC if col != 6 else AL
+            if is_vac:
+                cell.fill = P_VAC
+        r += 1
+
+    # YTD 합계 (방학월 제외)
+    ws.cell(r, 2, f"1~{y2026['ytd_months']}월 합계\n(방학월 제외)")
+    ws.cell(r, 3, y2026["sum_curr_ytd_ex"]).number_format = "#,##0"
+    ws.cell(r, 4, y2026["sum_next_ex"]).number_format = "#,##0"
+    if y2026["ytd_yoy"] is not None:
+        yc = ws.cell(r, 5, y2026["ytd_yoy"] / 100)
+        yc.number_format = "+0.0%;-0.0%"
+    else:
+        ws.cell(r, 5, "-")
+    ws.cell(r, 6, "YTD 실성장률")
+    for col in range(2, 7):
+        cell = ws.cell(r, col)
+        cell.fill = P_GREEN; cell.font = FB; cell.border = BD
+        cell.alignment = AC if col != 6 else AL
+    r += 2
+
+    # ── 연간 추정 산출 내역
+    ws.merge_cells(f"B{r}:F{r}")
+    c = ws.cell(r, 2, f"{next_year}년 연간 추정 산출 내역  (방학월 1·7·12월 제외 기준)")
+    c.fill = P_BLUE; c.font = FH; c.alignment = AC; c.border = BD
+    r += 1
+
+    est_rows = [
+        (f"{year}년 1~{y2026['ytd_months']}월 누적 (방학월 제외)",
+            fmt(y2026["sum_curr_ytd_ex"]) + "원"),
+        (f"{next_year}년 1~{y2026['ytd_months']}월 누적 (방학월 제외)",
+            fmt(y2026["sum_next_ex"]) + "원"),
+        ("① YTD 실성장률  =  (위 두 값의 증감률)",
+            yoy_str(y2026["ytd_yoy"])),
+        (f"{year}년 연간 (방학월 제외)",
+            fmt(annual_ex) + "원"),
+        (f"② 1~{y2026['ytd_months']}월 비중 (당해/전년 평균)",
+            f"{y2026['weight_pct']}%  (당해 {y2026['weight_curr']}% · 전년 {y2026['weight_prev']}%)"),
+        (f"③ {next_year}년 연간 추정 (방학월 제외 환산)",
+            fmt(y2026["est_annual_ex"]) + "원  (" + fmt_eok(y2026["est_annual_ex"]) + ")"),
+        ("④ 추정 등락률  =  (③ vs " + f"{year}년 연간(방학월 제외))",
+            yoy_str(y2026["est_yoy"])),
+        (f"{next_year}년 연간 추정 (방학월 포함, 대시보드 KPI 표시값)",
+            fmt(y2026["est_annual"]) + "원  (" + fmt_eok(y2026["est_annual"]) + ")"),
+    ]
+    for label, val in est_rows:
+        lc = ws.cell(r, 2, label)
+        lc.fill = P_GRAY; lc.font = FB; lc.alignment = AL; lc.border = BD
+        ws.merge_cells(start_row=r, start_column=3, end_row=r, end_column=6)
+        vc = ws.cell(r, 3, val)
+        vc.font = FN; vc.alignment = AL; vc.border = BD
+        for col in range(3, 7):
+            ws.cell(r, col).border = BD
+        r += 1
+
+    r += 1
+    ws.merge_cells(f"B{r}:F{r}")
+    src = ws.cell(r, 2,
+        f"※ 등락률(%)은 방학월(1·7·12월) 매출 변동성 제거를 위해 방학월 제외 기준으로 산정합니다.  "
+        f"|  출처: FoodnBid info.foodnbid.com  |  생성일: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    src.font = FSRC; src.alignment = AL
+
+
 @app.route("/api/excel")
 def api_excel():
-    """ANALYSIS_YEAR(2025) 엑셀 파일 우선 다운로드, 없으면 최신 파일"""
+    """ANALYSIS_YEAR(2025) 엑셀 파일 우선 다운로드, 없으면 최신 파일.
+    {next_year}년(진행중) 데이터가 있으면 최신 데이터로 진행현황 시트를 추가해 제공한다."""
     keyword = request.args.get("keyword", "").strip()
     if not keyword:
         return jsonify({"error": "keyword_required"}), 400
@@ -488,6 +640,36 @@ def api_excel():
                         "message": "엑셀 파일이 없습니다. 스킬을 먼저 실행해 주세요."}), 404
 
     latest = files[-1]
+
+    # {next_year}년(진행중) 데이터가 있으면 최신 데이터로 "진행현황" 시트를 추가한 임시 파일을 제공
+    data = compute_data(keyword)
+    if data and data.get("y2026"):
+        try:
+            import openpyxl, tempfile
+            wb = openpyxl.load_workbook(latest)
+            _add_y2026_sheet(wb, data)
+            tmp = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
+            tmp.close()
+            wb.save(tmp.name)
+            wb.close()
+
+            @after_this_request
+            def _cleanup(response):
+                try:
+                    os.remove(tmp.name)
+                except OSError:
+                    pass
+                return response
+
+            return send_file(
+                tmp.name,
+                as_attachment=True,
+                download_name=os.path.basename(latest),
+                mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+        except Exception as e:
+            print(f"[경고] {data['next_year']}년 진행현황 시트 추가 실패: {e}")
+
     return send_file(
         latest,
         as_attachment=True,
