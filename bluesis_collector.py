@@ -76,6 +76,33 @@ def _parse_standard(std: str) -> str:
     return m.group(0).strip() if m else (std.split()[0] if std else "확인 필요")
 
 
+def _norm(s: str) -> str:
+    """공백·괄호 등을 제거해 블루시스 품명(pname) 비교용으로 정규화."""
+    import re
+    return re.sub(r"[\s\(\)\[\]（）【】·,]+", "", s or "")
+
+
+def _best_match(items, target_name):
+    """target_name(정규화 제품명)과 품명(pname)이 가장 가깝게 일치하는 item을 반환."""
+    target = _norm(target_name)
+    if not target:
+        return None
+    best, best_score = None, None
+    for it in items:
+        pn = _norm(it.get("pname", ""))
+        if not pn:
+            continue
+        if target in pn:
+            score = (2, -(len(pn) - len(target)))
+        elif pn in target:
+            score = (1, -(len(target) - len(pn)))
+        else:
+            continue
+        if best_score is None or score > best_score:
+            best_score, best = score, it
+    return best
+
+
 async def _fetch_img_b64(page, url: str) -> str:
     if not url or "noimage" in url:
         return ""
@@ -97,16 +124,18 @@ async def _fetch_img_b64(page, url: str) -> str:
         return ""
 
 
-async def _run_async(keyword: str, company_names: list) -> dict:
+async def _run_async(keyword: str, product_info: list) -> dict:
     import urllib.parse
     from playwright.async_api import async_playwright
 
-    LOGIN_URL  = "https://market.bluesis.com/web/pc/login.php"
-    SEARCH_URL = (f"https://market.bluesis.com/web/pc/product.php"
-                  f"?from=main&_qr={urllib.parse.quote(keyword)}")
+    LOGIN_URL = "https://market.bluesis.com/web/pc/login.php"
+
+    def _search_url(q: str) -> str:
+        return (f"https://market.bluesis.com/web/pc/product.php"
+                f"?from=main&_qr={urllib.parse.quote(q)}")
 
     empty  = {"kprice": "블루시스 미등록", "standard": "", "ingredients": "", "image_b64": ""}
-    result = {name: dict(empty) for name in company_names}
+    result = {p["rank"]: dict(empty) for p in product_info}
 
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(headless=True)
@@ -119,40 +148,61 @@ async def _run_async(keyword: str, company_names: list) -> dict:
             await page.click("input[value='로그인하기']")
             await page.wait_for_timeout(3000)
 
-            await page.goto(SEARCH_URL, wait_until="domcontentloaded", timeout=15000)
-            await page.wait_for_timeout(2000)
-            try:
-                await page.select_option("#rows", "100")
-            except Exception:
-                pass
+            async def _search(q):
+                await page.goto(_search_url(q), wait_until="domcontentloaded", timeout=15000)
+                await page.wait_for_timeout(2000)
+                try:
+                    await page.select_option("#rows", "100")
+                except Exception:
+                    pass
+                items = []
+                for _ in range(3):
+                    await page.wait_for_timeout(3000)
+                    items = await page.evaluate(_JS_ROWS)
+                    if len(items) >= 50:
+                        break
+                return items
 
-            # 100건 렌더링이 늦을 경우 최대 3회 재시도
-            items = []
-            for _ in range(3):
-                await page.wait_for_timeout(3000)
-                items = await page.evaluate(_JS_ROWS)
-                if len(items) >= 50:
-                    break
+            # ── 전체 키워드 검색 (1차 후보 풀) ──
+            broad_items = await _search(keyword)
 
-            for company in company_names:
-                matches = [it for it in items
-                           if company in it["brand"] or company in it["com"]]
-                if not matches:
+            # ── 제품별 매칭 ──
+            for p in product_info:
+                company = p["company"]
+                pname_q = p.get("product", "")
+
+                best = _best_match(broad_items, pname_q)
+
+                if not best and pname_q:
+                    items = await _search(_norm(pname_q))
+                    best = _best_match(items, pname_q)
+
+                    if not best:
+                        words = pname_q.split()
+                        if len(words) > 1:
+                            items2 = await _search(words[-1])
+                            best = _best_match(items2, pname_q)
+
+                if not best:
+                    matches = [it for it in broad_items
+                               if company in it["brand"] or company in it["com"]]
+                    if matches:
+                        def score(it):
+                            return (it["kprice"] not in ("", "싯가"),
+                                    bool(it.get("description")),
+                                    bool(it.get("imgSrc")) and "noimage" not in it.get("imgSrc", ""))
+                        best = max(matches, key=score)
+
+                if not best:
                     continue
 
-                def score(it):
-                    return (it["kprice"] not in ("", "싯가"),
-                            bool(it.get("description")),
-                            bool(it.get("imgSrc")) and "noimage" not in it.get("imgSrc", ""))
-
-                best = max(matches, key=score)
-                result[company] = {
+                result[p["rank"]] = {
                     "kprice":      best["kprice"] if best["kprice"] not in ("", "싯가") else "싯가",
                     "standard":    _parse_standard(best.get("standard", "")),
                     "ingredients": _parse_ingredients(best.get("description", "")),
                     "image_b64":   await _fetch_img_b64(page, best.get("imgSrc", "")),
                 }
-                print(f"  {company}: {result[company]['kprice']}  규격={result[company]['standard']}")
+                print(f"  {p['rank']}위 {company}/{pname_q}: {result[p['rank']]['kprice']}  규격={result[p['rank']]['standard']}")
         except Exception as e:
             print(f"[bluesis_collector] 오류: {e}")
         finally:
@@ -173,13 +223,12 @@ def run(keyword: str, year: int, log_dir: str) -> int:
     with open(files[-1], encoding="utf-8") as f:
         product_info = json.load(f)
 
-    company_names = [p["company"] for p in product_info]
-    print(f"[bluesis_collector] {keyword} {len(company_names)}개사 수집 시작...")
+    print(f"[bluesis_collector] {keyword} {len(product_info)}개 제품 수집 시작...")
 
-    details = asyncio.run(_run_async(keyword, company_names))
+    details = asyncio.run(_run_async(keyword, product_info))
 
     for p in product_info:
-        d = details.get(p["company"], {})
+        d = details.get(p["rank"], {})
         if d.get("kprice", "블루시스 미등록") == "블루시스 미등록" and not d.get("ingredients"):
             continue  # 이번 수집에서 매칭 실패 → 기존 값 유지 (재수집이 기존 데이터를 덮어쓰지 않도록)
         p["bluesis_kprice"]      = d.get("kprice",      "블루시스 미등록")

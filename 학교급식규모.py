@@ -460,31 +460,80 @@ async def _fetch_img_b64(page, img_url: str) -> str:
         return ""
 
 
+def _bluesis_norm(s: str) -> str:
+    """공백·괄호 등을 제거해 블루시스 품명(pname) 비교용으로 정규화."""
+    import re as _re
+    return _re.sub(r"[\s\(\)\[\]（）【】·,]+", "", s or "")
+
+
+def _bluesis_best_match(items: list, target_name: str):
+    """target_name(정규화 제품명)과 품명(pname)이 가장 가깝게 일치하는 item을 반환.
+
+    포함 관계(어느 한쪽이 다른쪽의 부분문자열)인 항목 중,
+    길이 차이가 가장 작은(=가장 구체적으로 일치하는) 항목을 우선한다.
+    """
+    target = _bluesis_norm(target_name)
+    if not target:
+        return None
+    best, best_score = None, None
+    for it in items:
+        pn = _bluesis_norm(it.get("pname", ""))
+        if not pn:
+            continue
+        if target in pn:
+            score = (2, -(len(pn) - len(target)))
+        elif pn in target:
+            score = (1, -(len(target) - len(pn)))
+        else:
+            continue
+        if best_score is None or score > best_score:
+            best_score, best = score, it
+    return best
+
+
 async def collect_bluesis_details(keyword: str, product_info: list) -> dict:
     """
-    블루시스(market.bluesis.com)에 로그인하여 키워드 검색 후
-    경쟁사 TOP5의 학교kg단가·규격·원재료·제품이미지를 수집합니다.
+    블루시스(market.bluesis.com)에 로그인하여 경쟁사 TOP5 각 제품의
+    학교kg단가·규격·원재료·제품이미지를 수집합니다.
 
     - 로그인: login.php → #blue_uid / #pwd / input[value='로그인하기']
-    - 검색: product.php?from=main&_qr={keyword}
-    - 건수: #rows select → 100건
-    - 파싱: .w_brand 부모 컨테이너 기준, kprice/standard/description/이미지 추출
-    - 매칭: product_info의 company(브랜드/업체명)와 일치하는 제품 중
-      가격·설명·이미지가 있는 항목 우선 선택
+    - 검색: product.php?from=main&_qr={검색어}, 건수: #rows select → 100건
+    - 파싱: .w_brand 부모 컨테이너 기준, pname/kprice/standard/description/이미지 추출
+    - 매칭 (제품별로 순차 적용):
+      1) 전체 키워드 검색 결과에서 품명(pname)이 FoodnBid 정규화 제품명과 일치
+      2) 정규화 제품명으로 직접 재검색 후 품명 일치
+      3) 제품명 마지막 단어로 검색범위를 넓혀 품명 일치
+      4) (최후) 업체명(브랜드/유통사)이 일치하는 항목 중 정보가 풍부한 항목
 
     Returns:
-        {company: {kprice, standard, ingredients, image_b64}} 딕셔너리
+        {rank: {kprice, standard, ingredients, image_b64}} 딕셔너리
     """
     import urllib.parse
-    company_names = [p["company"] for p in product_info]
     empty   = {"kprice": "블루시스 미등록", "standard": "", "ingredients": "", "image_b64": ""}
-    details = {name: dict(empty) for name in company_names}
+    details = {p["rank"]: dict(empty) for p in product_info}
 
-    LOGIN_URL  = "https://market.bluesis.com/web/pc/login.php"
-    SEARCH_URL = (
-        "https://market.bluesis.com/web/pc/product.php"
-        f"?from=main&_qr={urllib.parse.quote(keyword)}"
-    )
+    LOGIN_URL = "https://market.bluesis.com/web/pc/login.php"
+
+    def _search_url(q: str) -> str:
+        return (
+            "https://market.bluesis.com/web/pc/product.php"
+            f"?from=main&_qr={urllib.parse.quote(q)}"
+        )
+
+    async def _search(page, q: str) -> list:
+        await page.goto(_search_url(q), wait_until="domcontentloaded", timeout=15000)
+        await page.wait_for_timeout(2000)
+        try:
+            await page.select_option("#rows", "100")
+        except Exception:
+            pass
+        items = []
+        for _ in range(3):
+            await page.wait_for_timeout(3000)
+            items = await page.evaluate(_BLUESIS_JS_ROWS)
+            if len(items) >= 50:
+                break
+        return items
 
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(headless=True)
@@ -502,54 +551,60 @@ async def collect_bluesis_details(keyword: str, product_info: list) -> dict:
             logged_in = "로그아웃" in await page.evaluate("document.body.innerText")
             print(f"  [블루시스] {'로그인 성공' if logged_in else '로그인 상태 불명확'}")
 
-            # ── 검색 페이지 이동 + 100건 로드 ──
-            await page.goto(SEARCH_URL, wait_until="domcontentloaded", timeout=15000)
-            await page.wait_for_timeout(2000)
-            try:
-                await page.select_option("#rows", "100")
-            except Exception:
-                pass
-            print(f"  [블루시스] '{keyword}' 검색 완료")
+            # ── 전체 키워드 검색 (1차 후보 풀) ──
+            broad_items = await _search(page, keyword)
+            print(f"  [블루시스] '{keyword}' 검색 {len(broad_items)}건")
 
-            # ── 전체 제품 파싱 (100건 렌더링이 늦을 경우 최대 3회 재시도) ──
-            items = []
-            for attempt in range(3):
-                await page.wait_for_timeout(3000)
-                items = await page.evaluate(_BLUESIS_JS_ROWS)
-                if len(items) >= 50:
-                    break
-            print(f"  [블루시스] {len(items)}건 파싱 ({attempt + 1}회 시도)")
+            # ── 제품별 매칭 ──
+            for p in product_info:
+                company = p["company"]
+                pname_q = p.get("product", "")
 
-            # ── 업체별 매칭 ──
-            for company in company_names:
-                matches = [
-                    it for it in items
-                    if company in it["brand"] or company in it["com"]
-                ]
-                if not matches:
-                    print(f"  [블루시스] {company}: 미등록")
+                best = _bluesis_best_match(broad_items, pname_q)
+
+                if not best and pname_q:
+                    items = await _search(page, _bluesis_norm(pname_q))
+                    print(f"  [블루시스] '{pname_q}' 직접검색 {len(items)}건")
+                    best = _bluesis_best_match(items, pname_q)
+
+                    if not best:
+                        words = pname_q.split()
+                        if len(words) > 1:
+                            items2 = await _search(page, words[-1])
+                            print(f"  [블루시스] '{words[-1]}' 확장검색 {len(items2)}건")
+                            best = _bluesis_best_match(items2, pname_q)
+
+                if not best:
+                    # 최후: 업체명(브랜드/유통사) 일치 항목 중 정보가 풍부한 항목
+                    matches = [
+                        it for it in broad_items
+                        if company in it["brand"] or company in it["com"]
+                    ]
+                    if matches:
+                        def score(it):
+                            has_price = it["kprice"] not in ("", "싯가")
+                            has_desc  = bool(it.get("description"))
+                            has_img   = bool(it.get("imgSrc")) and "noimage" not in it.get("imgSrc", "")
+                            return (has_price, has_desc, has_img)
+                        best = max(matches, key=score)
+
+                if not best:
+                    print(f"  [블루시스] {p['rank']}위 {company}/{pname_q}: 미등록")
                     continue
 
-                def score(it):
-                    has_price = it["kprice"] not in ("", "싯가")
-                    has_desc  = bool(it.get("description"))
-                    has_img   = bool(it.get("imgSrc")) and "noimage" not in it.get("imgSrc", "")
-                    return (has_price, has_desc, has_img)
-
-                best = max(matches, key=score)
                 kprice      = best["kprice"] if best["kprice"] not in ("", "싯가") else "싯가"
                 standard    = parse_bluesis_standard(best.get("standard", ""))
                 ingredients = parse_top_ingredients(best.get("description", ""))
                 image_b64   = await _fetch_img_b64(page, best.get("imgSrc", ""))
 
-                details[company] = {
+                details[p["rank"]] = {
                     "kprice":      kprice,
                     "standard":    standard,
                     "ingredients": ingredients,
                     "image_b64":   image_b64,
                 }
                 has_img = "✓" if image_b64 else "✗"
-                print(f"  [블루시스] {company}: {kprice}  규격={standard}  이미지={has_img}  ({best['pname'][:40]})")
+                print(f"  [블루시스] {p['rank']}위 {company}/{pname_q}: {kprice}  규격={standard}  이미지={has_img}  ({best['pname'][:40]})")
 
         except Exception as e:
             print(f"  [블루시스] 수집 오류: {e}")
@@ -1222,7 +1277,7 @@ def add_product_sheet(wb, keyword: str, year: int, product_info: list, bluesis_d
 
     # ── 4~10행 데이터
     def make_rows(p):
-        bd = (bluesis_details or {}).get(p["company"], {})
+        bd = (bluesis_details or {}).get(p["rank"], {})
         kprice      = bd.get("kprice",      p.get("bluesis_kprice",      "직접 확인 필요"))
         standard    = bd.get("standard",    p.get("bluesis_standard",    "확인 필요"))
         ingredients = bd.get("ingredients", p.get("bluesis_ingredients", ""))
@@ -1354,7 +1409,7 @@ def main():
 
         # product_info에 블루시스 데이터 병합 후 JSON 저장
         for p in product_info:
-            d = bluesis_details.get(p["company"], {})
+            d = bluesis_details.get(p["rank"], {})
             p["bluesis_kprice"]      = d.get("kprice", "블루시스 미등록")
             p["bluesis_standard"]    = d.get("standard", "")
             p["bluesis_ingredients"] = d.get("ingredients", "")
