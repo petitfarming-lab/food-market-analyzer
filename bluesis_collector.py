@@ -123,11 +123,16 @@ async def _run_async(keyword: str, company_names: list) -> dict:
             await page.wait_for_timeout(2000)
             try:
                 await page.select_option("#rows", "100")
-                await page.wait_for_timeout(3000)
             except Exception:
                 pass
 
-            items = await page.evaluate(_JS_ROWS)
+            # 100건 렌더링이 늦을 경우 최대 3회 재시도
+            items = []
+            for _ in range(3):
+                await page.wait_for_timeout(3000)
+                items = await page.evaluate(_JS_ROWS)
+                if len(items) >= 50:
+                    break
 
             for company in company_names:
                 matches = [it for it in items
@@ -175,6 +180,8 @@ def run(keyword: str, year: int, log_dir: str) -> int:
 
     for p in product_info:
         d = details.get(p["company"], {})
+        if d.get("kprice", "블루시스 미등록") == "블루시스 미등록" and not d.get("ingredients"):
+            continue  # 이번 수집에서 매칭 실패 → 기존 값 유지 (재수집이 기존 데이터를 덮어쓰지 않도록)
         p["bluesis_kprice"]      = d.get("kprice",      "블루시스 미등록")
         p["bluesis_standard"]    = d.get("standard",    "")
         p["bluesis_ingredients"] = d.get("ingredients", "")

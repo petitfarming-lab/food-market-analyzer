@@ -110,8 +110,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI','M
 .kpi-stat{flex:1;min-width:128px;background:rgba(31,78,121,.05);border-radius:11px;
   padding:7px 12px;display:flex;flex-direction:column;gap:2px;}
 .kpi-stat.help{cursor:help;}
-.kpi-stat-lbl{font-size:.65rem;color:#9a9a9e;font-weight:700;letter-spacing:.02em;}
-.kpi-stat-val{font-size:1.02rem;font-weight:700;color:#1d1d1f;}
+.kpi-stat-lbl{font-size:.72rem;color:#9a9a9e;font-weight:700;letter-spacing:.02em;}
+.kpi-stat-val{font-size:1.15rem;font-weight:700;color:#1d1d1f;}
+
+/* KPI 카드 2~4 - k1과 동일한 가시성으로, 설명/산식은 하단에 배치 */
+.kpi:not(.k1){flex-direction:column;align-items:flex-start;justify-content:center;gap:8px;}
+.kpi:not(.k1) .kpi-lbl{font-size:.72rem;}
+.kpi:not(.k1) .kpi-val{font-size:1.85rem;}
+.kpi:not(.k1) .kpi-subs{align-items:flex-start;text-align:left;width:100%;gap:3px;}
+.kpi:not(.k1) .kpi-sub{font-size:.78rem;}
 
 /* 탭 */
 .tab-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;flex-wrap:wrap;}
@@ -249,7 +256,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI','M
   <div class="hdr-row">
     <div>
       <div class="hdr-logo">🍱 학교급식 <span>시장규모</span></div>
-      <div style="color:rgba(255,255,255,.45);font-size:.68rem;margin-top:1px;letter-spacing:.3px;">v1.4 · 2026-06-11</div>
+      <div style="color:rgba(255,255,255,.45);font-size:.68rem;margin-top:1px;letter-spacing:.3px;">v1.5 · 2026-06-12</div>
     </div>
     <div class="srch-box">
       <div class="srch-field">
@@ -567,6 +574,7 @@ function startPoll() {
         if (r.ok) {
           G = await r.json(); render(); showPage('dash'); loadPills();
           if ($('btn-recollect')) $('btn-recollect').disabled = false;
+          if (G.bluesis_collecting) startBluesisPoll(curKw);
         } else {
           alert('수집은 완료됐지만 데이터를 찾지 못했습니다. 키워드를 확인 후 다시 시도해 주세요.');
           showPage('home');

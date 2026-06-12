@@ -507,14 +507,18 @@ async def collect_bluesis_details(keyword: str, product_info: list) -> dict:
             await page.wait_for_timeout(2000)
             try:
                 await page.select_option("#rows", "100")
-                await page.wait_for_timeout(3000)
             except Exception:
                 pass
             print(f"  [블루시스] '{keyword}' 검색 완료")
 
-            # ── 전체 제품 파싱 ──
-            items = await page.evaluate(_BLUESIS_JS_ROWS)
-            print(f"  [블루시스] {len(items)}건 파싱")
+            # ── 전체 제품 파싱 (100건 렌더링이 늦을 경우 최대 3회 재시도) ──
+            items = []
+            for attempt in range(3):
+                await page.wait_for_timeout(3000)
+                items = await page.evaluate(_BLUESIS_JS_ROWS)
+                if len(items) >= 50:
+                    break
+            print(f"  [블루시스] {len(items)}건 파싱 ({attempt + 1}회 시도)")
 
             # ── 업체별 매칭 ──
             for company in company_names:
